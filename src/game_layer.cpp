@@ -62,8 +62,9 @@ void GameLayer::DrawScene() {
 
   // Placeholder scene content — replace with real game logic.
   engine::DrawText("enigmash — raylib + ImGui scaffold", Vector2{16, 16}, 24, RAYWHITE);
+  engine::DrawText("应无所住，而生其心。", Vector2{16, 48}, 24, Color{220, 220, 240, 255});
   engine::DrawText(TextFormat("time = %.1fs    viewport = %dx%d", time_, target_w_, target_h_),
-                   Vector2{16, 48}, 18, Color{180, 180, 200, 255});
+                   Vector2{16, 84}, 18, Color{180, 180, 200, 255});
 
   EndTextureMode();
 }

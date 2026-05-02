@@ -11,6 +11,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
+#include "engine/text.h"
+
 ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
 
 void ImGuiLayer::BindGamePanelToggles(bool* viewport, bool* hierarchy, bool* console, bool* viewport_no_titlebar) {
@@ -193,13 +195,22 @@ void ImGuiLayer::LoadFonts(float dpi_scale) {
   // ImGui rasterises at the requested pt size — multiply by DPI scale so the
   // glyphs are sharp on HiDPI. raylib draws (engine::text) follow the same
   // rule, so a "size 18" string renders the same height in both worlds.
+  //
+  // Mirror engine::text's font + glyph-range choice based on the active
+  // codepoint set, so a Chinese string renders identically whether it goes
+  // through DrawTextEx or ImGui::Text.
   ImGuiIO& io = ImGui::GetIO();
   const float font_size = kImGuiBaseFontSize * dpi_scale;
-  const std::filesystem::path regular = std::filesystem::path{"assets/fonts/noto/NotoSans-Regular.ttf"};
+  const bool cjk = (engine::GetCodepointSet() == engine::CodepointSet::AsciiPlusCJK);
+  const std::filesystem::path path =
+      cjk ? std::filesystem::path{"assets/fonts/noto/NotoSansSC-Regular.ttf"}
+          : std::filesystem::path{"assets/fonts/noto/NotoSans-Regular.ttf"};
+  const ImWchar* ranges =
+      cjk ? io.Fonts->GetGlyphRangesChineseFull() : io.Fonts->GetGlyphRangesDefault();
 
   io.Fonts->Clear();
-  if (std::filesystem::exists(regular)) {
-    io.FontDefault = io.Fonts->AddFontFromFileTTF(regular.string().c_str(), font_size);
+  if (std::filesystem::exists(path)) {
+    io.FontDefault = io.Fonts->AddFontFromFileTTF(path.string().c_str(), font_size, nullptr, ranges);
   }
   if (io.FontDefault == nullptr) {
     io.FontDefault = io.Fonts->AddFontDefault();

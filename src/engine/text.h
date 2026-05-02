@@ -49,6 +49,11 @@ const Font& GetFont(int logical_size);
 // RT) read this for things like spacing.
 float UiScale();
 
+// Currently loaded codepoint set. Defaults to AsciiOnly until LoadFonts
+// is called. ImGuiLayer reads this to mirror our font / glyph-range
+// choice so raylib + ImGui stay in sync.
+CodepointSet GetCodepointSet();
+
 // -----------------------------------------------------------------------------: drawing
 //
 // All Draw* / Measure below take *logical* sizes (UI points). They wrap

@@ -62,9 +62,9 @@ void Game::Init() {
   SetTargetFPS(kTargetFps);
   InitAudioDevice();
 
-  // Pre-load Noto atlases so HUD text uses the same face as ImGui. ASCII-
-  // only for now — switch to AsciiPlusCJK once we ship localized strings.
-  engine::LoadFonts(engine::CodepointSet::AsciiOnly);
+  // Pre-load Noto atlases so HUD text uses the same face as ImGui. Switch
+  // to AsciiOnly to skip the ~21k Han glyphs if no localized strings ship.
+  engine::LoadFonts(engine::CodepointSet::AsciiPlusCJK);
 
   auto imgui_layer = std::make_unique<ImGuiLayer>();
   auto game_layer = std::make_unique<GameLayer>();
