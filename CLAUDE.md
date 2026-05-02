@@ -16,4 +16,10 @@ basically using google c++ code style, but line witdh can be 120 if necessary.
 
 git commit message must be simple.
 
+section comment use this format
+
+```cpp
+- -----------------------------------------------------------------------------: context
+```
+
 # CLAUDE's Notes
