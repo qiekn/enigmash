@@ -4,5 +4,8 @@ build/
 /imgui.ini
 __pycache__/
 
+# mdBook build output
+/docs/book/
+
 # temp
 /.claude/
