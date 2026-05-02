@@ -1,0 +1,8 @@
+build/
+.cache/
+/window.state
+/imgui.ini
+__pycache__/
+
+# temp
+/.claude/
