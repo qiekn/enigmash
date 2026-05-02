@@ -1,0 +1,3 @@
+[submodule "refs/jacklance-puzzlescript"]
+	path = refs/jacklance-puzzlescript
+	url = https://github.com/JackLance/PuzzleScript
