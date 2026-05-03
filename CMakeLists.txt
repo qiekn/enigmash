@@ -86,6 +86,7 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/scenes/achievements_scene.cpp
   src/scenes/credits_scene.cpp
+  src/scenes/editor_panels.cpp
   src/scenes/end_scene.cpp
   src/scenes/gallery_scene.cpp
   src/scenes/gameplay_scene.cpp

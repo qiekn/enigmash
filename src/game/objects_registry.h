@@ -56,6 +56,12 @@ class ObjectsRegistry {
   const ObjectDef* Find(const std::string& name) const;
   ObjectDef* Find(const std::string& name);
 
+  // Reverse lookup by SpriteCache slot. sprite_id is assigned 1:1 with
+  // def index in LoadFromFile, so this is just bounds-checked indexing.
+  const ObjectDef* FindBySpriteId(uint32_t id) const {
+    return id < defs_.size() ? &defs_[id] : nullptr;
+  }
+
   const std::vector<ObjectDef>& All() const { return defs_; }
   std::vector<ObjectDef>& All() { return defs_; }
 

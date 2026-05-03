@@ -194,9 +194,33 @@ void GameplayScene::OnRender(int w, int h) {
   game::systems::DrawTiles(*world_);
   EndMode2D();
 
-  engine::DrawText("M6 — Z undo, R checkpoint, walk onto goal to win", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
+  engine::DrawText("M7 — editor: Catalog / Painter / Inspector + Reload",
+                   Vector2{16.0f, 16.0f}, 20, RAYWHITE);
   engine::DrawText("press esc / p to pause", Vector2{16.0f, h - 30.0f}, 16,
                    Color{140, 140, 160, 200});
+}
+
+void GameplayScene::OnImGuiRender() {
+  if (!world_) return;
+  bool reload = false;
+  editor::DrawMenu(editor_, *world_, reload);
+  editor::DrawCatalog(editor_, *world_);
+  editor::DrawPainter(editor_, *world_);
+  editor::DrawInspector(editor_, *world_);
+  if (reload) ReloadFromJson();
+}
+
+void GameplayScene::ReloadFromJson() {
+  // Drop GPU textures + registry, then rebuild from JSON. Undo /
+  // checkpoint history are wiped: any state captured against the old
+  // entity ids would be invalid against the new registry.
+  if (world_) world_->Sprites().Unload();
+  world_ = std::make_unique<game::World>();
+  if (!world_->LoadObjects("assets/data/objects.json")) return;
+  world_->Sprites().EnsureLoaded();
+  if (!world_->LoadWorld("assets/data/world/index.json")) return;
+  undo_.Clear();
+  SaveCheckpoint();
 }
 
 }  // namespace scenes
