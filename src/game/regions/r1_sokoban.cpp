@@ -4,32 +4,10 @@
 #include <vector>
 
 #include "game/components.h"
+#include "game/systems/spatial.h"
 #include "game/world.h"
 
 namespace game::regions {
-
-namespace {
-
-bool InBounds(const World& w, int x, int y) {
-  const auto b = w.GetBounds();
-  return x >= b.min_x && x < b.max_x && y >= b.min_y && y < b.max_y;
-}
-
-bool HasStopAt(const entt::registry& reg, int x, int y) {
-  for (auto [e, c] : reg.view<const Cell, const Stop>().each()) {
-    if (c.x == x && c.y == y) return true;
-  }
-  return false;
-}
-
-entt::entity FindPushableAt(const entt::registry& reg, int x, int y) {
-  for (auto [e, c] : reg.view<const Cell, const Pushable>().each()) {
-    if (c.x == x && c.y == y) return e;
-  }
-  return entt::null;
-}
-
-}  // namespace
 
 void Sokoban(World& w, Direction dir) {
   if (dir == Direction::None) return;
@@ -45,21 +23,16 @@ void Sokoban(World& w, Direction dir) {
     int tx = c.x + dx;
     int ty = c.y + dy;
     while (true) {
-      if (!InBounds(w, tx, ty) || HasStopAt(reg, tx, ty)) {
+      if (!systems::InBounds(w, tx, ty) || systems::HasStopAt(reg, tx, ty)) {
         // Blocked before we even consider the chain — abort.
-        chain.clear();
         return;
       }
-      entt::entity box = FindPushableAt(reg, tx, ty);
+      entt::entity box = systems::FindPushableAt(reg, tx, ty);
       if (box == entt::null) break;
       chain.push_back(box);
       tx += dx;
       ty += dy;
     }
-    // (tx, ty) is the cell *past* the last box in the chain (or the
-    // player's destination if no boxes). Already known to be in-bounds
-    // and not Stop from the loop above.
-    //
     // Shift back-to-front so we don't trample positions while iterating.
     for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
       auto& bc = reg.get<Cell>(*it);

@@ -42,11 +42,22 @@ entt::entity World::Spawn(const std::string& name, int x, int y) {
 
 namespace {
 
-// Loads one region file: { width, height, background?, cells: [[[name,...],...]...] }.
+Region RegionFromString(const std::string& s) {
+  if (s == "r1_sokoban") return Region::R1Sokoban;
+  if (s == "r2_gravity") return Region::R2Gravity;
+  if (s == "r3_chain")   return Region::R3Chain;
+  if (s == "r4_shoot")   return Region::R4Shoot;
+  if (s == "r5_snake")   return Region::R5Snake;
+  if (s == "r6_cluster") return Region::R6Cluster;
+  return Region::None;
+}
+
+// Loads one region file: { width, height, region?, background?, cells: [[[name,...],...]...] }.
 // All entities are emplaced at (origin_x + cx, origin_y + cy). Returns
-// true on success; updates `out_w` / `out_h` with the region's bounds.
+// true on success; updates `out_w` / `out_h` with the region's bounds
+// and `out_kind` with the parsed region mechanic (None if unspecified).
 bool LoadRegionFile(World& world, const std::string& path, int origin_x, int origin_y,
-                    int& out_w, int& out_h) {
+                    int& out_w, int& out_h, Region& out_kind) {
   std::ifstream in(path);
   if (!in) {
     TraceLog(LOG_ERROR, "World::LoadWorld: cannot open region '%s'", path.c_str());
@@ -63,6 +74,8 @@ bool LoadRegionFile(World& world, const std::string& path, int origin_x, int ori
   const int w = j.value("width", 0);
   const int h = j.value("height", 0);
   const std::string bg = j.value("background", std::string{});
+  const std::string region_str = j.value("region", std::string{});
+  out_kind = RegionFromString(region_str);
   const auto cells = j.find("cells");
   if (w <= 0 || h <= 0 || cells == j.end() || !cells->is_array()) {
     TraceLog(LOG_ERROR, "World::LoadWorld: '%s' missing width/height/cells", path.c_str());
@@ -113,6 +126,7 @@ bool World::LoadWorld(const std::string& path) {
   std::filesystem::path base = std::filesystem::path(path).parent_path();
 
   bounds_ = Bounds{0, 0, 0, 0};
+  regions_.clear();
   bool any = false;
 
   for (const auto& r : *regions) {
@@ -126,7 +140,23 @@ bool World::LoadWorld(const std::string& path) {
     }
     const std::string fpath = (base / file_it->get<std::string>()).string();
     int w = 0, h = 0;
-    if (!LoadRegionFile(*this, fpath, ox, oy, w, h)) continue;
+    Region kind = Region::None;
+    if (!LoadRegionFile(*this, fpath, ox, oy, w, h, kind)) continue;
+
+    // Index-level region kind override wins over the file-level one so
+    // the same region body can be reused under a different mechanic.
+    if (auto it = r.find("region"); it != r.end() && it->is_string()) {
+      kind = RegionFromString(it->get<std::string>());
+    }
+
+    RegionInfo info;
+    info.id = r.value("id", std::string{});
+    info.kind = kind;
+    info.min_x = ox;
+    info.min_y = oy;
+    info.max_x = ox + w;
+    info.max_y = oy + h;
+    regions_.push_back(std::move(info));
 
     if (!any) {
       bounds_ = Bounds{ox, oy, ox + w, oy + h};

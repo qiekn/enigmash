@@ -66,10 +66,14 @@ add_executable(${PROJECT_NAME}
   src/engine/text.cpp
   src/game/input.cpp
   src/game/objects_registry.cpp
+  src/game/regions/dispatch.cpp
   src/game/regions/r1_sokoban.cpp
+  src/game/regions/r2_gravity.cpp
+  src/game/regions/r3_chain.cpp
   src/game/sprite_cache.cpp
   src/game/systems/render_interp.cpp
   src/game/systems/render_tiles.cpp
+  src/game/systems/spatial.cpp
   src/game/world.cpp
   src/game.cpp
   src/game_layer.cpp

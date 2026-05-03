@@ -6,8 +6,8 @@
 namespace game::systems {
 
 namespace {
-constexpr float kStiffness = 180.0f;
-constexpr float kDamping   = 22.0f;
+constexpr float kStiffness = 350.0f;
+constexpr float kDamping   = 32.0f;
 // Cap dt so a long stall (alt-tab) doesn't catapult VisualXY past Cell.
 constexpr float kMaxDt = 1.0f / 30.0f;
 }  // namespace

@@ -4,7 +4,9 @@
 #include <raylib.h>
 
 #include <string>
+#include <vector>
 
+#include "game/components.h"
 #include "game/objects_registry.h"
 #include "game/sprite_cache.h"
 
@@ -46,6 +48,16 @@ class World {
   struct Bounds { int min_x, min_y, max_x, max_y; };
   Bounds GetBounds() const { return bounds_; }
 
+  // Per-region metadata stitched together by LoadWorld. Each entry stores
+  // its world-space bounding box (origin + size) plus the gameplay
+  // mechanic that governs it. RegionUnderPlayer scans this list.
+  struct RegionInfo {
+    std::string id;
+    Region kind = Region::None;
+    int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+  };
+  const std::vector<RegionInfo>& Regions() const { return regions_; }
+
   entt::registry& Registry() { return reg_; }
   const entt::registry& Registry() const { return reg_; }
 
@@ -60,6 +72,7 @@ class World {
   ObjectsRegistry objects_;
   SpriteCache sprites_;
   Bounds bounds_{0, 0, 0, 0};
+  std::vector<RegionInfo> regions_;
 };
 
 }  // namespace game

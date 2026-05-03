@@ -1,6 +1,8 @@
 {
-  "_comment": "Top-level world index. Each region declares its origin in world-space (cells) and the file containing its grid. Loader stitches them into one registry; origins let regions sit side by side without renumbering coords inside region files.",
+  "_comment": "Top-level world index. Each region declares its origin in world-space (cells) and the file containing its grid. Regions are laid out side-by-side with a 2-cell gap so the camera can pan between them while the editor / debug warps (F1/F2/F3) jump the player.",
   "regions": [
-    { "id": "r1", "origin": [0, 0], "file": "r1.json" }
+    { "id": "r1", "origin": [0, 0],  "file": "r1.json" },
+    { "id": "r2", "origin": [9, 0],  "file": "r2.json" },
+    { "id": "r3", "origin": [18, 0], "file": "r3.json" }
   ]
 }

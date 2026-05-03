@@ -1,0 +1,16 @@
+{
+  "_comment": "Region 2 — gravity. Boxes fall every tick; player can shove them into walls and watch them stack. Layout: tall room with a single starting box that falls onto the floor.",
+  "region": "r2_gravity",
+  "width": 7,
+  "height": 7,
+  "background": "floor",
+  "cells": [
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]],
+    [["wall"], [],       [],       ["box"],  [],       [],       ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], [],       [],       [],       [],       ["box"],  ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]]
+  ]
+}

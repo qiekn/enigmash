@@ -1,5 +1,6 @@
 {
   "_comment": "Per-region grid. width/height define the bounding box. 'cells' is row-major (cells[y][x]); each cell is a stack of object names from objects.json drawn bottom-up by ZOrder. Floor entries can be omitted — they're added implicitly via 'background'.",
+  "region": "r1_sokoban",
   "width": 7,
   "height": 5,
   "background": "floor",

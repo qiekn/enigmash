@@ -1,0 +1,14 @@
+{
+  "_comment": "Region 3 — chain. Adjacent pushables move as a connected component. Layout: a 2x2 cluster of boxes the player must push past or around.",
+  "region": "r3_chain",
+  "width": 7,
+  "height": 5,
+  "background": "floor",
+  "cells": [
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]],
+    [["wall"], [],       [],       ["box"],  ["box"],  [],       ["wall"]],
+    [["wall"], [],       [],       ["box"],  ["box"],  ["goal"], ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]]
+  ]
+}
