@@ -2,11 +2,13 @@
 
 #include <raylib.h>
 
+#include "engine/scene_manager.h"
 #include "layer.h"
 
-// Owns the offscreen RenderTexture2D the game scene draws into, then displays
-// it inside a "Viewport" ImGui window. Hosts placeholder Hierarchy / Console
-// panels too so the default dock layout has something in every region.
+// Owns the offscreen RenderTexture2D the game scene draws into and hosts
+// a SceneManager that drives the actual logo / menu / gameplay flow.
+// Also keeps the placeholder Hierarchy / Console ImGui panels so the
+// default dock layout has something in every region.
 class GameLayer : public Layer {
  public:
   GameLayer();
@@ -24,7 +26,9 @@ class GameLayer : public Layer {
   bool* ViewportNoTitleBarPtr() { return &viewport_no_titlebar_; }
 
   // Push the active scene background color (typically the ImGui theme's
-  // background, sourced by Game::Render). Cheap to call every frame.
+  // background, sourced by Game::Render). The scene itself usually
+  // ClearBackground()s with its own palette, so this is mostly for the
+  // surrounding ImGui chrome.
   void SetBackgroundColor(Color c) { background_color_ = c; }
 
   // Exposed for Game::Render's "ImGui hidden = scene fullscreen" path.
@@ -32,9 +36,12 @@ class GameLayer : public Layer {
   const RenderTexture2D& Target() const { return target_; }
   bool TargetValid() const { return target_valid_; }
 
+  // Polled by Game::Run to break out of the main loop when a scene
+  // (typically the main menu's Quit button) has asked to terminate.
+  bool QuitRequested() const { return scenes_.QuitRequested(); }
+
  private:
   void EnsureTarget(int w, int h);
-  void DrawScene();
   void DrawViewportPanel();
   void DrawHierarchyPanel();
   void DrawConsolePanel();
@@ -49,7 +56,7 @@ class GameLayer : public Layer {
   bool show_console_ = true;
   bool viewport_no_titlebar_ = false;
 
-  // Demo scene state — replace with real game state.
-  float time_ = 0.0f;
-  Color background_color_{30, 30, 46, 255};  // overridden per-frame by Game
+  Color background_color_{30, 30, 46, 255};
+
+  engine::SceneManager scenes_;
 };

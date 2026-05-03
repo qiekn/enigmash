@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <rlgl.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <memory>
 
@@ -10,6 +11,7 @@
 
 #include "engine/text.h"
 #include "game_layer.h"
+#include "theme.h"
 
 namespace {
 constexpr const char* kWindowStateFile = "window.state";
@@ -46,7 +48,7 @@ void SaveWindowState() {
 
 void Game::Run() {
   Init();
-  while (!WindowShouldClose()) {
+  while (!WindowShouldClose() && !game_layer_->QuitRequested()) {
     Tick();
   }
   Shutdown();
@@ -60,6 +62,13 @@ void Game::Init() {
   InitWindow(state.w, state.h, "enigmash");
   SetWindowPosition(state.x, state.y);
   SetTargetFPS(kTargetFps);
+
+  // Paint the logo immediately. The OS shows whatever's on the backbuffer
+  // after the first SwapBuffers, so doing this BEFORE the slow loads
+  // below means the user sees pixels straight away instead of the
+  // ~1-2 s of black-window-feels-frozen during font + ImGui init.
+  ShowSplashFrame();
+
   InitAudioDevice();
 
   // Pre-load Noto atlases so HUD text uses the same face as ImGui. Switch
@@ -171,4 +180,39 @@ void Game::Shutdown() {
   engine::UnloadFonts();  // free font atlases (still need GL context)
   CloseAudioDevice();
   CloseWindow();
+}
+
+void Game::ShowSplashFrame() {
+  // Paints one frame using only raylib core APIs (no engine::text, no
+  // ImGui — those aren't initialised yet). Texture load is fast (<10ms);
+  // the surrounding BeginDrawing/EndDrawing pair triggers the actual GL
+  // SwapBuffers so the OS has pixels to composite while Init() blocks
+  // on the font / ImGui setup that follows.
+  Texture2D logo = LoadTexture("assets/textures/jl.png");
+  const bool valid = (logo.id != 0 && logo.width > 0 && logo.height > 0);
+  if (valid) SetTextureFilter(logo, TEXTURE_FILTER_BILINEAR);
+
+  BeginDrawing();
+  ClearBackground(theme::kBackground);
+
+  if (valid) {
+    // Fit the logo inside the window with margin (same math used everywhere
+    // we display jl.png, so behaviour stays consistent).
+    const int sw = GetScreenWidth();
+    const int sh = GetScreenHeight();
+    constexpr float kMargin = 0.7f;
+    const float scale = std::min(sw * kMargin / logo.width, sh * kMargin / logo.height);
+    const float dw = logo.width * scale;
+    const float dh = logo.height * scale;
+    const float dx = (sw - dw) * 0.5f;
+    const float dy = (sh - dh) * 0.5f;
+    DrawTexturePro(logo,
+                   Rectangle{0, 0, (float)logo.width, (float)logo.height},
+                   Rectangle{dx, dy, dw, dh},
+                   Vector2{0, 0}, 0.0f, WHITE);
+  }
+
+  EndDrawing();
+
+  if (valid) UnloadTexture(logo);
 }

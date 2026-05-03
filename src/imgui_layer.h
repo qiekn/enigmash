@@ -48,6 +48,7 @@ class ImGuiLayer : public Layer {
   bool* show_console_ = nullptr;
   bool* viewport_no_titlebar_ = nullptr;
 
-  // Theme background — kept minimal here; extend with a Themes panel later.
-  Color background_color_{36, 36, 36, 255};
+  // Theme background — used by Game::Render to clear the backbuffer behind
+  // dock-empty regions. Defaults to theme::kBackground (#1a1b1c).
+  Color background_color_{0x1a, 0x1b, 0x1c, 0xff};
 };

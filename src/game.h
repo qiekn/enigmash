@@ -20,6 +20,12 @@ struct Game {
   void Render();
   void Shutdown();
 
+  // Paint the logo to the backbuffer once, before any heavy load runs.
+  // Without this the window stays black for the 1-2 s it takes to bake
+  // the CJK font atlas + initialise ImGui — long enough to feel like
+  // the .exe hung.
+  void ShowSplashFrame();
+
   void ToggleBorderless();
 
  private:

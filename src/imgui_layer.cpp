@@ -12,6 +12,7 @@
 #include <imgui_internal.h>
 
 #include "engine/text.h"
+#include "theme.h"
 
 ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
 
@@ -168,8 +169,14 @@ void ImGuiLayer::SetupStyle(float dpi_scale) {
   style.ScaleAllSizes(dpi_scale);
 
   // clang-format off
+  // Pull WindowBg / DockingEmptyBg from the project palette so the seam
+  // between docked panels and the surrounding clear is invisible.
+  const float bgR = theme::kBackground.r / 255.0f;
+  const float bgG = theme::kBackground.g / 255.0f;
+  const float bgB = theme::kBackground.b / 255.0f;
+
   auto& colors = style.Colors;
-  colors[ImGuiCol_WindowBg]           = ImVec4{0.10f, 0.105f,  0.11f,  1.0f};
+  colors[ImGuiCol_WindowBg]           = ImVec4{bgR,   bgG,    bgB,    1.0f};
   colors[ImGuiCol_Header]             = ImVec4{0.20f, 0.205f,  0.21f,  1.0f};
   colors[ImGuiCol_HeaderHovered]      = ImVec4{0.30f, 0.305f,  0.31f,  1.0f};
   colors[ImGuiCol_HeaderActive]       = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};

@@ -62,12 +62,22 @@ target_include_directories(imgui PUBLIC deps/imgui deps/imgui/backends)
 target_include_directories(imgui PRIVATE deps/raylib/src/external/glfw/include)
 
 add_executable(${PROJECT_NAME}
+  src/engine/scene_manager.cpp
   src/engine/text.cpp
   src/game.cpp
   src/game_layer.cpp
   src/imgui_layer.cpp
   src/layer_stack.cpp
   src/main.cpp
+  src/scenes/achievements_scene.cpp
+  src/scenes/credits_scene.cpp
+  src/scenes/end_scene.cpp
+  src/scenes/gallery_scene.cpp
+  src/scenes/gameplay_scene.cpp
+  src/scenes/main_menu_scene.cpp
+  src/scenes/pause_menu_scene.cpp
+  src/scenes/placeholder.cpp
+  src/scenes/settings_scene.cpp
 )
 
 # Hide the Windows console window in release builds.

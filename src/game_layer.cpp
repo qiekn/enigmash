@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include "engine/text.h"
+#include "scenes/main_menu_scene.h"
 
 GameLayer::GameLayer() : Layer("GameLayer") {}
 
@@ -13,6 +13,11 @@ void GameLayer::OnAttach() {
   // Allocate something non-zero so the first frame has a valid texture even
   // before the Viewport panel reports its real size.
   EnsureTarget(1280, 720);
+
+  // The .exe-launch logo is painted directly to the backbuffer by
+  // Game::ShowSplashFrame() before any layers come up — by the time we
+  // get here, the user has already seen it. Boot straight into the menu.
+  scenes_.Switch<scenes::MainMenuScene>();
 }
 
 void GameLayer::OnDetach() {
@@ -20,19 +25,31 @@ void GameLayer::OnDetach() {
     UnloadRenderTexture(target_);
     target_valid_ = false;
   }
+  // SceneManager destructor will OnExit each remaining scene through
+  // unique_ptr destruction order. Force a deterministic teardown here so
+  // the GL context is still valid when textures get released.
+  while (scenes_.Active() != nullptr) {
+    scenes_.Pop();
+    scenes_.Update(0.0f);  // applies the pending Pop
+  }
 }
 
-void GameLayer::OnUpdate(float dt) { time_ += dt; }
+void GameLayer::OnUpdate(float dt) { scenes_.Update(dt); }
 
 void GameLayer::OnRender() {
   if (!target_valid_) return;
-  DrawScene();
+  BeginTextureMode(target_);
+  // Scenes own their own ClearBackground — overlays rely on the previous
+  // pixels being intact, so we don't pre-clear here.
+  scenes_.Render(target_w_, target_h_);
+  EndTextureMode();
 }
 
 void GameLayer::OnImGuiRender() {
   if (show_viewport_) DrawViewportPanel();
   if (show_hierarchy_) DrawHierarchyPanel();
   if (show_console_) DrawConsolePanel();
+  scenes_.ImGuiRender();
 }
 
 void GameLayer::EnsureTarget(int w, int h) {
@@ -45,28 +62,6 @@ void GameLayer::EnsureTarget(int w, int h) {
   target_w_ = w;
   target_h_ = h;
   target_valid_ = true;
-}
-
-void GameLayer::DrawScene() {
-  BeginTextureMode(target_);
-  ClearBackground(background_color_);
-
-  // Reference grid so resizes are visible.
-  const Color kGridColor{255, 255, 255, 32};
-  for (int x = 0; x < target_w_; x += 32) {
-    DrawLine(x, 0, x, target_h_, kGridColor);
-  }
-  for (int y = 0; y < target_h_; y += 32) {
-    DrawLine(0, y, target_w_, y, kGridColor);
-  }
-
-  // Placeholder scene content — replace with real game logic.
-  engine::DrawText("enigmash — raylib + ImGui scaffold", Vector2{16, 16}, 24, RAYWHITE);
-  engine::DrawText("应无所住，而生其心。", Vector2{16, 48}, 24, Color{220, 220, 240, 255});
-  engine::DrawText(TextFormat("time = %.1fs    viewport = %dx%d", time_, target_w_, target_h_),
-                   Vector2{16, 84}, 18, Color{180, 180, 200, 255});
-
-  EndTextureMode();
 }
 
 void GameLayer::DrawViewportPanel() {
@@ -104,8 +99,6 @@ void GameLayer::DrawViewportPanel() {
     ImGui::Image(tex_id, avail, ImVec2(0, 1), ImVec2(1, 0));
   }
 
-  // Right-click anywhere in the viewport for the toggle — essential when the
-  // title bar is hidden.
   if (ImGui::BeginPopupContextWindow("ViewportContext", ImGuiPopupFlags_MouseButtonRight)) {
     ImGui::MenuItem("Hide Title Bar", nullptr, &viewport_no_titlebar_);
     ImGui::EndPopup();
@@ -119,10 +112,13 @@ void GameLayer::DrawHierarchyPanel() {
     ImGui::End();
     return;
   }
-  if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::BulletText("Camera");
-    ImGui::BulletText("Player");
-    ImGui::BulletText("World");
+  if (ImGui::TreeNodeEx("SceneManager", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (engine::Scene* active = scenes_.Active()) {
+      ImGui::BulletText("active: %s", active->Name().c_str());
+    } else {
+      ImGui::BulletText("(no active scene)");
+    }
+    ImGui::BulletText("stack depth: %zu", scenes_.Depth());
     ImGui::TreePop();
   }
   ImGui::End();
