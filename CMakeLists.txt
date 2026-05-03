@@ -80,6 +80,12 @@ add_executable(${PROJECT_NAME}
   src/scenes/settings_scene.cpp
 )
 
+# We don't use C++20 modules. Skipping the per-TU module dependency scan
+# avoids a flaky Windows ninja path where clang-scan-deps' .ddi.tmp →
+# .ddi rename loses a race with Defender / the Search Indexer holding a
+# handle on the file. Side benefit: noticeably faster reconfigures.
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_SCAN_FOR_MODULES OFF)
+
 # Hide the Windows console window in release builds.
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 
