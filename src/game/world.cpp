@@ -39,6 +39,7 @@ entt::entity World::Spawn(const std::string& name, int x, int y) {
   if (HasTag(def->tags, Tag::Pushable)) reg_.emplace<Pushable>(e);
   if (HasTag(def->tags, Tag::Stop)) reg_.emplace<Stop>(e);
   if (HasTag(def->tags, Tag::Checkpoint)) reg_.emplace<Checkpoint>(e);
+  if (HasTag(def->tags, Tag::Goal)) reg_.emplace<Goal>(e);
   if (HasTag(def->tags, Tag::Toggle)) reg_.emplace<Toggle>(e, def->toggle_radius);
   if (HasTag(def->tags, Tag::SnakeBody)) reg_.emplace<SnakeSegment>(e, (uint8_t)0);
 

@@ -72,6 +72,7 @@ struct Toggle {
 };
 
 struct Checkpoint {};
+struct Goal {};
 
 enum class Region : uint8_t {
   None = 0,

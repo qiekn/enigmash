@@ -31,7 +31,8 @@
   },
   "goal": {
     "layer": 0,
-    "color": "#9adba0"
+    "color": "#9adba0",
+    "tags": ["goal"]
   },
   "player": {
     "layer": 3,

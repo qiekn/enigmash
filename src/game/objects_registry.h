@@ -22,6 +22,7 @@ enum class Tag : uint16_t {
   LinkA     = 1u << 5,
   LinkB     = 1u << 6,
   SnakeBody = 1u << 7,
+  Goal      = 1u << 8,
 };
 
 constexpr Tag operator|(Tag a, Tag b) {

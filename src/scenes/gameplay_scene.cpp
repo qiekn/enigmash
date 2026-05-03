@@ -15,6 +15,7 @@
 #include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
 #include "game/world.h"
+#include "scenes/end_scene.h"
 #include "scenes/pause_menu_scene.h"
 #include "theme.h"
 
@@ -72,6 +73,11 @@ void GameplayScene::OnEnter() {
     };
   }
   camera_.target = initial_target;
+
+  // First-frame snapshots: undo starts empty (nothing to undo *to* on
+  // the first tick), checkpoint captures the loaded layout so R always
+  // has somewhere to fall back to.
+  SaveCheckpoint();
 }
 
 void GameplayScene::OnExit() {
@@ -97,17 +103,47 @@ void GameplayScene::OnUpdate(float dt) {
       break;
     }
   };
-  if (IsKeyPressed(KEY_F1)) warp_to(2, 2);    // r1 interior
-  if (IsKeyPressed(KEY_F2)) warp_to(11, 3);   // r2 interior (origin 9 + 2,3)
-  if (IsKeyPressed(KEY_F3)) warp_to(19, 2);   // r3 interior (origin 18 + 1,2)
-  if (IsKeyPressed(KEY_F4)) warp_to(27, 2);   // r4 interior (origin 26 + 1,2)
-  if (IsKeyPressed(KEY_F5)) warp_to(42, 4);   // r5 interior (origin 37 + 5,4)
-  if (IsKeyPressed(KEY_F6)) warp_to(47, 4);   // r6 interior (origin 46 + 1,4)
+  if (IsKeyPressed(KEY_F1)) warp_to(2, 2);
+  if (IsKeyPressed(KEY_F2)) warp_to(11, 3);
+  if (IsKeyPressed(KEY_F3)) warp_to(19, 2);
+  if (IsKeyPressed(KEY_F4)) warp_to(27, 2);
+  if (IsKeyPressed(KEY_F5)) warp_to(42, 4);
+  if (IsKeyPressed(KEY_F6)) warp_to(47, 4);
 
-  const bool shoot = IsKeyPressed(KEY_SPACE);
-  if (const auto dir = input_.Poll(dt); dir != game::Direction::None || shoot) {
-    const game::Region kind = game::regions::RegionUnderPlayer(*world_);
-    game::regions::Tick(*world_, kind, dir, shoot);
+  // Z = undo. Z must be checked *before* the tick so that even if the
+  // player holds a direction, undo wins this frame.
+  if (IsKeyPressed(KEY_Z)) {
+    undo_.Pop(world_->Registry());
+  } else if (IsKeyPressed(KEY_R)) {
+    RestoreCheckpoint();
+  } else {
+    const bool shoot = IsKeyPressed(KEY_SPACE);
+    const auto dir = input_.Poll(dt);
+    if (dir != game::Direction::None || shoot) {
+      // Snapshot BEFORE the tick mutates state. This way Pop() restores
+      // the pre-tick layout exactly.
+      undo_.Push(world_->Registry());
+      const game::Region kind = game::regions::RegionUnderPlayer(*world_);
+      game::regions::Tick(*world_, kind, dir, shoot);
+
+      // Stepping on a Checkpoint resets the restore point. Done after
+      // the tick so a "push a box onto a checkpoint, you stand here"
+      // resolves correctly.
+      auto& reg = world_->Registry();
+      bool on_cp = false;
+      for (auto [pe, pc] : reg.view<game::Cell, game::Player>().each()) {
+        for (auto [ce, cc] : reg.view<game::Cell, game::Checkpoint>().each()) {
+          if (pc.x == cc.x && pc.y == cc.y) { on_cp = true; break; }
+        }
+        if (on_cp) break;
+      }
+      if (on_cp) SaveCheckpoint();
+    }
+  }
+
+  if (ReachedGoal()) {
+    Manager()->Switch<EndScene>();
+    return;
   }
 
   game::systems::RenderInterp(*world_, dt);
@@ -118,6 +154,33 @@ void GameplayScene::OnUpdate(float dt) {
     camera_.target = Vector2{v.x, v.y};
     break;
   }
+}
+
+void GameplayScene::SaveCheckpoint() {
+  if (!world_) return;
+  checkpoint_.Clear();
+  checkpoint_.Push(world_->Registry());
+}
+
+void GameplayScene::RestoreCheckpoint() {
+  if (!world_) return;
+  // UndoRing::Pop removes the entry, so we re-Save it after restoring.
+  // (A peek-style API would be cleaner, but the entire checkpoint flow
+  // is small enough that re-pushing isn't worth a new method.)
+  checkpoint_.Pop(world_->Registry());
+  SaveCheckpoint();
+  undo_.Clear();  // post-checkpoint history is no longer reachable
+}
+
+bool GameplayScene::ReachedGoal() const {
+  if (!world_) return false;
+  const auto& reg = world_->Registry();
+  for (auto [pe, pc] : reg.view<const game::Cell, const game::Player>().each()) {
+    for (auto [ge, gc] : reg.view<const game::Cell, const game::Goal>().each()) {
+      if (pc.x == gc.x && pc.y == gc.y) return true;
+    }
+  }
+  return false;
 }
 
 void GameplayScene::OnRender(int w, int h) {
@@ -131,7 +194,7 @@ void GameplayScene::OnRender(int w, int h) {
   game::systems::DrawTiles(*world_);
   EndMode2D();
 
-  engine::DrawText("M5 — F1..F6 warps; Space shoots in r4", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
+  engine::DrawText("M6 — Z undo, R checkpoint, walk onto goal to win", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
   engine::DrawText("press esc / p to pause", Vector2{16.0f, h - 30.0f}, 16,
                    Color{140, 140, 160, 200});
 }
