@@ -12,8 +12,10 @@ namespace game::regions {
 
 namespace {
 
-bool HasPlayerAt(const entt::registry& reg, int x, int y) {
+bool HasPlayerAt(const entt::registry& reg, int x, int y, entt::entity ignore) {
   for (auto [e, c] : reg.view<const Cell, const Player>().each()) {
+    if (e == ignore) continue;
+    if (reg.all_of<Hidden>(e)) continue;
     if (c.x == x && c.y == y) return true;
   }
   return false;
@@ -21,10 +23,10 @@ bool HasPlayerAt(const entt::registry& reg, int x, int y) {
 
 bool CellOccupied(const entt::registry& reg, int x, int y, entt::entity ignore) {
   if (systems::HasStopAt(reg, x, y)) return true;
-  if (HasPlayerAt(reg, x, y)) return true;
-  // Any other Pushable counts as a support.
+  if (HasPlayerAt(reg, x, y, ignore)) return true;
   for (auto [e, c] : reg.view<const Cell, const Pushable>().each()) {
     if (e == ignore) continue;
+    if (reg.all_of<Hidden>(e)) continue;
     if (c.x == x && c.y == y) return true;
   }
   return false;
@@ -34,15 +36,21 @@ bool CellOccupied(const entt::registry& reg, int x, int y, entt::entity ignore) 
 
 void GravityLatePass(World& w) {
   auto& reg = w.Registry();
-  // Iterate until stable. Process bottommost entities first so a column
-  // of falling boxes resolves cleanly: the bottom one falls into space,
-  // freeing the cell so the one above can fall on the next pass.
+  // Iterate until stable. Process bottommost entities first so columns
+  // resolve cleanly: the bottom one falls into space, freeing the cell
+  // above for the next iteration. Both Pushables and Players fall —
+  // the player needs gravity for the platformer feel.
   bool changed = true;
-  int safety = 64;  // upper bound on column height in any reasonable region
+  int safety = 64;
   while (changed && safety-- > 0) {
     changed = false;
     std::vector<entt::entity> ents;
     for (auto [e, c] : reg.view<const Cell, const Pushable>().each()) {
+      if (reg.all_of<Hidden>(e)) continue;
+      ents.push_back(e);
+    }
+    for (auto e : reg.view<const Player>()) {
+      if (reg.all_of<Hidden>(e)) continue;
       ents.push_back(e);
     }
     std::sort(ents.begin(), ents.end(), [&](entt::entity a, entt::entity b) {

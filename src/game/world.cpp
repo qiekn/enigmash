@@ -62,7 +62,7 @@ namespace {
 
 Region RegionFromString(const std::string& s) {
   if (s == "r1_sokoban") return Region::R1Sokoban;
-  if (s == "r2_gravity") return Region::R2Gravity;
+  if (s == "r2_climb")   return Region::R2Climb;
   if (s == "r3_chain")   return Region::R3Chain;
   if (s == "r4_shoot")   return Region::R4Shoot;
   if (s == "r5_snake")   return Region::R5Snake;

@@ -94,7 +94,7 @@ struct Goal {};
 enum class Region : uint8_t {
   None = 0,
   R1Sokoban,
-  R2Gravity,
+  R2Climb,
   R3Chain,
   R4Shoot,
   R5Snake,

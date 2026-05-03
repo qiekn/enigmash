@@ -1,16 +1,15 @@
 {
-  "_comment": "Region 2 — gravity. Boxes fall every tick; player can shove them into walls and watch them stack. Layout: tall room with a single starting box that falls onto the floor.",
-  "region": "r2_gravity",
+  "_comment": "Region 2 — climb test. Player must clear an obstacle (box + wall) by climbing on top of the box, walking right across the wall's top, then dropping onto the goal. Press right repeatedly: push fails on tick 1 → climb on box (1 cell up); walk right (on box top); walk right (on wall top); walk right then fall onto floor; walk right onto goal.",
+  "region": "r2_climb",
   "width": 7,
-  "height": 7,
+  "height": 6,
   "background": "floor",
   "cells": [
     [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]],
-    [["wall"], [],       [],       ["box"],  [],       [],       ["wall"]],
     [["wall"], [],       [],       [],       [],       [],       ["wall"]],
     [["wall"], [],       [],       [],       [],       [],       ["wall"]],
-    [["wall"], [],       [],       [],       [],       ["box"],  ["wall"]],
     [["wall"], [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], ["player"], ["box"], ["wall"], [],     ["goal"], ["wall"]],
     [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]]
   ]
 }

@@ -2,6 +2,7 @@
 
 #include "game/components.h"
 #include "game/regions/r1_sokoban.h"
+#include "game/regions/r2_climb.h"
 #include "game/regions/r2_gravity.h"
 #include "game/regions/r3_chain.h"
 #include "game/regions/r4_shoot.h"
@@ -26,8 +27,8 @@ Region RegionUnderPlayer(const World& w) {
 
 void Tick(World& w, Region kind, Direction dir, bool shoot) {
   switch (kind) {
-    case Region::R2Gravity:
-      Sokoban(w, dir);
+    case Region::R2Climb:
+      Climb(w, dir);
       GravityLatePass(w);
       break;
     case Region::R3Chain:

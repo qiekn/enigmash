@@ -12,7 +12,7 @@ namespace {
 const char* PlayerNameForRegion(Region r) {
   switch (r) {
     case Region::R1Sokoban: return "player_one";
-    case Region::R2Gravity: return "player_two";
+    case Region::R2Climb:   return "player_two";
     case Region::R3Chain:   return "player_three";
     case Region::R4Shoot:   return "player_four";
     case Region::R5Snake:   return "player_five";
