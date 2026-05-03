@@ -22,7 +22,13 @@
     "layer": 1,
     "color": "#f5c6ef",
     "tags": ["toggle"],
-    "radius": 16
+    "radius": 3
+  },
+  "secret_wall": {
+    "_comment": "Test target for toggle swap. Stepping onto a toggle within radius flips this in/out of Hidden.",
+    "layer": 1,
+    "color": "#806a4f",
+    "tags": ["stop", "toggleable"]
   },
   "box": {
     "layer": 2,

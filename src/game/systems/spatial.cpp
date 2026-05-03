@@ -12,6 +12,7 @@ bool InBounds(const World& w, int x, int y) {
 
 bool HasStopAt(const entt::registry& reg, int x, int y) {
   for (auto [e, c] : reg.view<const Cell, const Stop>().each()) {
+    if (reg.all_of<Hidden>(e)) continue;
     if (c.x == x && c.y == y) return true;
   }
   return false;
@@ -19,6 +20,7 @@ bool HasStopAt(const entt::registry& reg, int x, int y) {
 
 entt::entity FindPushableAt(const entt::registry& reg, int x, int y) {
   for (auto [e, c] : reg.view<const Cell, const Pushable>().each()) {
+    if (reg.all_of<Hidden>(e)) continue;
     if (c.x == x && c.y == y) return e;
   }
   return entt::null;

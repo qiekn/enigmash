@@ -15,6 +15,7 @@
 #include "game/systems/patch_player_sprite.h"
 #include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
+#include "game/systems/toggle_swap.h"
 #include "game/world.h"
 #include "scenes/end_scene.h"
 #include "scenes/pause_menu_scene.h"
@@ -128,6 +129,7 @@ void GameplayScene::OnUpdate(float dt) {
       undo_.Push(world_->Registry());
       const game::Region kind = game::regions::RegionUnderPlayer(*world_);
       game::regions::Tick(*world_, kind, dir, shoot);
+      game::systems::ToggleSwap(*world_);
       game::systems::PatchPlayerSprite(*world_);
 
       // Stepping on a Checkpoint resets the restore point. Done after

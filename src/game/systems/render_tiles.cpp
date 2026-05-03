@@ -19,7 +19,10 @@ void DrawTiles(const World& w) {
 
   std::vector<entt::entity> ents;
   ents.reserve(view.size_hint());
-  for (auto e : view) ents.push_back(e);
+  for (auto e : view) {
+    if (reg.all_of<Hidden>(e)) continue;
+    ents.push_back(e);
+  }
   std::sort(ents.begin(), ents.end(), [&](entt::entity a, entt::entity b) {
     return view.get<const ZOrder>(a).layer < view.get<const ZOrder>(b).layer;
   });

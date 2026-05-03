@@ -1,14 +1,14 @@
 {
-  "_comment": "Per-region grid. width/height define the bounding box. 'cells' is row-major (cells[y][x]); each cell is a stack of object names from objects.json drawn bottom-up by ZOrder. Floor entries can be omitted — they're added implicitly via 'background'.",
+  "_comment": "Region 1 — sokoban + toggle demo. Toggle (pink) is at (3,3); secret_wall (brown) blocks the way to the goal until the player steps on the toggle.",
   "region": "r1_sokoban",
   "width": 7,
   "height": 5,
   "background": "floor",
   "cells": [
-    [["wall"], ["wall"], ["wall"],   ["wall"],     ["wall"], ["wall"], ["wall"]],
-    [["wall"], [],       [],         [],           [],       [],       ["wall"]],
-    [["wall"], [],       ["player"], ["box"],      [],       ["goal"], ["wall"]],
-    [["wall"], [],       [],         ["checkpoint"], [],     [],       ["wall"]],
-    [["wall"], ["wall"], ["wall"],   ["wall"],     ["wall"], ["wall"], ["wall"]]
+    [["wall"], ["wall"],     ["wall"],   ["wall"],   ["wall"], ["wall"], ["wall"]],
+    [["wall"], [],           [],         [],         [],       [],       ["wall"]],
+    [["wall"], ["player"],   ["box"],    [],         ["secret_wall"], ["goal"], ["wall"]],
+    [["wall"], [],           [],         ["toggle"], [],       [],       ["wall"]],
+    [["wall"], ["wall"],     ["wall"],   ["wall"],   ["wall"], ["wall"], ["wall"]]
   ]
 }

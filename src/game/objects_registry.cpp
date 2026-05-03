@@ -49,6 +49,7 @@ Tag TagFromString(const std::string& s) {
   if (s == "link_b") return Tag::LinkB;
   if (s == "snake_body") return Tag::SnakeBody;
   if (s == "goal") return Tag::Goal;
+  if (s == "toggleable") return Tag::Toggleable;
   return Tag::None;
 }
 

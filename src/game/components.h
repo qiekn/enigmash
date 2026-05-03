@@ -71,6 +71,23 @@ struct Toggle {
   uint8_t radius;
 };
 
+// Entities with this tag are eligible to be flipped between visible and
+// hidden by the ToggleSwap system. Pair with Stop / Pushable to make
+// the entity matter mechanically; render_tiles ignores Hidden ones.
+struct Toggleable {};
+
+// Visibility flag — when present, entity is treated as if it doesn't
+// exist by render and by the spatial helpers (HasStopAt skips it,
+// FindPushableAt skips it). Toggleable swaps add/remove this tag.
+struct Hidden {};
+
+// Player-side memo: the last Toggle entity that fired for this player.
+// Prevents the toggle from firing every tick while the player stands
+// on it — only on entry / re-entry. Defaults to entt::null on spawn.
+struct LastToggle {
+  entt::entity ent = entt::null;
+};
+
 struct Checkpoint {};
 struct Goal {};
 

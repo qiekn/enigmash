@@ -78,6 +78,7 @@ add_executable(${PROJECT_NAME}
   src/game/systems/render_interp.cpp
   src/game/systems/render_tiles.cpp
   src/game/systems/spatial.cpp
+  src/game/systems/toggle_swap.cpp
   src/game/undo_ring.cpp
   src/game/world.cpp
   src/game.cpp
