@@ -24,7 +24,7 @@ without invalidating `this`.
 
 | scene                | role                                | exits via                                       |
 |----------------------|-------------------------------------|-------------------------------------------------|
-| `MainMenuScene`      | root menu (Play / Settings / …)     | enter on item, ESC = quit                       |
+| `MainMenuScene`      | root menu (Play / Settings / …)     | only the Quit item terminates                  |
 | `GameplayScene`      | actual puzzle (placeholder grid)    | ESC / P → push `PauseMenuScene`                 |
 | `PauseMenuScene`     | overlay over gameplay               | ESC / P or Resume = pop, Quit = switch to menu  |
 | `SettingsScene`      | placeholder                         | ESC → menu (or pop if pushed from pause)        |

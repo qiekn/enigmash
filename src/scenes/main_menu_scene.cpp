@@ -24,11 +24,9 @@ void MainMenuScene::OnUpdate(float /*dt*/) {
     selected_ = (selected_ - 1 + n) % n;
   } else if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
     Activate(static_cast<Item>(selected_));
-  } else if (IsKeyPressed(KEY_ESCAPE)) {
-    // ESC on the root menu = quit. Common Steam-game convention; pause
-    // menus elsewhere keep ESC for "go back one step".
-    Manager()->RequestQuit();
   }
+  // Note: no ESC handler here — quitting must go through the explicit
+  // Quit menu item so accidental ESC presses can't kill a session.
 }
 
 void MainMenuScene::Activate(Item it) {
@@ -91,7 +89,7 @@ void MainMenuScene::OnRender(int w, int h) {
     engine::DrawText(label, Vector2{w * 0.5f - 70.0f, y}, 24, color);
   }
 
-  engine::DrawText("arrows / hjkl to navigate    enter to confirm    esc to quit",
+  engine::DrawText("arrows / hjkl to navigate    enter to confirm",
                    Vector2{16, h - 30.0f}, 16, Color{140, 140, 160, 200});
 }
 
