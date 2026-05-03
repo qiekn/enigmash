@@ -5,14 +5,15 @@
 #include <memory>
 
 #include "engine/scene.h"
+#include "game/input.h"
 
 namespace game { class World; }
 
 namespace scenes {
 
-// Owns the EnTT World and runs the per-tick / per-frame systems. M1
-// scope: load objects.json, spawn a hard-coded 5x5 test map, render via
-// Camera2D centered on the map. Logic ticks come later.
+// Owns the EnTT World and runs the per-tick / per-frame systems. M3
+// scope: throttled input drives the region 1 sokoban tick; VisualXY is
+// spring-interpolated every render frame for fluid motion.
 class GameplayScene : public engine::Scene {
  public:
   GameplayScene();
@@ -25,6 +26,7 @@ class GameplayScene : public engine::Scene {
 
  private:
   std::unique_ptr<game::World> world_;
+  game::InputThrottle input_;
   Camera2D camera_{};
 };
 

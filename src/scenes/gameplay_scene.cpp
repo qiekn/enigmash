@@ -6,6 +6,8 @@
 
 #include "engine/scene_manager.h"
 #include "engine/text.h"
+#include "game/regions/r1_sokoban.h"
+#include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
 #include "game/world.h"
 #include "scenes/pause_menu_scene.h"
@@ -42,10 +44,22 @@ void GameplayScene::OnExit() {
   world_.reset();
 }
 
-void GameplayScene::OnUpdate(float /*dt*/) {
+void GameplayScene::OnUpdate(float dt) {
   if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P)) {
     Manager()->Push<PauseMenuScene>();
+    return;
   }
+  if (!world_) return;
+
+  // One logic tick per non-None Poll. The throttle clamps repeats to
+  // keep movement readable; multi-tick-per-frame is intentional only on
+  // direction-change to make taps feel snappy.
+  if (const auto dir = input_.Poll(dt); dir != game::Direction::None) {
+    game::regions::Sokoban(*world_, dir);
+  }
+
+  // Spring physics is per render frame, not per tick.
+  game::systems::RenderInterp(*world_, dt);
 }
 
 void GameplayScene::OnRender(int w, int h) {
@@ -59,7 +73,7 @@ void GameplayScene::OnRender(int w, int h) {
   game::systems::DrawTiles(*world_);
   EndMode2D();
 
-  engine::DrawText("M2 — region loaded from world/index.json", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
+  engine::DrawText("M3 — sokoban push (arrows / WASD / HJKL)", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
   engine::DrawText("press esc / p to pause", Vector2{16.0f, h - 30.0f}, 16,
                    Color{140, 140, 160, 200});
 }
