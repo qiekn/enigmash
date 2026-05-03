@@ -29,10 +29,22 @@ class World {
   // GPU yet; call sprites_.EnsureLoaded() afterwards).
   bool LoadObjects(const std::string& objects_json_path);
 
+  // Loads a world index (regions list) and every region file it points
+  // to, spawning all entities at their region-relative cell coords plus
+  // the region's origin offset. Tracks the bounding box across regions
+  // so the camera can frame the whole world (BoundsMin/BoundsMax).
+  // Requires LoadObjects to have been called first.
+  bool LoadWorld(const std::string& index_json_path);
+
   // Spawn one entity at a logical cell using the named ObjectDef. Pulls
   // sprite_id, layer, and color through the registry. Returns the entity,
   // or `entt::null` if the name is unknown.
   entt::entity Spawn(const std::string& name, int x, int y);
+
+  // World-space bounding box in cells (inclusive min, exclusive max),
+  // computed during LoadWorld. (0,0)..(0,0) when no world is loaded.
+  struct Bounds { int min_x, min_y, max_x, max_y; };
+  Bounds GetBounds() const { return bounds_; }
 
   entt::registry& Registry() { return reg_; }
   const entt::registry& Registry() const { return reg_; }
@@ -47,6 +59,7 @@ class World {
   entt::registry reg_;
   ObjectsRegistry objects_;
   SpriteCache sprites_;
+  Bounds bounds_{0, 0, 0, 0};
 };
 
 }  // namespace game

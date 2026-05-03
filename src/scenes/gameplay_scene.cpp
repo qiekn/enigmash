@@ -23,53 +23,23 @@ void GameplayScene::OnEnter() {
     return;
   }
   world_->Sprites().EnsureLoaded();
-  BuildTestMap();
+  if (!world_->LoadWorld("assets/data/world/index.json")) {
+    TraceLog(LOG_ERROR, "GameplayScene: failed to load world index");
+    return;
+  }
 
+  const auto b = world_->GetBounds();
   camera_.zoom = 1.0f;
   camera_.rotation = 0.0f;
   camera_.target = Vector2{
-      (map_w_ * game::kTilePx) * 0.5f,
-      (map_h_ * game::kTilePx) * 0.5f,
+      ((b.min_x + b.max_x) * game::kTilePx) * 0.5f,
+      ((b.min_y + b.max_y) * game::kTilePx) * 0.5f,
   };
-  // offset is set per-frame in OnRender once we know the viewport.
 }
 
 void GameplayScene::OnExit() {
   if (world_) world_->Sprites().Unload();
   world_.reset();
-}
-
-void GameplayScene::BuildTestMap() {
-  // 5x5 test map. Layout:
-  //   . . . . .
-  //   . W W W .
-  //   . W P W .
-  //   . W B W .
-  //   . . G C
-  // (P = player, B = box, W = wall, G = goal, C = checkpoint, . = floor)
-  const char* layout[5] = {
-      ".....",
-      ".WWW.",
-      ".WPW.",
-      ".WBW.",
-      "..GC.",
-  };
-  map_w_ = 5;
-  map_h_ = 5;
-  for (int y = 0; y < map_h_; ++y) {
-    for (int x = 0; x < map_w_; ++x) {
-      // Always lay floor under everything for visual continuity.
-      world_->Spawn("floor", x, y);
-      switch (layout[y][x]) {
-        case 'W': world_->Spawn("wall", x, y); break;
-        case 'P': world_->Spawn("player", x, y); break;
-        case 'B': world_->Spawn("box", x, y); break;
-        case 'G': world_->Spawn("goal", x, y); break;
-        case 'C': world_->Spawn("checkpoint", x, y); break;
-        default: break;
-      }
-    }
-  }
 }
 
 void GameplayScene::OnUpdate(float /*dt*/) {
@@ -89,7 +59,7 @@ void GameplayScene::OnRender(int w, int h) {
   game::systems::DrawTiles(*world_);
   EndMode2D();
 
-  engine::DrawText("M1 — hardcoded 5x5 test map", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
+  engine::DrawText("M2 — region loaded from world/index.json", Vector2{16.0f, 16.0f}, 20, RAYWHITE);
   engine::DrawText("press esc / p to pause", Vector2{16.0f, h - 30.0f}, 16,
                    Color{140, 140, 160, 200});
 }

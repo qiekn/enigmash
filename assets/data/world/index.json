@@ -1,0 +1,6 @@
+{
+  "_comment": "Top-level world index. Each region declares its origin in world-space (cells) and the file containing its grid. Loader stitches them into one registry; origins let regions sit side by side without renumbering coords inside region files.",
+  "regions": [
+    { "id": "r1", "origin": [0, 0], "file": "r1.json" }
+  ]
+}

@@ -24,12 +24,8 @@ class GameplayScene : public engine::Scene {
   void OnRender(int target_w, int target_h) override;
 
  private:
-  void BuildTestMap();
-
   std::unique_ptr<game::World> world_;
   Camera2D camera_{};
-  int map_w_ = 0;
-  int map_h_ = 0;
 };
 
 }  // namespace scenes
