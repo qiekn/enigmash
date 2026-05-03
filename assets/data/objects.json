@@ -35,10 +35,17 @@
     "tags": ["goal"]
   },
   "player": {
+    "_comment": "Generic player. Auto-transformed at runtime to one of the per-region player_N sprites by the PatchPlayerSprite system.",
     "layer": 3,
     "color": "#ff80a8",
     "tags": ["player"]
   },
+  "player_one":   { "layer": 3, "color": "#ff80a8" },
+  "player_two":   { "layer": 3, "color": "#f5c6ef" },
+  "player_three": { "layer": 3, "color": "#dfcc4f" },
+  "player_four":  { "layer": 3, "color": "#a3a3c0" },
+  "player_five":  { "layer": 3, "color": "#e2ba7c" },
+  "player_six":   { "layer": 3, "color": "#a1f5f5" },
   "snake_body": {
     "_comment": "Region 5 tail segment. Stops the player but is conceptually part of them.",
     "layer": 2,

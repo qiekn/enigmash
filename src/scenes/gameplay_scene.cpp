@@ -12,6 +12,7 @@
 #include "engine/text.h"
 #include "game/components.h"
 #include "game/regions/dispatch.h"
+#include "game/systems/patch_player_sprite.h"
 #include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
 #include "game/world.h"
@@ -78,6 +79,8 @@ void GameplayScene::OnEnter() {
   // the first tick), checkpoint captures the loaded layout so R always
   // has somewhere to fall back to.
   SaveCheckpoint();
+  // Pick the right per-region body sprite for the spawn location.
+  game::systems::PatchPlayerSprite(*world_);
 }
 
 void GameplayScene::OnExit() {
@@ -125,6 +128,7 @@ void GameplayScene::OnUpdate(float dt) {
       undo_.Push(world_->Registry());
       const game::Region kind = game::regions::RegionUnderPlayer(*world_);
       game::regions::Tick(*world_, kind, dir, shoot);
+      game::systems::PatchPlayerSprite(*world_);
 
       // Stepping on a Checkpoint resets the restore point. Done after
       // the tick so a "push a box onto a checkpoint, you stand here"
