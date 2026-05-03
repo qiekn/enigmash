@@ -63,6 +63,12 @@ void Game::Init() {
   SetWindowPosition(state.x, state.y);
   SetTargetFPS(kTargetFps);
 
+  // raylib defaults ESC to "close window" (it sets the GLFW
+  // should-close flag). Disable that — scenes use ESC for "go back" /
+  // "pause"; Game::Run only exits when SceneManager::RequestQuit fires
+  // (driven by the menu's Quit item).
+  SetExitKey(KEY_NULL);
+
   // Paint the logo immediately. The OS shows whatever's on the backbuffer
   // after the first SwapBuffers, so doing this BEFORE the slow loads
   // below means the user sees pixels straight away instead of the

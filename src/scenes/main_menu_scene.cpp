@@ -60,10 +60,15 @@ void MainMenuScene::OnRender(int w, int h) {
   ClearBackground(theme::kBackground);
 
   // Title sits in the upper third of the viewport so menu items have room
-  // to breathe in the middle.
-  engine::DrawText("ENIGMASH", Vector2{(float)w * 0.5f - 80.0f, h * 0.18f}, 48, RAYWHITE);
-  engine::DrawText("a JackLance puzzle clone",
-                   Vector2{(float)w * 0.5f - 110.0f, h * 0.18f + 60.0f}, 18,
+  // to breathe in the middle. Measure-then-place so different fonts /
+  // resized viewports both stay centered without manually-tuned offsets.
+  const char* kTitle = "ENIGMASH";
+  const char* kSubtitle = "a JackLance puzzle clone";
+  const Vector2 title_size = engine::MeasureText(kTitle, 48);
+  const Vector2 sub_size = engine::MeasureText(kSubtitle, 18);
+  engine::DrawText(kTitle, Vector2{(w - title_size.x) * 0.5f, h * 0.18f}, 48, RAYWHITE);
+  engine::DrawText(kSubtitle,
+                   Vector2{(w - sub_size.x) * 0.5f, h * 0.18f + 60.0f}, 18,
                    Color{160, 160, 180, 255});
 
   // Menu list: centered horizontally, evenly spaced vertically.
