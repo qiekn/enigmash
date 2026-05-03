@@ -64,6 +64,10 @@ target_include_directories(imgui PRIVATE deps/raylib/src/external/glfw/include)
 add_executable(${PROJECT_NAME}
   src/engine/scene_manager.cpp
   src/engine/text.cpp
+  src/game/objects_registry.cpp
+  src/game/sprite_cache.cpp
+  src/game/systems/render_tiles.cpp
+  src/game/world.cpp
   src/game.cpp
   src/game_layer.cpp
   src/imgui_layer.cpp

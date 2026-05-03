@@ -1,0 +1,41 @@
+{
+  "_comment": "Object catalog. 'name' is the JSON key. Schema: { layer:int8, color:[r,g,b,a]|hex, sprite?:'path/under/assets', tags?:[strings], radius?:uint8 }. Color is the procedural-fallback fill when sprite is missing or fails to load. Layers: bg=-1, floor=0, item=1, push=2, player=3, fx=4.",
+  "background": {
+    "layer": -1,
+    "color": "#2c2d31"
+  },
+  "floor": {
+    "layer": 0,
+    "color": "#3a3b40"
+  },
+  "wall": {
+    "layer": 1,
+    "color": "#5a5b62",
+    "tags": ["stop"]
+  },
+  "checkpoint": {
+    "layer": 0,
+    "color": "#7eaaff",
+    "tags": ["checkpoint"]
+  },
+  "toggle": {
+    "layer": 1,
+    "color": "#f5c6ef",
+    "tags": ["toggle"],
+    "radius": 16
+  },
+  "box": {
+    "layer": 2,
+    "color": "#a17a3a",
+    "tags": ["pushable"]
+  },
+  "goal": {
+    "layer": 0,
+    "color": "#9adba0"
+  },
+  "player": {
+    "layer": 3,
+    "color": "#ff80a8",
+    "tags": ["player"]
+  }
+}
