@@ -32,11 +32,26 @@ entt::entity World::Spawn(const std::string& name, int x, int y) {
   reg_.emplace<Sprite>(e, def->sprite_id);
   reg_.emplace<ZOrder>(e, def->layer);
 
-  if (HasTag(def->tags, Tag::Player)) reg_.emplace<Player>(e);
+  if (HasTag(def->tags, Tag::Player)) {
+    reg_.emplace<Player>(e);
+    reg_.emplace<Facing>(e, Direction::South);
+  }
   if (HasTag(def->tags, Tag::Pushable)) reg_.emplace<Pushable>(e);
   if (HasTag(def->tags, Tag::Stop)) reg_.emplace<Stop>(e);
   if (HasTag(def->tags, Tag::Checkpoint)) reg_.emplace<Checkpoint>(e);
   if (HasTag(def->tags, Tag::Toggle)) reg_.emplace<Toggle>(e, def->toggle_radius);
+  if (HasTag(def->tags, Tag::SnakeBody)) reg_.emplace<SnakeSegment>(e, (uint8_t)0);
+
+  // Linked clusters: first spawned member becomes its own head, every
+  // subsequent member of the same kind joins it. Stored per-tag so two
+  // groups (link_a / link_b) coexist independently.
+  auto link_first = [&](Tag t, entt::entity& head_slot) {
+    if (!HasTag(def->tags, t)) return;
+    if (head_slot == entt::null) head_slot = e;
+    reg_.emplace<Linked>(e, head_slot);
+  };
+  link_first(Tag::LinkA, link_a_head_);
+  link_first(Tag::LinkB, link_b_head_);
   return e;
 }
 

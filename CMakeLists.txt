@@ -70,6 +70,9 @@ add_executable(${PROJECT_NAME}
   src/game/regions/r1_sokoban.cpp
   src/game/regions/r2_gravity.cpp
   src/game/regions/r3_chain.cpp
+  src/game/regions/r4_shoot.cpp
+  src/game/regions/r5_snake.cpp
+  src/game/regions/r6_cluster.cpp
   src/game/sprite_cache.cpp
   src/game/systems/render_interp.cpp
   src/game/systems/render_tiles.cpp

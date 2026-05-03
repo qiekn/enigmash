@@ -41,6 +41,7 @@ void Sokoban(World& w, Direction dir) {
     }
     c.x += dx;
     c.y += dy;
+    reg.emplace_or_replace<Facing>(e, dir);
   }
 }
 

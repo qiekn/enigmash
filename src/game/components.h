@@ -45,6 +45,20 @@ struct Sprite {
 struct Player {};
 struct Pushable {};
 
+// Player's last successful move direction. Used by region 4 (shoot) to
+// pick a facing for the projectile, and by future render passes for
+// directional sprites. Defaults to South for a freshly-spawned player.
+struct Facing {
+  Direction dir;
+};
+
+// Tail body for region 5. order==1 follows the head, order==2 follows
+// order 1, etc. Snake segments are also Stop so the head can't walk
+// through its own tail.
+struct SnakeSegment {
+  uint8_t order;
+};
+
 // "Stop" instead of "Wall" — the term covers any obstacle that blocks
 // movement, matching Baba Is You's vocabulary. Less ambiguous than Wall
 // once we add doors / one-way panels / clusters.

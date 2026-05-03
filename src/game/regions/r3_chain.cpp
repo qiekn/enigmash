@@ -68,6 +68,7 @@ void ChainPush(World& w, Direction dir) {
     if (touched == entt::null) {
       c.x += dx;
       c.y += dy;
+      reg.emplace_or_replace<Facing>(e, dir);
       return;
     }
     // The whole connected component must have somewhere to go. Build a
@@ -95,6 +96,7 @@ void ChainPush(World& w, Direction dir) {
     }
     c.x += dx;
     c.y += dy;
+    reg.emplace_or_replace<Facing>(e, dir);
   }
 }
 

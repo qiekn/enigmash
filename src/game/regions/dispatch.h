@@ -15,9 +15,10 @@ Region RegionUnderPlayer(const World& w);
 
 // Run the per-tick region rules. Picks the right early-pass push rule
 // for the region kind, then any shared late passes (gravity for the
-// regions that need it). No-op when dir == None and the region has no
-// passive late pass that fires every tick.
-void Tick(World& w, Region kind, Direction dir);
+// regions that need it). `shoot` is forwarded to region 4; ignored
+// elsewhere. No-op when dir == None and the region has no passive late
+// pass that fires every tick.
+void Tick(World& w, Region kind, Direction dir, bool shoot = false);
 
 }  // namespace regions
 }  // namespace game

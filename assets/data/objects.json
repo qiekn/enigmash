@@ -37,5 +37,22 @@
     "layer": 3,
     "color": "#ff80a8",
     "tags": ["player"]
+  },
+  "snake_body": {
+    "_comment": "Region 5 tail segment. Stops the player but is conceptually part of them.",
+    "layer": 2,
+    "color": "#a3d5a3",
+    "tags": ["stop", "snake_body"]
+  },
+  "link_a": {
+    "_comment": "Region 6 cluster member, group A. All entities with this name share one Linked head and move together when any one is pushed.",
+    "layer": 2,
+    "color": "#e08a4f",
+    "tags": ["pushable", "link_a"]
+  },
+  "link_b": {
+    "layer": 2,
+    "color": "#5fb4d3",
+    "tags": ["pushable", "link_b"]
   }
 }

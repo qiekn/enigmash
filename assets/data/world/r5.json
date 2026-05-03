@@ -1,0 +1,15 @@
+{
+  "_comment": "Region 5 — snake. Tail segments follow the head. Snake bodies are spawned in a line behind the warp anchor; their `order` is assigned at scene init so the JSON only declares positions.",
+  "region": "r5_snake",
+  "width": 8,
+  "height": 6,
+  "background": "floor",
+  "cells": [
+    [["wall"], ["wall"],     ["wall"],     ["wall"],     ["wall"], ["wall"], ["wall"], ["wall"]],
+    [["wall"], [],           [],           [],           [],       [],       [],       ["wall"]],
+    [["wall"], ["snake_body"], ["snake_body"], ["snake_body"], [], [],       ["goal"], ["wall"]],
+    [["wall"], [],           [],           [],           [],       [],       [],       ["wall"]],
+    [["wall"], [],           [],           [],           [],       [],       [],       ["wall"]],
+    [["wall"], ["wall"],     ["wall"],     ["wall"],     ["wall"], ["wall"], ["wall"], ["wall"]]
+  ]
+}

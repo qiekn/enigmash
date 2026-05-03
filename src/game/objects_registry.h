@@ -19,6 +19,9 @@ enum class Tag : uint16_t {
   Toggle    = 1u << 2,
   Checkpoint= 1u << 3,
   Player    = 1u << 4,
+  LinkA     = 1u << 5,
+  LinkB     = 1u << 6,
+  SnakeBody = 1u << 7,
 };
 
 constexpr Tag operator|(Tag a, Tag b) {

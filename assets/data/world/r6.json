@@ -1,0 +1,15 @@
+{
+  "_comment": "Region 6 — cluster. Two declared link groups: link_a (orange) moves as one rigid body; link_b (blue) is a second independent rigid body. Pushing any orange box shifts all orange boxes; same for blue.",
+  "region": "r6_cluster",
+  "width": 8,
+  "height": 6,
+  "background": "floor",
+  "cells": [
+    [["wall"], ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"]],
+    [["wall"], [],         ["link_a"], [],         ["link_b"], [],         [],         ["wall"]],
+    [["wall"], [],         [],         ["link_a"], [],         ["link_b"], [],         ["wall"]],
+    [["wall"], [],         ["link_a"], [],         [],         [],         ["goal"],   ["wall"]],
+    [["wall"], [],         [],         [],         [],         [],         [],         ["wall"]],
+    [["wall"], ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"],   ["wall"]]
+  ]
+}

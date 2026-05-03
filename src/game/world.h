@@ -73,6 +73,10 @@ class World {
   SpriteCache sprites_;
   Bounds bounds_{0, 0, 0, 0};
   std::vector<RegionInfo> regions_;
+  // Heads of the two named-link clusters, written on the first spawn
+  // of each kind so subsequent spawns join the same group.
+  entt::entity link_a_head_ = entt::null;
+  entt::entity link_b_head_ = entt::null;
 };
 
 }  // namespace game
