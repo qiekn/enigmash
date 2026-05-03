@@ -63,6 +63,20 @@ void Game::Init() {
   SetWindowPosition(state.x, state.y);
   SetTargetFPS(kTargetFps);
 
+  // Window / taskbar / Alt-Tab icon. Set BEFORE the splash so the first
+  // OS-level frame already has the right icon — the .ico baked into the
+  // .exe by cmake/icon.rc covers Explorer; this one covers runtime.
+  //
+  // raylib's SetWindowIcon → glfwSetWindowIcon requires R8G8B8A8 pixels;
+  // anything else (palette PNG, RGB-only, grayscale) is silently dropped
+  // with a LOG_WARNING you won't see in the WIN32_EXECUTABLE build. Force
+  // the format unconditionally so we don't have to remember the rule.
+  if (Image icon = LoadImage("assets/textures/icon.png"); icon.data != nullptr) {
+    ImageFormat(&icon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    SetWindowIcon(icon);
+    UnloadImage(icon);
+  }
+
   // raylib defaults ESC to "close window" (it sets the GLFW
   // should-close flag). Disable that — scenes use ESC for "go back" /
   // "pause"; Game::Run only exits when SceneManager::RequestQuit fires

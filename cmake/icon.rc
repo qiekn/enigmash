@@ -1,0 +1,8 @@
+// Windows resource script. Compiled by `windres` (clang/MinGW) or `rc.exe`
+// (MSVC) into a .res object that ld links into the final .exe — Explorer
+// then reads ICON resource id 1 to render the file's icon at every size
+// it asks for (16 / 32 / 48 in the shell, 64 / 128 / 256 for thumbnails).
+//
+// The path is relative to this .rc file at resource-compile time, NOT to
+// the working directory at link time.
+1 ICON "../assets/textures/icon.ico"

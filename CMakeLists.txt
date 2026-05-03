@@ -89,6 +89,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_SCAN_FOR_MODULES OFF)
 # Hide the Windows console window in release builds.
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 
+# Embed the multi-size .ico as a Windows resource so Explorer / the
+# taskbar / Alt-Tab pickers all show our icon for the .exe itself.
+# CMake routes .rc files through windres (Clang/MinGW) or rc.exe (MSVC)
+# automatically; nothing else to wire.
+if(WIN32)
+  target_sources(${PROJECT_NAME} PRIVATE cmake/icon.rc)
+endif()
+
 if(UNIX AND NOT APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES
     BUILD_RPATH "$ORIGIN"
