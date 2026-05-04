@@ -1,11 +1,6 @@
 {
-  "_comment": "Top-level world index. Each region declares its origin in world-space (cells) and the file containing its grid. Regions are laid out side-by-side along x with a small gap; F1..F6 warp the single player into each one.",
+  "_comment": "Top-level world index. Points at the auto-decoded enigmash.json for main gameplay. For mechanic sandbox use test.json (swap filenames or load it via the editor).",
   "regions": [
-    { "id": "r1", "origin": [0,  0], "file": "r1.json" },
-    { "id": "r2", "origin": [9,  0], "file": "r2.json" },
-    { "id": "r3", "origin": [18, 0], "file": "r3.json" },
-    { "id": "r4", "origin": [26, 0], "file": "r4.json" },
-    { "id": "r5", "origin": [37, 0], "file": "r5.json" },
-    { "id": "r6", "origin": [46, 0], "file": "r6.json" }
+    { "id": "enigmash", "origin": [0, 0], "file": "enigmash.json", "region": "r1_sokoban" }
   ]
 }
