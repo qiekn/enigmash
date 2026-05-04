@@ -52,11 +52,26 @@
   "player_four":  { "layer": 3, "color": "#a3a3c0" },
   "player_five":  { "layer": 3, "color": "#e2ba7c" },
   "player_six":   { "layer": 3, "color": "#a1f5f5" },
-  "snake_body": {
-    "_comment": "Region 5 tail segment. Stops the player but is conceptually part of them.",
-    "layer": 2,
-    "color": "#a3d5a3",
-    "tags": ["stop", "snake_body"]
+  "convey_e": {
+    "_comment": "Region 5 conveyor — pushes anything standing on it east one cell per tick.",
+    "layer": 0,
+    "color": "#b09060",
+    "tags": ["convey_e"]
+  },
+  "convey_w": {
+    "layer": 0,
+    "color": "#609090",
+    "tags": ["convey_w"]
+  },
+  "convey_n": {
+    "layer": 0,
+    "color": "#7090c0",
+    "tags": ["convey_n"]
+  },
+  "convey_s": {
+    "layer": 0,
+    "color": "#c07090",
+    "tags": ["convey_s"]
   },
   "link_a": {
     "_comment": "Region 6 cluster member, group A. All entities with this name share one Linked head and move together when any one is pushed.",

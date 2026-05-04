@@ -52,13 +52,6 @@ struct Facing {
   Direction dir;
 };
 
-// Tail body for region 5. order==1 follows the head, order==2 follows
-// order 1, etc. Snake segments are also Stop so the head can't walk
-// through its own tail.
-struct SnakeSegment {
-  uint8_t order;
-};
-
 // "Stop" instead of "Wall" — the term covers any obstacle that blocks
 // movement, matching Baba Is You's vocabulary. Less ambiguous than Wall
 // once we add doors / one-way panels / clusters.
@@ -88,6 +81,13 @@ struct LastToggle {
   entt::entity ent = entt::null;
 };
 
+// Region 5 conveyor cell. Painted on the floor layer; any Player or
+// Pushable that ends a tick standing on a Conveyor cell is shoved one
+// cell along Conveyor::dir during the late pass.
+struct Conveyor {
+  Direction dir;
+};
+
 struct Checkpoint {};
 struct Goal {};
 
@@ -97,7 +97,7 @@ enum class Region : uint8_t {
   R2Climb,
   R3Chain,
   R4Shoot,
-  R5Snake,
+  R5Slide,
   R6Cluster,
 };
 

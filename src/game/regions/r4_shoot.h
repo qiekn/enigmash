@@ -7,14 +7,14 @@ class World;
 
 namespace regions {
 
-// Region 4: shoot. Walking is plain sokoban. Pressing the shoot key
-// scans forward in the player's Facing direction; the first Pushable
-// in line is nudged one cell in that direction (if its destination is
-// clear). Stops and out-of-bounds cells short-circuit the scan.
+// Region 4: billiards. Pushing a Pushable kicks it sliding in the push
+// direction until it hits an obstacle. If the obstacle is another
+// Pushable, momentum transfers — the kicked one stops one cell behind
+// and the contacted one starts sliding (Newton's cradle). The player
+// advances exactly one cell into the freed space.
 //
-// `dir` is the movement direction for this tick (None to stand still).
-// `shoot` requests a kick; when true, the kick uses Facing, not `dir`,
-// so you can fire while standing.
+// `dir` is the move direction this tick. The legacy `shoot` parameter
+// is now ignored — the slide IS the kick, no separate trigger.
 void Shoot(World& w, Direction dir, bool shoot);
 
 }  // namespace regions

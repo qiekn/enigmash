@@ -1,14 +1,14 @@
 {
-  "_comment": "Region 4 — shoot. Walking is plain sokoban; pressing Space kicks the first pushable in the player's facing direction by one cell. Layout: a corridor of boxes the player must clear by shooting from the entrance.",
+  "_comment": "Region 4 — billiards test. Player kicks the single box; box slides until it hits the wall (stopping one cell before goal). Player then walks through the cleared corridor to step on the goal.",
   "region": "r4_shoot",
-  "width": 9,
+  "width": 14,
   "height": 5,
   "background": "floor",
   "cells": [
-    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]],
-    [["wall"], [],       [],       [],       [],       [],       [],       [],       ["wall"]],
-    [["wall"], [],       ["box"],  [],       ["box"],  [],       ["box"],  ["goal"], ["wall"]],
-    [["wall"], [],       [],       [],       [],       [],       [],       [],       ["wall"]],
-    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]]
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], ["player"], ["box"], [],     [],       [],       [],       [],       [],       [],       [],       ["goal"], [],       ["wall"]],
+    [["wall"], [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       [],       ["wall"]],
+    [["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"], ["wall"]]
   ]
 }

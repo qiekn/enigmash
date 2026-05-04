@@ -72,7 +72,7 @@ add_executable(${PROJECT_NAME}
   src/game/regions/r2_gravity.cpp
   src/game/regions/r3_chain.cpp
   src/game/regions/r4_shoot.cpp
-  src/game/regions/r5_snake.cpp
+  src/game/regions/r5_slide.cpp
   src/game/regions/r6_cluster.cpp
   src/game/sprite_cache.cpp
   src/game/systems/patch_player_sprite.cpp

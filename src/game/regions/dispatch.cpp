@@ -6,7 +6,7 @@
 #include "game/regions/r2_gravity.h"
 #include "game/regions/r3_chain.h"
 #include "game/regions/r4_shoot.h"
-#include "game/regions/r5_snake.h"
+#include "game/regions/r5_slide.h"
 #include "game/regions/r6_cluster.h"
 #include "game/world.h"
 
@@ -37,11 +37,14 @@ void Tick(World& w, Region kind, Direction dir, bool shoot) {
     case Region::R4Shoot:
       Shoot(w, dir, shoot);
       break;
-    case Region::R5Snake:
-      Snake(w, dir);
+    case Region::R5Slide:
+      Slide(w, dir);
       break;
     case Region::R6Cluster:
-      Cluster(w, dir);
+      // r6's PS rules build clusters via spatial adjacency, same idea
+      // as r3 — visual differentiation will come from sprite art, not
+      // a separate mechanic.
+      ChainPush(w, dir);
       break;
     case Region::R1Sokoban:
     default:

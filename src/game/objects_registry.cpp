@@ -47,9 +47,12 @@ Tag TagFromString(const std::string& s) {
   if (s == "player") return Tag::Player;
   if (s == "link_a") return Tag::LinkA;
   if (s == "link_b") return Tag::LinkB;
-  if (s == "snake_body") return Tag::SnakeBody;
   if (s == "goal") return Tag::Goal;
   if (s == "toggleable") return Tag::Toggleable;
+  if (s == "convey_n") return Tag::ConveyN;
+  if (s == "convey_s") return Tag::ConveyS;
+  if (s == "convey_e") return Tag::ConveyE;
+  if (s == "convey_w") return Tag::ConveyW;
   return Tag::None;
 }
 

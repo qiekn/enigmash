@@ -165,8 +165,8 @@ void DrawInspector(State& s, const game::World& w) {
     if (auto* l = reg.try_get<game::Linked>(e)) {
       ImGui::Text("  + Linked head=%u", (unsigned)entt::to_integral(l->head));
     }
-    if (auto* sg = reg.try_get<game::SnakeSegment>(e)) {
-      ImGui::Text("  + SnakeSegment order=%u", (unsigned)sg->order);
+    if (auto* cv = reg.try_get<game::Conveyor>(e)) {
+      ImGui::Text("  + Conveyor dir=%d", (int)cv->dir);
     }
     ImGui::PopID();
   }

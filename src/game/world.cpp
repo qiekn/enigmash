@@ -43,7 +43,10 @@ entt::entity World::Spawn(const std::string& name, int x, int y) {
   if (HasTag(def->tags, Tag::Goal)) reg_.emplace<Goal>(e);
   if (HasTag(def->tags, Tag::Toggle)) reg_.emplace<Toggle>(e, def->toggle_radius);
   if (HasTag(def->tags, Tag::Toggleable)) reg_.emplace<Toggleable>(e);
-  if (HasTag(def->tags, Tag::SnakeBody)) reg_.emplace<SnakeSegment>(e, (uint8_t)0);
+  if (HasTag(def->tags, Tag::ConveyN)) reg_.emplace<Conveyor>(e, Direction::North);
+  if (HasTag(def->tags, Tag::ConveyS)) reg_.emplace<Conveyor>(e, Direction::South);
+  if (HasTag(def->tags, Tag::ConveyE)) reg_.emplace<Conveyor>(e, Direction::East);
+  if (HasTag(def->tags, Tag::ConveyW)) reg_.emplace<Conveyor>(e, Direction::West);
 
   // Linked clusters: first spawned member becomes its own head, every
   // subsequent member of the same kind joins it. Stored per-tag so two
@@ -65,7 +68,7 @@ Region RegionFromString(const std::string& s) {
   if (s == "r2_climb")   return Region::R2Climb;
   if (s == "r3_chain")   return Region::R3Chain;
   if (s == "r4_shoot")   return Region::R4Shoot;
-  if (s == "r5_snake")   return Region::R5Snake;
+  if (s == "r5_slide")   return Region::R5Slide;
   if (s == "r6_cluster") return Region::R6Cluster;
   return Region::None;
 }

@@ -4,10 +4,6 @@
 
 #include <memory>
 
-#include <algorithm>
-#include <cstdint>
-#include <vector>
-
 #include "engine/scene_manager.h"
 #include "engine/text.h"
 #include "game/components.h"
@@ -36,25 +32,6 @@ void GameplayScene::OnEnter() {
   if (!world_->LoadWorld("assets/data/world/index.json")) {
     TraceLog(LOG_ERROR, "GameplayScene: failed to load world index");
     return;
-  }
-
-  // Number snake segments left-to-right by their world-space x. The
-  // region author drops them as a row in r5.json; we assign `order`
-  // here so r5_snake's tail-shift can find them in chain order without
-  // any per-segment metadata in the JSON.
-  {
-    std::vector<entt::entity> segs;
-    for (auto [e, c, s] : world_->Registry().view<game::Cell, game::SnakeSegment>().each()) {
-      (void)c; (void)s;
-      segs.push_back(e);
-    }
-    std::sort(segs.begin(), segs.end(), [&](entt::entity a, entt::entity b) {
-      return world_->Registry().get<game::Cell>(a).x
-           < world_->Registry().get<game::Cell>(b).x;
-    });
-    for (std::size_t i = 0; i < segs.size(); ++i) {
-      world_->Registry().get<game::SnakeSegment>(segs[i]).order = (uint8_t)(i + 1);
-    }
   }
 
   camera_.zoom = 1.0f;

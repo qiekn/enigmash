@@ -15,7 +15,7 @@ const char* PlayerNameForRegion(Region r) {
     case Region::R2Climb:   return "player_two";
     case Region::R3Chain:   return "player_three";
     case Region::R4Shoot:   return "player_four";
-    case Region::R5Snake:   return "player_five";
+    case Region::R5Slide:   return "player_five";
     case Region::R6Cluster: return "player_six";
     default:                return nullptr;
   }
