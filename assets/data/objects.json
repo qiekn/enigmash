@@ -11,16 +11,19 @@
   "wall": {
     "layer": 1,
     "color": "#5a5b62",
+    "sprite": "assets/sprites/objects/wallone.png",
     "tags": ["stop"]
   },
   "checkpoint": {
     "layer": 0,
     "color": "#7eaaff",
+    "sprite": "assets/sprites/objects/checkone.png",
     "tags": ["checkpoint"]
   },
   "toggle": {
     "layer": 1,
     "color": "#f5c6ef",
+    "sprite": "assets/sprites/objects/toggleone.png",
     "tags": ["toggle"],
     "radius": 3
   },
@@ -28,30 +31,34 @@
     "_comment": "Test target for toggle swap. Stepping onto a toggle within radius flips this in/out of Hidden.",
     "layer": 1,
     "color": "#806a4f",
+    "sprite": "assets/sprites/objects/wallfive.png",
     "tags": ["stop", "toggleable"]
   },
   "box": {
     "layer": 2,
     "color": "#a17a3a",
+    "sprite": "assets/sprites/objects/thingone.png",
     "tags": ["pushable"]
   },
   "goal": {
     "layer": 0,
     "color": "#9adba0",
+    "sprite": "assets/sprites/objects/checkone.png",
     "tags": ["goal"]
   },
   "player": {
     "_comment": "Generic player. Auto-transformed at runtime to one of the per-region player_N sprites by the PatchPlayerSprite system.",
     "layer": 3,
     "color": "#ff80a8",
+    "sprite": "assets/sprites/objects/playerone.png",
     "tags": ["player"]
   },
-  "player_one":   { "layer": 3, "color": "#ff80a8" },
-  "player_two":   { "layer": 3, "color": "#f5c6ef" },
-  "player_three": { "layer": 3, "color": "#dfcc4f" },
-  "player_four":  { "layer": 3, "color": "#a3a3c0" },
-  "player_five":  { "layer": 3, "color": "#e2ba7c" },
-  "player_six":   { "layer": 3, "color": "#a1f5f5" },
+  "player_one":   { "layer": 3, "color": "#ff80a8", "sprite": "assets/sprites/objects/playerone.png" },
+  "player_two":   { "layer": 3, "color": "#f5c6ef", "sprite": "assets/sprites/objects/playertworight.png" },
+  "player_three": { "layer": 3, "color": "#dfcc4f", "sprite": "assets/sprites/objects/playerthree.png" },
+  "player_four":  { "layer": 3, "color": "#a3a3c0", "sprite": "assets/sprites/objects/playerfourright.png" },
+  "player_five":  { "layer": 3, "color": "#e2ba7c", "sprite": "assets/sprites/objects/playerfiver.png" },
+  "player_six":   { "layer": 3, "color": "#a1f5f5", "sprite": "assets/sprites/objects/playersix1.png" },
   "convey_e": {
     "_comment": "Region 5 conveyor — pushes anything standing on it east one cell per tick.",
     "layer": 0,
