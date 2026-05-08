@@ -93,7 +93,7 @@ void Game::Init() {
 
   // Pre-load Noto atlases so HUD text uses the same face as ImGui. Switch
   // to AsciiOnly to skip the ~21k Han glyphs if no localized strings ship.
-  engine::LoadFonts(engine::CodepointSet::AsciiPlusCJK);
+  engine::LoadFonts(engine::CodepointSet::AsciiOnly);
 
   auto imgui_layer = std::make_unique<ImGuiLayer>();
   auto game_layer = std::make_unique<GameLayer>();
