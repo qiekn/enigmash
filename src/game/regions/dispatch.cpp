@@ -16,10 +16,19 @@ Region RegionUnderPlayer(const World& w) {
   const auto& reg = w.Registry();
   for (auto [e, c] : reg.view<const Cell, const Player>().each()) {
     for (const auto& info : w.Regions()) {
-      if (c.x >= info.min_x && c.x < info.max_x &&
-          c.y >= info.min_y && c.y < info.max_y) {
-        return info.kind;
+      if (c.x < info.min_x || c.x >= info.max_x ||
+          c.y < info.min_y || c.y >= info.max_y) {
+        continue;
       }
+      if (!info.cell_kind.empty()) {
+        const int width = info.max_x - info.min_x;
+        const size_t idx = static_cast<size_t>(c.y - info.min_y) * width + (c.x - info.min_x);
+        if (idx < info.cell_kind.size()) {
+          uint8_t v = info.cell_kind[idx];
+          if (v >= 1 && v <= 6) return static_cast<Region>(v);
+        }
+      }
+      return info.kind;
     }
   }
   return Region::None;

@@ -73,12 +73,13 @@ Region RegionFromString(const std::string& s) {
   return Region::None;
 }
 
-// Loads one region file: { width, height, region?, background?, cells: [[[name,...],...]...] }.
+// Loads one region file: { width, height, region?, background?, cells: [[[name,...],...]...], region_map?: [[N,...],...] }.
 // All entities are emplaced at (origin_x + cx, origin_y + cy). Returns
-// true on success; updates `out_w` / `out_h` with the region's bounds
-// and `out_kind` with the parsed region mechanic (None if unspecified).
+// true on success; updates `out_w` / `out_h` with the region's bounds,
+// `out_kind` with the parsed region mechanic (None if unspecified), and
+// `out_cell_kind` with the row-major per-cell N grid (empty if absent).
 bool LoadRegionFile(World& world, const std::string& path, int origin_x, int origin_y,
-                    int& out_w, int& out_h, Region& out_kind) {
+                    int& out_w, int& out_h, Region& out_kind, std::vector<uint8_t>& out_cell_kind) {
   std::ifstream in(path);
   if (!in) {
     TraceLog(LOG_ERROR, "World::LoadWorld: cannot open region '%s'", path.c_str());
@@ -116,6 +117,24 @@ bool LoadRegionFile(World& world, const std::string& path, int origin_x, int ori
       }
     }
   }
+
+  // Optional region_map: 2D N-grid sized w*h. Values outside 0..6 are
+  // clamped to 0 (default region).
+  out_cell_kind.clear();
+  if (auto rm = j.find("region_map"); rm != j.end() && rm->is_array()) {
+    out_cell_kind.assign(static_cast<size_t>(w) * h, 0);
+    for (int y = 0; y < h && y < (int)rm->size(); ++y) {
+      const auto& row = (*rm)[y];
+      if (!row.is_array()) continue;
+      for (int x = 0; x < w && x < (int)row.size(); ++x) {
+        if (!row[x].is_number_integer()) continue;
+        int v = row[x].get<int>();
+        if (v < 0 || v > 6) v = 0;
+        out_cell_kind[static_cast<size_t>(y) * w + x] = static_cast<uint8_t>(v);
+      }
+    }
+  }
+
   out_w = w;
   out_h = h;
   return true;
@@ -162,7 +181,8 @@ bool World::LoadWorld(const std::string& path) {
     const std::string fpath = (base / file_it->get<std::string>()).string();
     int w = 0, h = 0;
     Region kind = Region::None;
-    if (!LoadRegionFile(*this, fpath, ox, oy, w, h, kind)) continue;
+    std::vector<uint8_t> cell_kind;
+    if (!LoadRegionFile(*this, fpath, ox, oy, w, h, kind, cell_kind)) continue;
 
     // Index-level region kind override wins over the file-level one so
     // the same region body can be reused under a different mechanic.
@@ -177,6 +197,7 @@ bool World::LoadWorld(const std::string& path) {
     info.min_y = oy;
     info.max_x = ox + w;
     info.max_y = oy + h;
+    info.cell_kind = std::move(cell_kind);
     regions_.push_back(std::move(info));
 
     if (!any) {

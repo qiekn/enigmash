@@ -51,10 +51,14 @@ class World {
   // Per-region metadata stitched together by LoadWorld. Each entry stores
   // its world-space bounding box (origin + size) plus the gameplay
   // mechanic that governs it. RegionUnderPlayer scans this list.
+  // If `cell_kind` is non-empty (size == width * height where
+  // width = max_x - min_x, etc.), it overrides `kind` per cell: 0 means
+  // fall back to `kind`, 1..6 maps to Region enum values 1..6.
   struct RegionInfo {
     std::string id;
     Region kind = Region::None;
     int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+    std::vector<uint8_t> cell_kind;  // row-major, optional
   };
   const std::vector<RegionInfo>& Regions() const { return regions_; }
 

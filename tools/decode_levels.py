@@ -6,9 +6,12 @@ through the LEGEND section, then maps PS object names to our sharply
 smaller vocabulary and writes assets/data/world/enigmash.json.
 
 The original map is a single ~104x104 grid with all 6 mechanics woven
-through it. Our World supports multi-region layouts via index.json,
-but for the initial port we treat the whole thing as one grid and let
-backgrounds / regions be determined per-cell via backgroundN tiles.
+through it. We treat the whole thing as one body and additionally emit
+a `region_map` (same shape as cells) that labels each cell 0..6: 0 means
+"default region" (r1_sokoban), 1..6 mean the matching mechanic. The map
+is computed via multi-source BFS from the in-source N-marker tiles
+('1'..'6'), with walls blocking propagation. The C++ dispatcher reads
+region_map[y][x] when the player stands on it.
 
 We don't support every original mechanic (letters, messages, warps,
 connectors, multi-sprite composites). Unmapped chars become floor.
@@ -18,6 +21,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from collections import deque
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -242,6 +246,35 @@ def translate_cell(char: str, legend: dict[str, list[str]]) -> list[str]:
     return out
 
 
+def build_region_map(grid: list[str], cells: list[list[list[str]]]) -> list[list[int]]:
+    """Multi-source BFS from N-marker chars ('1'..'6') through walkable
+    cells. A cell is walkable iff its translated objects do not include
+    'wall'. Walls block propagation. Cells never reached stay 0
+    (handled as default region by the dispatcher)."""
+    h = len(grid)
+    w = len(grid[0])
+    region_map = [[0] * w for _ in range(h)]
+    walkable = [[("wall" not in cells[y][x]) for x in range(w)] for y in range(h)]
+
+    q: deque[tuple[int, int]] = deque()
+    for y, row in enumerate(grid):
+        for x, ch in enumerate(row):
+            if ch in "123456":
+                region_map[y][x] = int(ch)
+                q.append((x, y))
+
+    while q:
+        x, y = q.popleft()
+        n = region_map[y][x]
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and region_map[ny][nx] == 0 and walkable[ny][nx]:
+                region_map[ny][nx] = n
+                q.append((nx, ny))
+
+    return region_map
+
+
 def main() -> None:
     lines = slurp()
     legend = parse_legend(lines)
@@ -264,12 +297,20 @@ def main() -> None:
             out_row.append(objs)
         cells.append(out_row)
 
+    region_map = build_region_map(grid, cells)
+    counts = [0] * 7
+    for row in region_map:
+        for v in row:
+            counts[v] += 1
+    print(f"Region cell counts (0=default): {counts}")
+
     doc = {
         "_comment": "Auto-decoded from refs/enigmash-original/game.txt via tools/decode_levels.py. Regenerate with that script after editing the source.",
         "width": len(grid[0]),
         "height": len(grid),
         "background": "floor",
         "cells": cells,
+        "region_map": region_map,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(doc, indent=1))
