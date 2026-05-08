@@ -307,11 +307,19 @@ def main() -> None:
             counts[v] += 1
     print(f"Region cell counts (0=default): {counts}")
 
+    # Tint floors per region: prepend the matching floor variant to every
+    # cell so the player can visually distinguish where they are. Cells in
+    # region 0 (walls and unreachable rooms) get the default 'floor'.
+    floor_for = ["floor", "floor_one", "floor_two", "floor_three",
+                 "floor_four", "floor_five", "floor_six"]
+    for y in range(len(cells)):
+        for x in range(len(cells[y])):
+            cells[y][x].insert(0, floor_for[region_map[y][x]])
+
     doc = {
         "_comment": "Auto-decoded from refs/enigmash-original/game.txt via tools/decode_levels.py. Regenerate with that script after editing the source.",
         "width": len(grid[0]),
         "height": len(grid),
-        "background": "floor",
         "cells": cells,
         "region_map": region_map,
     }

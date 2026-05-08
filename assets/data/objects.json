@@ -8,6 +8,12 @@
     "layer": 0,
     "color": "#3a3b40"
   },
+  "floor_one":   { "layer": 0, "color": "#3d6a3d", "sprite": "assets/sprites/objects/backgroundone.png" },
+  "floor_two":   { "layer": 0, "color": "#704a68" },
+  "floor_three": { "layer": 0, "color": "#7a6b1f", "sprite": "assets/sprites/objects/backgroundthree.png" },
+  "floor_four":  { "layer": 0, "color": "#3a3a48", "sprite": "assets/sprites/objects/backgroundfour.png" },
+  "floor_five":  { "layer": 0, "color": "#7a6738", "sprite": "assets/sprites/objects/backgroundfive.png" },
+  "floor_six":   { "layer": 0, "color": "#3a7a7a" },
   "wall": {
     "layer": 1,
     "color": "#5a5b62",
