@@ -14,9 +14,9 @@ PauseMenuScene::PauseMenuScene() : Scene("PauseMenu") {}
 void PauseMenuScene::OnUpdate(float /*dt*/) {
   const int n = static_cast<int>(Item::Count);
 
-  if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_J)) {
+  if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_J) || IsKeyPressed(KEY_S)) {
     selected_ = (selected_ + 1) % n;
-  } else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_K)) {
+  } else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_K) || IsKeyPressed(KEY_W)) {
     selected_ = (selected_ - 1 + n) % n;
   } else if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
     Activate(static_cast<Item>(selected_));

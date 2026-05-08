@@ -18,9 +18,9 @@ MainMenuScene::MainMenuScene() : Scene("MainMenu") {}
 void MainMenuScene::OnUpdate(float /*dt*/) {
   const int n = static_cast<int>(Item::Count);
 
-  if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_J)) {
+  if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_J) || IsKeyPressed(KEY_S)) {
     selected_ = (selected_ + 1) % n;
-  } else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_K)) {
+  } else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_K) || IsKeyPressed(KEY_W)) {
     selected_ = (selected_ - 1 + n) % n;
   } else if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
     Activate(static_cast<Item>(selected_));
@@ -89,7 +89,7 @@ void MainMenuScene::OnRender(int w, int h) {
     engine::DrawText(label, Vector2{w * 0.5f - 70.0f, y}, 24, color);
   }
 
-  engine::DrawText("arrows / hjkl to navigate    enter to confirm",
+  engine::DrawText("arrows / wasd / hjkl to navigate    enter to confirm",
                    Vector2{16, h - 30.0f}, 16, Color{140, 140, 160, 200});
 }
 
