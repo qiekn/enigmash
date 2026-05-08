@@ -195,6 +195,9 @@ PS_TO_OURS: dict[str, str | None] = {
     # toggle / checkpoint / goal / numbered tiles
     "toggle": "toggle",
     "check": "checkpoint",
+    "winspawn": "goal",  # original spawns a 'winner' on each winspawn; pressing
+                          # action on a winner = win. We collapse that into a
+                          # single 'goal' tile so Goal-tag overlap triggers win.
     "one": None,     # region-1 numeric tile; not a mechanic in our port
     "two": None,
     "three": None,
@@ -209,7 +212,7 @@ PS_TO_OURS: dict[str, str | None] = {
 DROP_PREFIXES = (
     "letter", "mark", "hide", "tmp", "swap", "connector", "warp",
     "barrier", "legs", "trim", "trace", "link", "went", "moving",
-    "stationary", "fix", "supported", "sunk", "winspawn", "winner",
+    "stationary", "fix", "supported", "sunk",
     "exitmark", "camerashift", "dangthisisohackyblargh", "tail",
     "touching", "climb", "went", "noswap", "justswapped", "camerastick",
     "efive", "tailmark", "backgroundhere",
