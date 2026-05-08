@@ -9,6 +9,7 @@
 #include "engine/text.h"
 #include "game/components.h"
 #include "game/regions/dispatch.h"
+#include "game/systems/patch_box_sprite.h"
 #include "game/systems/patch_player_sprite.h"
 #include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
@@ -60,6 +61,7 @@ void GameplayScene::OnEnter() {
   SaveCheckpoint();
   // Pick the right per-region body sprite for the spawn location.
   game::systems::PatchPlayerSprite(*world_);
+  game::systems::PatchBoxSprite(*world_);
 }
 
 void GameplayScene::OnExit() {
@@ -109,6 +111,7 @@ void GameplayScene::OnUpdate(float dt) {
       game::regions::Tick(*world_, kind, dir, shoot);
       game::systems::ToggleSwap(*world_);
       game::systems::PatchPlayerSprite(*world_);
+      game::systems::PatchBoxSprite(*world_);
 
       // Stepping on a Checkpoint resets the restore point. Done after
       // the tick so a "push a box onto a checkpoint, you stand here"
