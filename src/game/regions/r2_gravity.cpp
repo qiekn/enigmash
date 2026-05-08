@@ -4,6 +4,7 @@
 #include <entt/entt.hpp>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/regions/dispatch.h"
 #include "game/systems/spatial.h"
@@ -42,6 +43,7 @@ void GravityLatePass(World& w) {
   // above for the next iteration. Both Pushables and Players fall —
   // the player needs gravity for the platformer feel.
   bool changed = true;
+  bool any_fell = false;
   int safety = 64;
   while (changed && safety-- > 0) {
     changed = false;
@@ -68,8 +70,10 @@ void GravityLatePass(World& w) {
       if (CellOccupied(reg, c.x, below_y, e)) continue;
       c.y = below_y;
       changed = true;
+      any_fell = true;
     }
   }
+  if (any_fell) audio::Play(audio::Sfx::R2Fall);
 }
 
 }  // namespace game::regions

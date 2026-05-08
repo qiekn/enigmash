@@ -65,6 +65,7 @@ add_executable(${PROJECT_NAME}
   src/engine/scene_manager.cpp
   src/engine/text.cpp
   src/game/input.cpp
+  src/game/audio.cpp
   src/game/objects_registry.cpp
   src/game/regions/dispatch.cpp
   src/game/regions/r1_sokoban.cpp

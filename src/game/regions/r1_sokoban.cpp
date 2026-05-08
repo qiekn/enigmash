@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/systems/spatial.h"
 #include "game/world.h"
@@ -42,6 +43,7 @@ void Sokoban(World& w, Direction dir) {
     c.x += dx;
     c.y += dy;
     reg.emplace_or_replace<Facing>(e, dir);
+    if (!chain.empty()) audio::Play(audio::Sfx::R1Push);
   }
 }
 

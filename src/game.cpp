@@ -10,6 +10,7 @@
 #include <imgui.h>
 
 #include "engine/text.h"
+#include "game/audio.h"
 #include "game_layer.h"
 #include "theme.h"
 
@@ -90,6 +91,7 @@ void Game::Init() {
   ShowSplashFrame();
 
   InitAudioDevice();
+  game::audio::Init();
 
   // Pre-load Noto atlases so HUD text uses the same face as ImGui. Switch
   // to AsciiOnly to skip the ~21k Han glyphs if no localized strings ship.
@@ -198,6 +200,7 @@ void Game::Shutdown() {
   SaveWindowState();
   layers_.clear();        // detach layers before the GL context goes away
   engine::UnloadFonts();  // free font atlases (still need GL context)
+  game::audio::Shutdown();
   CloseAudioDevice();
   CloseWindow();
 }

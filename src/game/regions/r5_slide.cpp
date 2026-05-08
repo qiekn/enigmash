@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/regions/r1_sokoban.h"
 #include "game/systems/spatial.h"
@@ -58,6 +59,7 @@ void Slide(World& w, Direction dir) {
   // conveyor's direction. Iterate until stable so a row of conveyors
   // can carry an entity multiple cells.
   bool changed = true;
+  bool any_conveyed = false;
   int safety = 64;
   while (changed && safety-- > 0) {
     changed = false;
@@ -79,9 +81,13 @@ void Slide(World& w, Direction dir) {
       if (cv == Direction::None) continue;
       const int dx = DX(cv);
       const int dy = DY(cv);
-      if (ShiftOne(w, reg, e, dx, dy)) changed = true;
+      if (ShiftOne(w, reg, e, dx, dy)) {
+        changed = true;
+        any_conveyed = true;
+      }
     }
   }
+  if (any_conveyed) audio::Play(audio::Sfx::R5Move);
 }
 
 }  // namespace game::regions

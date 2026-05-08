@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/systems/spatial.h"
 #include "game/world.h"
@@ -14,8 +15,9 @@ namespace {
 // Walks a sokoban chain from `(pc.x + dx, pc.y)` along (dx, 0). On
 // success, shifts every box and the player one cell. Returns false
 // without mutating state if blocked by Stop or out-of-bounds; the
-// caller decides whether to climb instead.
-bool TryPushAndStep(World& w, Cell& pc, int dx) {
+// caller decides whether to climb instead. Reports back via `pushed`
+// whether at least one box moved (audio gating).
+bool TryPushAndStep(World& w, Cell& pc, int dx, bool* pushed) {
   auto& reg = w.Registry();
   std::vector<entt::entity> chain;
   int tx = pc.x + dx;
@@ -34,6 +36,7 @@ bool TryPushAndStep(World& w, Cell& pc, int dx) {
     bc.x += dx;
   }
   pc.x += dx;
+  if (pushed != nullptr) *pushed = !chain.empty();
   return true;
 }
 
@@ -45,8 +48,10 @@ void Climb(World& w, Direction dir) {
   auto& reg = w.Registry();
 
   for (auto [pe, pc] : reg.view<Player, Cell>().each()) {
-    if (TryPushAndStep(w, pc, dx)) {
+    bool pushed = false;
+    if (TryPushAndStep(w, pc, dx, &pushed)) {
       reg.emplace_or_replace<Facing>(pe, dir);
+      if (pushed) audio::Play(audio::Sfx::R1Push);
       return;
     }
 
@@ -69,6 +74,7 @@ void Climb(World& w, Direction dir) {
     pc.x = cx;
     pc.y = cy;
     reg.emplace_or_replace<Facing>(pe, dir);
+    audio::Play(audio::Sfx::R2Climb);
   }
 }
 

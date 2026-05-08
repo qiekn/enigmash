@@ -4,6 +4,7 @@
 #include <entt/entt.hpp>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/world.h"
 
@@ -44,6 +45,7 @@ void ToggleSwap(World& w) {
     }
     for (auto e : to_show) reg.remove<Hidden>(e);
     for (auto e : to_hide) reg.emplace<Hidden>(e);
+    if (!to_show.empty() || !to_hide.empty()) audio::Play(audio::Sfx::ToggleSwap);
   }
 }
 

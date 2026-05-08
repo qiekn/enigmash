@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/systems/spatial.h"
 #include "game/world.h"
@@ -97,6 +98,7 @@ void ChainPush(World& w, Direction dir) {
     c.x += dx;
     c.y += dy;
     reg.emplace_or_replace<Facing>(e, dir);
+    audio::Play(audio::Sfx::R3Push);
   }
 }
 

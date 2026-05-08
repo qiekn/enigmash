@@ -2,6 +2,7 @@
 
 #include <entt/entt.hpp>
 
+#include "game/audio.h"
 #include "game/components.h"
 #include "game/systems/spatial.h"
 #include "game/world.h"
@@ -58,6 +59,7 @@ void Shoot(World& w, Direction dir, bool /*shoot*/) {
       // chain, etc.) the player is blocked too — don't trample it.
       const auto& bc = reg.get<Cell>(box);
       if (bc.x == tx && bc.y == ty) return;
+      audio::Play(audio::Sfx::R4Push);
     }
     pc.x = tx;
     pc.y = ty;
