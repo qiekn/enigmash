@@ -203,7 +203,7 @@ void Game::Shutdown() {
 }
 
 void Game::ShowSplashFrame() {
-  // Paints one frame using only raylib core APIs (no engine::text, no
+  // Paints the logo using only raylib core APIs (no engine::text, no
   // ImGui — those aren't initialised yet). Texture load is fast (<10ms);
   // the surrounding BeginDrawing/EndDrawing pair triggers the actual GL
   // SwapBuffers so the OS has pixels to composite while Init() blocks
@@ -212,27 +212,36 @@ void Game::ShowSplashFrame() {
   const bool valid = (logo.id != 0 && logo.width > 0 && logo.height > 0);
   if (valid) SetTextureFilter(logo, TEXTURE_FILTER_BILINEAR);
 
-  BeginDrawing();
-  ClearBackground(theme::kBackground);
+  auto draw_one_frame = [&]() {
+    BeginDrawing();
+    ClearBackground(theme::kBackground);
+    if (valid) {
+      const int sw = GetScreenWidth();
+      const int sh = GetScreenHeight();
+      constexpr float kMargin = 0.7f;
+      const float scale = std::min(sw * kMargin / logo.width, sh * kMargin / logo.height);
+      const float dw = logo.width * scale;
+      const float dh = logo.height * scale;
+      const float dx = (sw - dw) * 0.5f;
+      const float dy = (sh - dh) * 0.5f;
+      DrawTexturePro(logo,
+                     Rectangle{0, 0, (float)logo.width, (float)logo.height},
+                     Rectangle{dx, dy, dw, dh},
+                     Vector2{0, 0}, 0.0f, WHITE);
+    }
+    EndDrawing();
+  };
 
-  if (valid) {
-    // Fit the logo inside the window with margin (same math used everywhere
-    // we display jl.png, so behaviour stays consistent).
-    const int sw = GetScreenWidth();
-    const int sh = GetScreenHeight();
-    constexpr float kMargin = 0.7f;
-    const float scale = std::min(sw * kMargin / logo.width, sh * kMargin / logo.height);
-    const float dw = logo.width * scale;
-    const float dh = logo.height * scale;
-    const float dx = (sw - dw) * 0.5f;
-    const float dy = (sh - dh) * 0.5f;
-    DrawTexturePro(logo,
-                   Rectangle{0, 0, (float)logo.width, (float)logo.height},
-                   Rectangle{dx, dy, dw, dh},
-                   Vector2{0, 0}, 0.0f, WHITE);
-  }
-
-  EndDrawing();
+  // Hold the splash for a minimum duration so the user actually reads the
+  // logo. Re-draw every frame so window drag / expose events keep the
+  // image visible (a single SwapBuffers leaves the backbuffer stale on
+  // some compositors).
+  constexpr double kMinHoldSec = 1.5;
+  const double start = GetTime();
+  do {
+    if (WindowShouldClose()) break;
+    draw_one_frame();
+  } while (GetTime() - start < kMinHoldSec);
 
   if (valid) UnloadTexture(logo);
 }
