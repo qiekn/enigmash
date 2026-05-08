@@ -163,11 +163,14 @@ PS_TO_OURS: dict[str, str | None] = {
     "wallthingone": "wall",
     "wallthingtwo": "wall",
     "wallthingfour": "wall",
-    # stops (single-direction walls — treat as full walls for now)
-    "stopleft": "wall",
-    "stopright": "wall",
-    "stopdown": "wall",
-    "stopup": "wall",
+    # stops (single-direction walls — n/s/e/w resolve to wall+stopdir
+    # so they stay full walls. Pure directional stops (l/r/u/d/f) are
+    # passable in all directions in our port: we don't model StopDir
+    # yet, and treating them as walls seals off most corridors).
+    "stopleft": None,
+    "stopright": None,
+    "stopdown": None,
+    "stopup": None,
     # pushables
     "thing": "box",
     "thingone": "box",
