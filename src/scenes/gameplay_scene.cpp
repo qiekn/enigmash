@@ -11,6 +11,7 @@
 #include "game/regions/dispatch.h"
 #include "game/systems/patch_box_sprite.h"
 #include "game/systems/patch_player_sprite.h"
+#include "game/systems/patch_wall_sprite.h"
 #include "game/systems/render_interp.h"
 #include "game/systems/render_tiles.h"
 #include "game/systems/toggle_swap.h"
@@ -62,6 +63,10 @@ void GameplayScene::OnEnter() {
   // Pick the right per-region body sprite for the spawn location.
   game::systems::PatchPlayerSprite(*world_);
   game::systems::PatchBoxSprite(*world_);
+  // Walls are immobile, so this only needs to fire once on world load
+  // (and on hot-reload). The per-tick sprite patches above don't touch
+  // walls so this stays cheap.
+  game::systems::PatchWallSprite(*world_);
 }
 
 void GameplayScene::OnExit() {
@@ -98,6 +103,10 @@ void GameplayScene::OnUpdate(float dt) {
   // player holds a direction, undo wins this frame.
   if (IsKeyPressed(KEY_Z)) {
     undo_.Pop(world_->Registry());
+    // Sprites aren't snapshotted; re-apply per-region skins so the
+    // undone player / boxes show the right look for their restored cell.
+    game::systems::PatchPlayerSprite(*world_);
+    game::systems::PatchBoxSprite(*world_);
   } else if (IsKeyPressed(KEY_R)) {
     RestoreCheckpoint();
   } else {
@@ -157,6 +166,10 @@ void GameplayScene::RestoreCheckpoint() {
   checkpoint_.Pop(world_->Registry());
   SaveCheckpoint();
   undo_.Clear();  // post-checkpoint history is no longer reachable
+  // Player / box sprites depend on cell-region; restoring positions
+  // without re-patching would leave stale per-region skins.
+  game::systems::PatchPlayerSprite(*world_);
+  game::systems::PatchBoxSprite(*world_);
 }
 
 bool GameplayScene::ReachedGoal() const {
@@ -216,6 +229,9 @@ void GameplayScene::ReloadFromJson() {
   if (!world_->LoadWorld("assets/data/world/index.json")) return;
   undo_.Clear();
   SaveCheckpoint();
+  game::systems::PatchPlayerSprite(*world_);
+  game::systems::PatchBoxSprite(*world_);
+  game::systems::PatchWallSprite(*world_);
 }
 
 }  // namespace scenes
