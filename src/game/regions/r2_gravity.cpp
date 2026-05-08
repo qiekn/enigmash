@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "game/components.h"
+#include "game/regions/dispatch.h"
 #include "game/systems/spatial.h"
 #include "game/world.h"
 
@@ -58,6 +59,10 @@ void GravityLatePass(World& w) {
     });
     for (auto e : ents) {
       auto& c = reg.get<Cell>(e);
+      // Gravity is region-2 only: a box pushed from r1 into r2 starts
+      // falling, but a box sitting on r1 floor stays put. Filter by the
+      // entity's *current* cell, not the player's.
+      if (RegionAt(w, c.x, c.y) != Region::R2Climb) continue;
       const int below_y = c.y + 1;
       if (!systems::InBounds(w, c.x, below_y)) continue;
       if (CellOccupied(reg, c.x, below_y, e)) continue;

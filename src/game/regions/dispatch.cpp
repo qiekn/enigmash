@@ -12,24 +12,29 @@
 
 namespace game::regions {
 
+Region RegionAt(const World& w, int x, int y) {
+  for (const auto& info : w.Regions()) {
+    if (x < info.min_x || x >= info.max_x ||
+        y < info.min_y || y >= info.max_y) {
+      continue;
+    }
+    if (!info.cell_kind.empty()) {
+      const int width = info.max_x - info.min_x;
+      const size_t idx = static_cast<size_t>(y - info.min_y) * width + (x - info.min_x);
+      if (idx < info.cell_kind.size()) {
+        uint8_t v = info.cell_kind[idx];
+        if (v >= 1 && v <= 6) return static_cast<Region>(v);
+      }
+    }
+    return info.kind;
+  }
+  return Region::None;
+}
+
 Region RegionUnderPlayer(const World& w) {
   const auto& reg = w.Registry();
   for (auto [e, c] : reg.view<const Cell, const Player>().each()) {
-    for (const auto& info : w.Regions()) {
-      if (c.x < info.min_x || c.x >= info.max_x ||
-          c.y < info.min_y || c.y >= info.max_y) {
-        continue;
-      }
-      if (!info.cell_kind.empty()) {
-        const int width = info.max_x - info.min_x;
-        const size_t idx = static_cast<size_t>(c.y - info.min_y) * width + (c.x - info.min_x);
-        if (idx < info.cell_kind.size()) {
-          uint8_t v = info.cell_kind[idx];
-          if (v >= 1 && v <= 6) return static_cast<Region>(v);
-        }
-      }
-      return info.kind;
-    }
+    return RegionAt(w, c.x, c.y);
   }
   return Region::None;
 }
@@ -38,7 +43,6 @@ void Tick(World& w, Region kind, Direction dir, bool shoot) {
   switch (kind) {
     case Region::R2Climb:
       Climb(w, dir);
-      GravityLatePass(w);
       break;
     case Region::R3Chain:
       ChainPush(w, dir);
@@ -60,6 +64,11 @@ void Tick(World& w, Region kind, Direction dir, bool shoot) {
       Sokoban(w, dir);
       break;
   }
+  // Gravity is a global late pass — any box (or player) currently sitting
+  // on an r2 cell falls, regardless of which region the player triggered
+  // this tick. This makes "push box from r1 across the boundary into r2"
+  // behave like the original (box falls into r2 when it crosses).
+  GravityLatePass(w);
 }
 
 }  // namespace game::regions

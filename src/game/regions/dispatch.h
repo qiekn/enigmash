@@ -13,6 +13,11 @@ namespace regions {
 // Region::None if none match (e.g. player is between regions).
 Region RegionUnderPlayer(const World& w);
 
+// Find which region governs an arbitrary cell. Used by global late
+// passes (gravity, etc.) that need to act on entities sitting in their
+// home region regardless of where the player currently stands.
+Region RegionAt(const World& w, int x, int y);
+
 // Run the per-tick region rules. Picks the right early-pass push rule
 // for the region kind, then any shared late passes (gravity for the
 // regions that need it). `shoot` is forwarded to region 4; ignored
