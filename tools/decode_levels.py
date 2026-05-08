@@ -33,6 +33,34 @@ OUT = ROOT / "assets/data/world/enigmash.json"
 LEVEL_BAR_LINE_LEN = 60  # lines shorter than this aren't level rows
 
 
+def parse_objects(lines: list[str]) -> dict[str, list[str]]:
+    """Returns {char: [object_name]} for OBJECTS lines like `Thing o`.
+
+    OBJECTS entries declare each PuzzleScript object plus its single-char
+    level alias (when one exists). LEGEND only handles aliases with
+    explicit `=` syntax — chars introduced via OBJECTS (`o = Thing`,
+    `1 = one`, etc.) need to be picked up here so the level decoder can
+    resolve them.
+    """
+    lo, hi = find_section(lines, "OBJECTS")
+    out: dict[str, list[str]] = {}
+    for ln in lines[lo + 2:hi]:
+        s = ln.rstrip()
+        if not s or s.startswith("="):
+            continue
+        # Header lines look like "<Name>" or "<Name> <single-char>". The
+        # body of an object (color line, sprite rows) starts with a non-
+        # alpha char or with whitespace; skip those.
+        if not s[:1].isalpha():
+            continue
+        parts = s.split()
+        if len(parts) == 2 and len(parts[1]) == 1:
+            char = parts[1].lower()
+            name = parts[0].lower()
+            out[char] = [name]
+    return out
+
+
 def slurp() -> list[str]:
     return SOURCE.read_text(encoding="utf-8", errors="replace").splitlines()
 
@@ -293,6 +321,12 @@ def build_region_map(grid: list[str], cells: list[list[list[str]]]) -> list[list
 def main() -> None:
     lines = slurp()
     legend = parse_legend(lines)
+    # OBJECTS chars take lower priority than LEGEND aliases — LEGEND can
+    # override an OBJECT's default char with a composite (e.g. 'i' redefined
+    # as 'o and t and justswappedo' in LEGEND wins over a hypothetical
+    # OBJECTS 'i' line).
+    for ch, prims in parse_objects(lines).items():
+        legend.setdefault(ch, prims)
     grid = find_levels_grid(lines)
     print(f"Level grid: {len(grid)} rows x {len(grid[0])} cols")
 

@@ -3014,10 +3014,12 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -3398,6 +3400,436 @@
    [
     "floor",
     "wall"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one",
+    "checkpoint"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ]
+  ],
+  [
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
    ],
    [
     "floor_one"
@@ -3422,431 +3854,6 @@
     "floor_one"
    ],
    [
-    "floor_one"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ]
-  ],
-  [
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one",
-    "checkpoint"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
     "floor",
     "wall"
    ],
@@ -4277,7 +4284,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -4676,7 +4684,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -5100,7 +5109,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -5508,10 +5518,12 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -6321,7 +6333,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -7016,7 +7029,8 @@
     "wall"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor",
@@ -7416,7 +7430,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -7808,7 +7823,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -7874,12 +7890,13 @@
     "checkpoint"
    ],
    [
+    "floor",
+    "box"
+   ],
+   [
     "floor"
    ],
    [
-    "floor"
-   ],
-   [
     "floor",
     "wall"
    ],
@@ -7896,7 +7913,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -8202,7 +8220,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -8267,7 +8286,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -8596,7 +8616,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -9092,13 +9113,16 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -9460,7 +9484,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -9494,7 +9519,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -9507,7 +9533,8 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -9859,7 +9886,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -9893,7 +9921,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -10617,7 +10646,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_three"
@@ -11017,7 +11047,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_three"
@@ -11402,7 +11433,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -11431,7 +11463,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -11896,396 +11929,16 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor",
     "wall"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ]
-  ],
-  [
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
-   ],
-   [
-    "floor_three"
    ],
    [
     "floor_three"
@@ -12496,6 +12149,389 @@
     "wall"
    ],
    [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_one"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor",
+    "box"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor_three"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ]
+  ],
+  [
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
     "floor"
    ],
    [
@@ -12643,7 +12679,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -13038,7 +13075,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -13293,7 +13331,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -13466,7 +13505,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -13704,7 +13744,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -13858,7 +13899,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -14181,16 +14223,20 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -14502,7 +14548,8 @@
     "wall"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor"
@@ -15872,7 +15919,8 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -15890,10 +15938,12 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -16059,7 +16109,8 @@
     "floor"
    ],
    [
-    "floor"
+    "floor",
+    "box"
    ],
    [
     "floor",
@@ -16260,7 +16311,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -16654,7 +16706,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -16914,13 +16967,15 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor",
@@ -17055,7 +17110,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -17453,7 +17509,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -18138,13 +18195,16 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -18423,10 +18483,12 @@
     "floor_four"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
     "floor_four"
@@ -18980,10 +19042,12 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six"
@@ -19358,7 +19422,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six",
@@ -19734,7 +19799,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor",
@@ -20109,7 +20175,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six"
@@ -21113,7 +21180,8 @@
     "floor_four"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
     "floor_four"
@@ -21204,7 +21272,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_two"
@@ -21581,7 +21650,8 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor",
@@ -21704,19 +21774,23 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -22076,7 +22150,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six",
@@ -22090,7 +22165,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -22683,7 +22759,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -24376,10 +24453,12 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -24631,7 +24710,8 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor",
@@ -24759,10 +24839,12 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -24926,7 +25008,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -25132,24 +25215,12 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor_one"
-   ],
-   [
-    "floor",
-    "wall"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -25160,6 +25231,22 @@
    ],
    [
     "floor_one"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_one",
+    "box"
+   ],
+   [
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -25316,7 +25403,8 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -25472,7 +25560,8 @@
     "wall"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two",
@@ -25835,7 +25924,8 @@
     "floor_five"
    ],
    [
-    "floor_five"
+    "floor_five",
+    "box"
    ],
    [
     "floor_five"
@@ -25852,7 +25942,8 @@
     "wall"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor",
@@ -25930,13 +26021,16 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -25947,7 +26041,8 @@
     "wall"
    ],
    [
-    "floor_five"
+    "floor_five",
+    "box"
    ],
    [
     "floor_five"
@@ -26134,18 +26229,12 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
-    "floor_three"
-   ],
-   [
-    "floor",
-    "wall"
-   ],
-   [
-    "floor",
-    "wall"
+    "floor_three",
+    "box"
    ],
    [
     "floor",
@@ -26196,7 +26285,16 @@
     "wall"
    ],
    [
-    "floor_five"
+    "floor",
+    "wall"
+   ],
+   [
+    "floor",
+    "wall"
+   ],
+   [
+    "floor_five",
+    "box"
    ],
    [
     "floor_five"
@@ -26225,7 +26323,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor",
@@ -26298,17 +26397,20 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -26649,19 +26751,24 @@
     "toggle"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -26684,7 +26791,8 @@
     "connector7"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -27037,25 +27145,32 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor",
@@ -28209,7 +28324,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -28319,7 +28435,8 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -28485,7 +28602,8 @@
     "floor_five"
    ],
    [
-    "floor_five"
+    "floor_five",
+    "box"
    ],
    [
     "floor",
@@ -28700,7 +28818,8 @@
     "wall"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -29093,10 +29212,12 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -29316,7 +29437,8 @@
     "checkpoint"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -29325,7 +29447,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
@@ -29468,7 +29591,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_three"
@@ -29659,7 +29783,8 @@
     "wall"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -29693,7 +29818,8 @@
     "wall"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two",
@@ -31109,7 +31235,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six"
@@ -31163,7 +31290,8 @@
     "floor_five"
    ],
    [
-    "floor_five"
+    "floor_five",
+    "box"
    ],
    [
     "floor_five"
@@ -32299,16 +32427,20 @@
     "wall"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
     "floor",
@@ -33527,16 +33659,19 @@
     "floor_four"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
+   ],
+   [
+    "floor_four",
+    "box"
    ],
    [
     "floor_four"
    ],
    [
-    "floor_four"
-   ],
-   [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
     "floor_four"
@@ -33748,7 +33883,8 @@
     "floor_six"
    ],
    [
-    "floor_six"
+    "floor_six",
+    "box"
    ],
    [
     "floor_six"
@@ -33902,10 +34038,12 @@
     "toggle"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
-    "floor_four"
+    "floor_four",
+    "box"
    ],
    [
     "floor_four"
@@ -34100,7 +34238,8 @@
     "floor_one"
    ],
    [
-    "floor_one"
+    "floor_one",
+    "box"
    ],
    [
     "floor_one"
@@ -36440,7 +36579,8 @@
     "toggle"
    ],
    [
-    "floor_five"
+    "floor_five",
+    "box"
    ],
    [
     "floor_five"
@@ -37219,7 +37359,8 @@
     "floor_three"
    ],
    [
-    "floor_three"
+    "floor_three",
+    "box"
    ],
    [
     "floor_two"
@@ -38025,7 +38166,8 @@
     "floor_two"
    ],
    [
-    "floor_two"
+    "floor_two",
+    "box"
    ],
    [
     "floor_two"
