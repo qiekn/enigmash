@@ -8,29 +8,57 @@
     "layer": 0,
     "color": "#3a3b40"
   },
-  "floor_one":   { "layer": 0, "color": "#3d6a3d", "sprite": "assets/sprites/objects/backgroundone.png" },
-  "floor_two":   { "layer": 0, "color": "#704a68" },
-  "floor_three": { "layer": 0, "color": "#7a6b1f", "sprite": "assets/sprites/objects/backgroundthree.png" },
-  "floor_four":  { "layer": 0, "color": "#3a3a48", "sprite": "assets/sprites/objects/backgroundfour.png" },
-  "floor_five":  { "layer": 0, "color": "#7a6738", "sprite": "assets/sprites/objects/backgroundfive.png" },
-  "floor_six":   { "layer": 0, "color": "#3a7a7a" },
+  "floor_one": {
+    "layer": 0,
+    "color": "#3d6a3d",
+    "sprite": "assets/sprites/objects/backgroundone.png"
+  },
+  "floor_two": {
+    "layer": 0,
+    "color": "#704a68"
+  },
+  "floor_three": {
+    "layer": 0,
+    "color": "#7a6b1f",
+    "sprite": "assets/sprites/objects/backgroundthree.png"
+  },
+  "floor_four": {
+    "layer": 0,
+    "color": "#3a3a48",
+    "sprite": "assets/sprites/objects/backgroundfour.png"
+  },
+  "floor_five": {
+    "layer": 0,
+    "color": "#7a6738",
+    "sprite": "assets/sprites/objects/backgroundfive.png"
+  },
+  "floor_six": {
+    "layer": 0,
+    "color": "#3a7a7a"
+  },
   "wall": {
     "layer": 1,
     "color": "#5a5b62",
     "sprite": "assets/sprites/objects/wallone.png",
-    "tags": ["stop"]
+    "tags": [
+      "stop"
+    ]
   },
   "checkpoint": {
     "layer": 0,
     "color": "#7eaaff",
     "sprite": "assets/sprites/objects/checkone.png",
-    "tags": ["checkpoint"]
+    "tags": [
+      "checkpoint"
+    ]
   },
   "toggle": {
     "layer": 1,
     "color": "#f5c6ef",
     "sprite": "assets/sprites/objects/toggleone.png",
-    "tags": ["toggle"],
+    "tags": [
+      "toggle"
+    ],
     "radius": 3
   },
   "secret_wall": {
@@ -38,63 +66,810 @@
     "layer": 1,
     "color": "#806a4f",
     "sprite": "assets/sprites/objects/wallfive.png",
-    "tags": ["stop", "toggleable"]
+    "tags": [
+      "stop",
+      "toggleable"
+    ]
   },
   "box": {
     "layer": 2,
     "color": "#a17a3a",
     "sprite": "assets/sprites/objects/thingone.png",
-    "tags": ["pushable"]
+    "tags": [
+      "pushable"
+    ]
   },
   "goal": {
     "layer": 0,
     "color": "#9adba0",
     "sprite": "assets/sprites/objects/checkone.png",
-    "tags": ["goal"]
+    "tags": [
+      "goal"
+    ]
   },
   "player": {
     "_comment": "Generic player. Auto-transformed at runtime to one of the per-region player_N sprites by the PatchPlayerSprite system.",
     "layer": 3,
     "color": "#ff80a8",
     "sprite": "assets/sprites/objects/playerone.png",
-    "tags": ["player"]
+    "tags": [
+      "player"
+    ]
   },
-  "player_one":   { "layer": 3, "color": "#ff80a8", "sprite": "assets/sprites/objects/playerone.png" },
-  "player_two":   { "layer": 3, "color": "#f5c6ef", "sprite": "assets/sprites/objects/playertworight.png" },
-  "player_three": { "layer": 3, "color": "#dfcc4f", "sprite": "assets/sprites/objects/playerthree.png" },
-  "player_four":  { "layer": 3, "color": "#a3a3c0", "sprite": "assets/sprites/objects/playerfourright.png" },
-  "player_five":  { "layer": 3, "color": "#e2ba7c", "sprite": "assets/sprites/objects/playerfiver.png" },
-  "player_six":   { "layer": 3, "color": "#a1f5f5", "sprite": "assets/sprites/objects/playersix1.png" },
+  "player_one": {
+    "layer": 3,
+    "color": "#ff80a8",
+    "sprite": "assets/sprites/objects/playerone.png"
+  },
+  "player_two": {
+    "layer": 3,
+    "color": "#f5c6ef",
+    "sprite": "assets/sprites/objects/playertworight.png"
+  },
+  "player_three": {
+    "layer": 3,
+    "color": "#dfcc4f",
+    "sprite": "assets/sprites/objects/playerthree.png"
+  },
+  "player_four": {
+    "layer": 3,
+    "color": "#a3a3c0",
+    "sprite": "assets/sprites/objects/playerfourright.png"
+  },
+  "player_five": {
+    "layer": 3,
+    "color": "#e2ba7c",
+    "sprite": "assets/sprites/objects/playerfiver.png"
+  },
+  "player_six": {
+    "layer": 3,
+    "color": "#a1f5f5",
+    "sprite": "assets/sprites/objects/playersix1.png"
+  },
   "convey_e": {
-    "_comment": "Region 5 conveyor — pushes anything standing on it east one cell per tick.",
+    "_comment": "Region 5 conveyor \u2014 pushes anything standing on it east one cell per tick.",
     "layer": 0,
     "color": "#b09060",
-    "tags": ["convey_e"]
+    "tags": [
+      "convey_e"
+    ]
   },
   "convey_w": {
     "layer": 0,
     "color": "#609090",
-    "tags": ["convey_w"]
+    "tags": [
+      "convey_w"
+    ]
   },
   "convey_n": {
     "layer": 0,
     "color": "#7090c0",
-    "tags": ["convey_n"]
+    "tags": [
+      "convey_n"
+    ]
   },
   "convey_s": {
     "layer": 0,
     "color": "#c07090",
-    "tags": ["convey_s"]
+    "tags": [
+      "convey_s"
+    ]
   },
   "link_a": {
     "_comment": "Region 6 cluster member, group A. All entities with this name share one Linked head and move together when any one is pushed.",
     "layer": 2,
     "color": "#e08a4f",
-    "tags": ["pushable", "link_a"]
+    "tags": [
+      "pushable",
+      "link_a"
+    ]
   },
   "link_b": {
     "layer": 2,
     "color": "#5fb4d3",
-    "tags": ["pushable", "link_b"]
+    "tags": [
+      "pushable",
+      "link_b"
+    ]
+  },
+  "3dlb": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3dlb.png"
+  },
+  "3dly": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3dly.png"
+  },
+  "3drb": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3drb.png"
+  },
+  "3dry": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3dry.png"
+  },
+  "3ulb": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3ulb.png"
+  },
+  "3uly": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3uly.png"
+  },
+  "3urb": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3urb.png"
+  },
+  "3ury": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/3ury.png"
+  },
+  "awarpc": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/awarpc.png"
+  },
+  "awarpd": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/awarpd.png"
+  },
+  "backgroundfive": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/backgroundfive.png"
+  },
+  "backgroundfour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/backgroundfour.png"
+  },
+  "backgroundone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/backgroundone.png"
+  },
+  "backgroundthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/backgroundthree.png"
+  },
+  "barrierdown": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierdown.png"
+  },
+  "barrierdown2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierdown2.png"
+  },
+  "barrierleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierleft.png"
+  },
+  "barrierleft2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierleft2.png"
+  },
+  "barrierright": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierright.png"
+  },
+  "barrierright2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierright2.png"
+  },
+  "barrierup": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierup.png"
+  },
+  "barrierup2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/barrierup2.png"
+  },
+  "checkfive": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checkfive.png"
+  },
+  "checkfour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checkfour.png"
+  },
+  "checkone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checkone.png"
+  },
+  "checksix": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checksix.png"
+  },
+  "checkthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checkthree.png"
+  },
+  "checktwo": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/checktwo.png"
+  },
+  "dlink": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/dlink.png"
+  },
+  "dlink3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/dlink3.png"
+  },
+  "five": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/five.png"
+  },
+  "fivedown": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/fivedown.png"
+  },
+  "fiveleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/fiveleft.png"
+  },
+  "fiveright": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/fiveright.png"
+  },
+  "fiveup": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/fiveup.png"
+  },
+  "four": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/four.png"
+  },
+  "legs1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/legs1.png"
+  },
+  "legs2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/legs2.png"
+  },
+  "legs3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/legs3.png"
+  },
+  "legs4": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/legs4.png"
+  },
+  "letter": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letter.png"
+  },
+  "lettera": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettera.png"
+  },
+  "letterc": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterc.png"
+  },
+  "lettere": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettere.png"
+  },
+  "letterf": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterf.png"
+  },
+  "letterg": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterg.png"
+  },
+  "letterh": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterh.png"
+  },
+  "letteri": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letteri.png"
+  },
+  "letterk": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterk.png"
+  },
+  "letterl": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterl.png"
+  },
+  "lettern": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettern.png"
+  },
+  "lettero": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettero.png"
+  },
+  "letterp": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterp.png"
+  },
+  "letterr": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterr.png"
+  },
+  "letters": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letters.png"
+  },
+  "lettert": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettert.png"
+  },
+  "letteru": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letteru.png"
+  },
+  "letterx": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/letterx.png"
+  },
+  "lettery": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/lettery.png"
+  },
+  "littlert": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/littlert.png"
+  },
+  "llink": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/llink.png"
+  },
+  "llink3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/llink3.png"
+  },
+  "messag": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/messag.png"
+  },
+  "one": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/one.png"
+  },
+  "playerfived": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfived.png"
+  },
+  "playerfivel": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfivel.png"
+  },
+  "playerfiver": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfiver.png"
+  },
+  "playerfiveu": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfiveu.png"
+  },
+  "playerfourleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfourleft.png"
+  },
+  "playerfourright": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerfourright.png"
+  },
+  "playerl1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerl1.png"
+  },
+  "playerl1a": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerl1a.png"
+  },
+  "playerl1b": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerl1b.png"
+  },
+  "playerl2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerl2.png"
+  },
+  "playerone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerone.png"
+  },
+  "playerr1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerr1.png"
+  },
+  "playerr1a": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerr1a.png"
+  },
+  "playerr1b": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerr1b.png"
+  },
+  "playerr2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerr2.png"
+  },
+  "playersix1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playersix1.png"
+  },
+  "playersix2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playersix2.png"
+  },
+  "playersix3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playersix3.png"
+  },
+  "playersix4": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playersix4.png"
+  },
+  "playerthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playerthree.png"
+  },
+  "playertwoleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playertwoleft.png"
+  },
+  "playertworight": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/playertworight.png"
+  },
+  "rlink": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/rlink.png"
+  },
+  "rlink3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/rlink3.png"
+  },
+  "stopdown": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/stopdown.png"
+  },
+  "stopleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/stopleft.png"
+  },
+  "stopright": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/stopright.png"
+  },
+  "stopup": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/stopup.png"
+  },
+  "sunkthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/sunkthree.png"
+  },
+  "thingfive": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingfive.png"
+  },
+  "thingfive2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingfive2.png"
+  },
+  "thingfour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingfour.png"
+  },
+  "thingone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingone.png"
+  },
+  "thingsix": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingsix.png"
+  },
+  "thingthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingthree.png"
+  },
+  "thingtwo": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/thingtwo.png"
+  },
+  "three": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/three.png"
+  },
+  "togglefive": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/togglefive.png"
+  },
+  "togglefour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/togglefour.png"
+  },
+  "toggleone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/toggleone.png"
+  },
+  "togglesix": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/togglesix.png"
+  },
+  "togglethree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/togglethree.png"
+  },
+  "toggletwo": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/toggletwo.png"
+  },
+  "traced1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/traced1.png"
+  },
+  "traced2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/traced2.png"
+  },
+  "tracel1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/tracel1.png"
+  },
+  "tracel2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/tracel2.png"
+  },
+  "tracer1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/tracer1.png"
+  },
+  "tracer2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/tracer2.png"
+  },
+  "traceu1": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/traceu1.png"
+  },
+  "traceu2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/traceu2.png"
+  },
+  "trimd": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimd.png"
+  },
+  "trimdl": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimdl.png"
+  },
+  "trimdr": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimdr.png"
+  },
+  "triml": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/triml.png"
+  },
+  "trimr": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimr.png"
+  },
+  "trimu": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimu.png"
+  },
+  "trimul": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimul.png"
+  },
+  "trimur": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/trimur.png"
+  },
+  "ulink": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/ulink.png"
+  },
+  "ulink3": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/ulink3.png"
+  },
+  "wallfive": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallfive.png"
+  },
+  "wallfivealt": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallfivealt.png"
+  },
+  "wallfour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallfour.png"
+  },
+  "wallfour2": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallfour2.png"
+  },
+  "wallfour2down": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallfour2down.png"
+  },
+  "wallone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallone.png"
+  },
+  "wallthingfour": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallthingfour.png"
+  },
+  "wallthingone": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallthingone.png"
+  },
+  "wallthingtwo": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallthingtwo.png"
+  },
+  "wallthree": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/wallthree.png"
+  },
+  "walltwo": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/walltwo.png"
+  },
+  "walltwodown": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/walltwodown.png"
+  },
+  "walltwoleft": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/walltwoleft.png"
+  },
+  "walltworight": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/walltworight.png"
+  },
+  "walltwoup": {
+    "layer": 0,
+    "color": "#888888",
+    "sprite": "assets/sprites/objects/walltwoup.png"
   }
 }

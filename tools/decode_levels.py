@@ -213,7 +213,7 @@ PS_TO_OURS: dict[str, str | None] = {
 
 # Anything starting with one of these prefixes becomes floor (None).
 DROP_PREFIXES = (
-    "letter", "mark", "hide", "tmp", "swap", "connector", "warp",
+    "mark", "hide", "tmp", "swap", "warp",
     "barrier", "legs", "trim", "trace", "link", "went", "moving",
     "stationary", "fix", "supported", "sunk",
     "exitmark", "camerashift", "dangthisisohackyblargh", "tail",
@@ -221,13 +221,20 @@ DROP_PREFIXES = (
     "efive", "tailmark", "backgroundhere",
 )
 
+# Prefixes that pass through verbatim (sprite-only decorations registered
+# via tools/gen_object_catalog.py).
+KEEP_PREFIXES = ("letter", "connector")
+
 
 def translate_cell(char: str, legend: dict[str, list[str]]) -> list[str]:
     if char == " " or char == "x":
         return ["wall"]  # the big "x" border is treated as wall
     if char == ".":
         return []       # floor only (implicit background handles visuals)
-    prims = legend.get(char, [char])
+    # LEGEND keys are normalised to lowercase; grid chars are case-sensitive
+    # (the credits area uses uppercase letters / non-ASCII). Lowercasing
+    # the lookup key keeps both sides consistent.
+    prims = legend.get(char.lower(), [char.lower()])
     out: list[str] = []
     for p in prims:
         mapped = None
@@ -235,6 +242,8 @@ def translate_cell(char: str, legend: dict[str, list[str]]) -> list[str]:
             mapped = PS_TO_OURS[p]
         elif any(p.startswith(pre) for pre in DROP_PREFIXES):
             mapped = None
+        elif any(p.startswith(pre) for pre in KEEP_PREFIXES):
+            mapped = p  # decoration; pass through to its own catalog entry
         elif p.startswith("player"):
             mapped = "player"
         elif p.startswith("thing"):
