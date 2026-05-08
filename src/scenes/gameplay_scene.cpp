@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 
+#include <cmath>
 #include <memory>
 
 #include "engine/scene_manager.h"
@@ -170,10 +171,18 @@ void GameplayScene::OnRender(int w, int h) {
   ClearBackground(theme::kBackground);
   if (!world_) return;
 
-  // Center the map in the viewport every frame — handles RT resize cleanly.
-  camera_.offset = Vector2{w * 0.5f, h * 0.5f};
+  // Snap camera projection to integer pixels so adjacent floor tiles
+  // stay flush. Without this, the spring's fractional camera target
+  // pushes neighbouring tiles to slightly different sub-pixel rows and
+  // raylib's POINT-filter rasterisation leaves visible black seams.
+  // The spring keeps full float precision in VisualXY / camera_.target;
+  // rounding happens only at the projection layer.
+  Camera2D snapped = camera_;
+  snapped.offset = Vector2{std::round(w * 0.5f), std::round(h * 0.5f)};
+  snapped.target = Vector2{std::round(camera_.target.x), std::round(camera_.target.y)};
+  camera_.offset = snapped.offset;
 
-  BeginMode2D(camera_);
+  BeginMode2D(snapped);
   game::systems::DrawTiles(*world_);
   EndMode2D();
 
