@@ -39,7 +39,7 @@ class ImGuiLayer : public Layer {
 
   static constexpr float kImGuiBaseFontSize = 18.0f;
 
-  bool visible_ = true;
+  bool visible_ = false;
   bool show_demo_ = false;
   bool needs_default_layout_ = false;
 
