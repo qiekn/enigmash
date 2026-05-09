@@ -206,6 +206,11 @@ void Game::Shutdown() {
 }
 
 void Game::ShowSplashFrame() {
+  // TODO: for debugging. I don't want to waste 2s every time debug enigmash game
+  // remember to remove this.
+  // <2026-05-09 17:25, @qiekn>
+  return;
+
   // Paints the logo using only raylib core APIs (no engine::text, no
   // ImGui — those aren't initialised yet). Texture load is fast (<10ms);
   // the surrounding BeginDrawing/EndDrawing pair triggers the actual GL
