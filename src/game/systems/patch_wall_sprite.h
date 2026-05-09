@@ -5,16 +5,14 @@ class World;
 
 namespace systems {
 
-// Re-skins each wall (Stop) entity based on the regions of its 4-neighbour
-// floors so the seam between two regions reads visually. Mirrors the
-// PuzzleScript late-rules block that paints walltwo / wallthree / etc.
-// onto plain `wall` cells: a wall touching r2 floor becomes `walltwo`,
-// touching r3 becomes `wallthree`, and so on. For r2 specifically, picks
-// a directional variant (walltwoup/down/left/right) when only one face
-// of the wall is exposed to r2 floor — matches the original's edge trim.
-//
-// Walls don't move, so this only needs to run on world load (or after
-// hot-reload / Hidden-toggle changes the topology).
+// Spawns a decorative trim entity above each wall that borders r2..r5
+// floor cells, mirroring PuzzleScript's late-rule visuals. The original
+// wall keeps its base sprite (wallone); the decal stacks on top in the
+// renderer thanks to stable_sort + same-layer ordering. For r2 the trim
+// is directional (walltwoup/down/left/right) based on which face is
+// exposed to r2 floor. Walls don't move and decals never get cleaned up
+// individually — they belong to the World's lifetime, replaced when
+// ReloadFromJson rebuilds the registry.
 void PatchWallSprite(World& w);
 
 }  // namespace systems

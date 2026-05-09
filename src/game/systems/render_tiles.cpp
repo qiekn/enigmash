@@ -11,9 +11,10 @@
 namespace game::systems {
 
 void DrawTiles(const World& w) {
-  // Sort by layer ascending so higher ZOrder paints on top. EnTT can sort
-  // a view in-place but the registry is const here — copy the keys out
-  // and stable-sort by component access. Cheap for puzzle-sized worlds.
+  // Sort by layer ascending so higher ZOrder paints on top. Stable-sort
+  // so entities sharing a layer render in creation order — boundary
+  // decals spawned by PatchWallSprite rely on this to land on top of
+  // the wall they decorate (both at the wall's native layer).
   const auto& reg = w.Registry();
   auto view = reg.view<const VisualXY, const Sprite, const ZOrder>();
 
@@ -23,7 +24,7 @@ void DrawTiles(const World& w) {
     if (reg.all_of<Hidden>(e)) continue;
     ents.push_back(e);
   }
-  std::sort(ents.begin(), ents.end(), [&](entt::entity a, entt::entity b) {
+  std::stable_sort(ents.begin(), ents.end(), [&](entt::entity a, entt::entity b) {
     return view.get<const ZOrder>(a).layer < view.get<const ZOrder>(b).layer;
   });
 
