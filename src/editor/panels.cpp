@@ -1,8 +1,12 @@
 #include "editor/panels.h"
 
 #include <imgui.h>
+#include <raylib.h>
 
+#include <algorithm>
 #include <cstdint>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <magic_enum/magic_enum.hpp>
@@ -82,6 +86,122 @@ void DrawEntityFlags(const entt::registry& reg, entt::entity e, const game::Worl
   if (auto* cv = reg.try_get<game::Conveyor>(e)) {
     ImGui::Text("  + Conveyor dir=%d", (int)cv->dir);
   }
+}
+
+// -----------------------------------------------------------------------------: tool helpers
+
+// Bresenham. One cell per step, inclusive endpoints.
+std::vector<std::pair<int, int>> RasterLine(int x0, int y0, int x1, int y1) {
+  std::vector<std::pair<int, int>> out;
+  int dx = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+  int dy = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  int err = dx + dy;
+  int x = x0, y = y0;
+  for (;;) {
+    out.emplace_back(x, y);
+    if (x == x1 && y == y1) break;
+    const int e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x += sx; }
+    if (e2 <= dx) { err += dx; y += sy; }
+  }
+  return out;
+}
+
+std::vector<std::pair<int, int>> RasterRectOutline(int x0, int y0, int x1, int y1) {
+  std::vector<std::pair<int, int>> out;
+  const int lx = std::min(x0, x1), rx = std::max(x0, x1);
+  const int ly = std::min(y0, y1), ry = std::max(y0, y1);
+  for (int x = lx; x <= rx; ++x) {
+    out.emplace_back(x, ly);
+    if (ry != ly) out.emplace_back(x, ry);
+  }
+  for (int y = ly + 1; y <= ry - 1; ++y) {
+    out.emplace_back(lx, y);
+    if (rx != lx) out.emplace_back(rx, y);
+  }
+  return out;
+}
+
+std::vector<std::pair<int, int>> RasterRectFilled(int x0, int y0, int x1, int y1) {
+  std::vector<std::pair<int, int>> out;
+  const int lx = std::min(x0, x1), rx = std::max(x0, x1);
+  const int ly = std::min(y0, y1), ry = std::max(y0, y1);
+  for (int y = ly; y <= ry; ++y)
+    for (int x = lx; x <= rx; ++x) out.emplace_back(x, y);
+  return out;
+}
+
+std::vector<std::pair<int, int>> RasterCells(Tool t, int x0, int y0, int x1, int y1) {
+  switch (t) {
+    case Tool::Line:        return RasterLine(x0, y0, x1, y1);
+    case Tool::RectOutline: return RasterRectOutline(x0, y0, x1, y1);
+    case Tool::RectFilled:  return RasterRectFilled(x0, y0, x1, y1);
+    default:                return {};
+  }
+}
+
+// Sorted set of sprite atlas ids at (x, y). Used as the flood-fill
+// signature: cells with the same set are considered "same content".
+std::vector<uint32_t> CellSignature(const game::World& w, int x, int y) {
+  std::vector<uint32_t> sig;
+  const auto& reg = w.Registry();
+  for (auto [e, c, sp] : reg.view<const game::Cell, const game::Sprite>().each()) {
+    if (c.x == x && c.y == y) sig.push_back(sp.atlas_id);
+  }
+  std::sort(sig.begin(), sig.end());
+  return sig;
+}
+
+// 4-neighbor flood, clamped to the world bbox so an "empty" seed
+// outside the loaded regions doesn't try to paint to infinity.
+std::vector<std::pair<int, int>> FloodRegion(const game::World& w, int sx, int sy) {
+  const auto b = w.GetBounds();
+  if (sx < b.min_x || sx >= b.max_x || sy < b.min_y || sy >= b.max_y) return {};
+  const auto target = CellSignature(w, sx, sy);
+
+  auto pack = [](int x, int y) -> int64_t {
+    return (static_cast<int64_t>(x) << 32) ^ static_cast<uint32_t>(y);
+  };
+  std::unordered_set<int64_t> seen;
+  std::vector<std::pair<int, int>> out, stack;
+  stack.emplace_back(sx, sy);
+  seen.insert(pack(sx, sy));
+  while (!stack.empty()) {
+    auto [cx, cy] = stack.back();
+    stack.pop_back();
+    if (CellSignature(w, cx, cy) != target) continue;
+    out.emplace_back(cx, cy);
+    static constexpr int nbr[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (auto& d : nbr) {
+      const int nx = cx + d[0], ny = cy + d[1];
+      if (nx < b.min_x || nx >= b.max_x || ny < b.min_y || ny >= b.max_y) continue;
+      if (!seen.insert(pack(nx, ny)).second) continue;
+      stack.emplace_back(nx, ny);
+    }
+  }
+  return out;
+}
+
+// Skip if the cell already carries an entity with the same sprite —
+// dragging across a row shouldn't keep stacking duplicates.
+void PlaceBrushAt(const State& s, game::World& w, int x, int y) {
+  if (s.brush.empty()) return;
+  const auto* def = w.Objects().Find(s.brush);
+  if (def == nullptr) return;
+  const auto& reg = w.Registry();
+  for (auto [e, c, sp] : reg.view<const game::Cell, const game::Sprite>().each()) {
+    if (c.x == x && c.y == y && sp.atlas_id == def->sprite_id) return;
+  }
+  w.Spawn(s.brush, x, y);
+}
+
+void EraseAt(game::World& w, int x, int y) {
+  auto& reg = w.Registry();
+  std::vector<entt::entity> kill;
+  for (auto [e, c] : reg.view<const game::Cell>().each()) {
+    if (c.x == x && c.y == y) kill.push_back(e);
+  }
+  for (auto e : kill) reg.destroy(e);
 }
 
 }  // namespace
@@ -312,7 +432,8 @@ void DrawMenu(State& s, game::World& w, bool& reload_request) {
     ImGui::Checkbox("Catalog", &s.show_catalog); ImGui::SameLine();
     ImGui::Checkbox("Painter", &s.show_painter); ImGui::SameLine();
     ImGui::Checkbox("Inspector", &s.show_inspector); ImGui::SameLine();
-    ImGui::Checkbox("Hierarchy", &s.show_hierarchy);
+    ImGui::Checkbox("Hierarchy", &s.show_hierarchy); ImGui::SameLine();
+    ImGui::Checkbox("Tools", &s.show_toolbar);
     ImGui::Separator();
     if (ImGui::Button("Reload world from JSON")) {
       reload_request = true;
@@ -323,6 +444,116 @@ void DrawMenu(State& s, game::World& w, bool& reload_request) {
     (void)w;
   }
   ImGui::End();
+}
+
+void DrawToolbar(State& s) {
+  if (!s.show_toolbar) return;
+  if (!ImGui::Begin("Tools", &s.show_toolbar)) {
+    ImGui::End();
+    return;
+  }
+
+  struct Btn { const char* label; Tool t; ImGuiKey shortcut; };
+  static constexpr Btn kBtns[] = {
+      {"Brush",  Tool::Brush,       ImGuiKey_B},
+      {"Line",   Tool::Line,        ImGuiKey_L},
+      {"RectO",  Tool::RectOutline, ImGuiKey_None},
+      {"RectF",  Tool::RectFilled,  ImGuiKey_F},
+      {"Bucket", Tool::Bucket,      ImGuiKey_G},
+      {"Eraser", Tool::Eraser,      ImGuiKey_E},
+  };
+
+  for (size_t i = 0; i < std::size(kBtns); ++i) {
+    if (i > 0) ImGui::SameLine();
+    const bool active = (s.tool == kBtns[i].t);
+    if (active) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.40f, 0.50f, 0.30f, 1.0f});
+    if (ImGui::Button(kBtns[i].label)) s.tool = kBtns[i].t;
+    if (active) ImGui::PopStyleColor();
+  }
+  ImGui::TextDisabled("shortcuts: 1..6 / B L F G E");
+
+  // Suppress shortcuts when a text widget owns input — typing "F" into
+  // the Inspector's int field shouldn't switch tools.
+  if (!ImGui::GetIO().WantCaptureKeyboard) {
+    static constexpr ImGuiKey kNum[] = {ImGuiKey_1, ImGuiKey_2, ImGuiKey_3,
+                                        ImGuiKey_4, ImGuiKey_5, ImGuiKey_6};
+    for (size_t i = 0; i < std::size(kNum); ++i) {
+      if (ImGui::IsKeyPressed(kNum[i])) s.tool = kBtns[i].t;
+    }
+    for (const auto& b : kBtns) {
+      if (b.shortcut != ImGuiKey_None && ImGui::IsKeyPressed(b.shortcut)) {
+        s.tool = b.t;
+      }
+    }
+  }
+  ImGui::End();
+}
+
+void HandleEditorMouse(State& s, game::World& w) {
+  // Releasing while ImGui owns the mouse (e.g. cursor over a panel)
+  // still needs to terminate any in-flight drag — otherwise dragging_
+  // sticks until the next viewport click.
+  const bool lmb_pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+  const bool lmb_released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+  const bool lmb_down = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+  const bool rmb_pressed = IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+
+  if (ImGui::GetIO().WantCaptureMouse || !s.hover_valid) {
+    if (lmb_released || rmb_pressed) s.dragging = false;
+    return;
+  }
+
+  const int col = s.hover_x;
+  const int row = s.hover_y;
+
+  auto commit_shape = [&](bool erase) {
+    auto cells = RasterCells(s.tool, s.drag_start_x, s.drag_start_y, col, row);
+    for (auto [x, y] : cells) {
+      if (erase) EraseAt(w, x, y);
+      else PlaceBrushAt(s, w, x, y);
+    }
+  };
+
+  switch (s.tool) {
+    case Tool::Brush:
+      if (lmb_down) PlaceBrushAt(s, w, col, row);
+      break;
+    case Tool::Line:
+    case Tool::RectOutline:
+    case Tool::RectFilled:
+      if (lmb_pressed) {
+        s.dragging = true;
+        s.drag_start_x = col;
+        s.drag_start_y = row;
+      }
+      if (lmb_released && s.dragging) {
+        commit_shape(false);
+        s.dragging = false;
+      }
+      if (rmb_pressed) s.dragging = false;
+      break;
+    case Tool::Bucket:
+      if (lmb_pressed) {
+        auto cells = FloodRegion(w, col, row);
+        for (auto [x, y] : cells) PlaceBrushAt(s, w, x, y);
+      }
+      break;
+    case Tool::Eraser:
+      if (lmb_down) EraseAt(w, col, row);
+      break;
+  }
+}
+
+void DrawDragPreview(const State& s) {
+  if (!s.dragging || !s.hover_valid) return;
+  auto cells = RasterCells(s.tool, s.drag_start_x, s.drag_start_y, s.hover_x, s.hover_y);
+  if (cells.empty()) return;
+  const Color tint = (s.tool == Tool::Eraser) ? Color{235, 90, 90, 110}
+                                              : Color{255, 220, 0, 110};
+  for (auto [x, y] : cells) {
+    DrawRectangle(x * game::kTilePx, y * game::kTilePx,
+                  game::kTilePx, game::kTilePx, tint);
+  }
 }
 
 }  // namespace editor

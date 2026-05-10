@@ -63,6 +63,7 @@ target_include_directories(imgui PRIVATE deps/raylib/src/external/glfw/include)
 
 add_executable(${PROJECT_NAME}
   src/editor/panels.cpp
+  src/editor/viewport.cpp
   src/engine/layer_stack.cpp
   src/engine/scene_manager.cpp
   src/engine/text.cpp

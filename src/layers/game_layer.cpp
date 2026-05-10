@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "editor/viewport.h"
 #include "scenes/main_menu_scene.h"
 
 GameLayer::GameLayer() : Layer("GameLayer") {}
@@ -46,6 +47,9 @@ void GameLayer::OnRender() {
 }
 
 void GameLayer::OnImGuiRender() {
+  // Reset every frame so the scene's mouse handler doesn't act on stale
+  // hover state when the viewport panel is hidden / collapsed.
+  editor::Viewport().hovered = false;
   if (show_viewport_) DrawViewportPanel();
   if (show_console_) DrawConsolePanel();
   scenes_.ImGuiRender();
@@ -96,6 +100,15 @@ void GameLayer::DrawViewportPanel() {
     // raylib FBOs are y-flipped relative to ImGui's UV convention — flip V.
     const ImTextureID tex_id = static_cast<ImTextureID>(target_.texture.id);
     ImGui::Image(tex_id, avail, ImVec2(0, 1), ImVec2(1, 0));
+
+    // Hand the image rect to the scene's mouse handler. The image is
+    // sized to ContentRegionAvail and the RT is sized to match, so the
+    // panel pixel ↔ RT pixel mapping is 1:1.
+    auto& vp = editor::Viewport();
+    const ImVec2 m = ImGui::GetItemRectMin();
+    vp.image_min = Vector2{m.x, m.y};
+    vp.image_size = Vector2{avail.x, avail.y};
+    vp.hovered = ImGui::IsItemHovered();
   }
 
   if (ImGui::BeginPopupContextWindow("ViewportContext", ImGuiPopupFlags_MouseButtonRight)) {

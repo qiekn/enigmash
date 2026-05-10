@@ -5,6 +5,9 @@
 #include <cmath>
 #include <memory>
 
+#include <imgui.h>
+
+#include "editor/viewport.h"
 #include "engine/scene_manager.h"
 #include "engine/text.h"
 #include "game/components.h"
@@ -200,6 +203,7 @@ void GameplayScene::OnRender(int w, int h) {
 
   BeginMode2D(snapped);
   game::systems::DrawTiles(*world_);
+  editor::DrawDragPreview(editor_);
   EndMode2D();
 
   engine::DrawText("M7 — editor: Catalog / Painter / Inspector + Reload",
@@ -212,11 +216,33 @@ void GameplayScene::OnImGuiRender() {
   if (!world_) return;
   bool reload = false;
   editor::DrawMenu(editor_, *world_, reload);
+  editor::DrawToolbar(editor_);
   editor::DrawCatalog(editor_, *world_);
   editor::DrawPainter(editor_, *world_);
   editor::DrawHierarchy(editor_, *world_);
   editor::DrawInspector(editor_, *world_);
   if (reload) ReloadFromJson();
+
+  // Project the OS cursor through the viewport panel into world cell
+  // coords, then dispatch to the active tool. Done last so
+  // WantCaptureMouse already accounts for every panel above.
+  editor_.hover_valid = false;
+  const auto& vp = editor::Viewport();
+  if (vp.hovered && vp.image_size.x > 0 && vp.image_size.y > 0) {
+    const Vector2 mp = GetMousePosition();
+    const float lx = mp.x - vp.image_min.x;
+    const float ly = mp.y - vp.image_min.y;
+    if (lx >= 0 && lx < vp.image_size.x && ly >= 0 && ly < vp.image_size.y) {
+      // RT and image are 1:1 (EnsureTarget sized to ContentRegionAvail).
+      // Inverse projection of Camera2D: world = (screen - offset) / zoom + target.
+      const float wx = (lx - camera_.offset.x) / camera_.zoom + camera_.target.x;
+      const float wy = (ly - camera_.offset.y) / camera_.zoom + camera_.target.y;
+      editor_.hover_x = static_cast<int>(std::floor(wx / game::kTilePx));
+      editor_.hover_y = static_cast<int>(std::floor(wy / game::kTilePx));
+      editor_.hover_valid = true;
+    }
+  }
+  editor::HandleEditorMouse(editor_, *world_);
 }
 
 void GameplayScene::ReloadFromJson() {
