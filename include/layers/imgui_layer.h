@@ -26,7 +26,7 @@ class ImGuiLayer : public Layer {
 
   // Wires the View menu and Reset Layout to GameLayer-owned panel toggles.
   // Pass null to opt out of any individual entry.
-  void BindGamePanelToggles(bool* viewport, bool* hierarchy, bool* console, bool* viewport_no_titlebar);
+  void BindGamePanelToggles(bool* viewport, bool* console, bool* viewport_no_titlebar);
 
  private:
   void DrawMainMenuBar();
@@ -44,7 +44,6 @@ class ImGuiLayer : public Layer {
   bool needs_default_layout_ = false;
 
   bool* show_viewport_ = nullptr;
-  bool* show_hierarchy_ = nullptr;
   bool* show_console_ = nullptr;
   bool* viewport_no_titlebar_ = nullptr;
 

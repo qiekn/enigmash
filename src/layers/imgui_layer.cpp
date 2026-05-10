@@ -16,9 +16,8 @@
 
 ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
 
-void ImGuiLayer::BindGamePanelToggles(bool* viewport, bool* hierarchy, bool* console, bool* viewport_no_titlebar) {
+void ImGuiLayer::BindGamePanelToggles(bool* viewport, bool* console, bool* viewport_no_titlebar) {
   show_viewport_ = viewport;
-  show_hierarchy_ = hierarchy;
   show_console_ = console;
   viewport_no_titlebar_ = viewport_no_titlebar;
 }
@@ -131,7 +130,6 @@ void ImGuiLayer::DrawMainMenuBar() {
 
   if (ImGui::BeginMenu("View")) {
     if (show_viewport_) ImGui::MenuItem("Viewport", nullptr, show_viewport_);
-    if (show_hierarchy_) ImGui::MenuItem("Hierarchy", nullptr, show_hierarchy_);
     if (show_console_) ImGui::MenuItem("Console", nullptr, show_console_);
     ImGui::Separator();
     if (viewport_no_titlebar_) {

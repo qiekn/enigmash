@@ -4,10 +4,10 @@
 
 #include <memory>
 
+#include "editor/panels.h"
 #include "engine/scene.h"
 #include "game/input.h"
 #include "game/undo_ring.h"
-#include "scenes/editor_panels.h"
 
 namespace game { class World; }
 

@@ -62,6 +62,7 @@ target_include_directories(imgui PUBLIC deps/imgui deps/imgui/backends)
 target_include_directories(imgui PRIVATE deps/raylib/src/external/glfw/include)
 
 add_executable(${PROJECT_NAME}
+  src/editor/panels.cpp
   src/engine/layer_stack.cpp
   src/engine/scene_manager.cpp
   src/engine/text.cpp
@@ -92,7 +93,6 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/scenes/achievements_scene.cpp
   src/scenes/credits_scene.cpp
-  src/scenes/editor_panels.cpp
   src/scenes/end_scene.cpp
   src/scenes/gallery_scene.cpp
   src/scenes/gameplay_scene.cpp

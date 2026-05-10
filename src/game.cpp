@@ -104,7 +104,6 @@ void Game::Init() {
   game_layer_ = game_layer.get();
 
   imgui_layer_->BindGamePanelToggles(game_layer->ShowViewportPtr(),
-                                     game_layer->ShowHierarchyPtr(),
                                      game_layer->ShowConsolePtr(),
                                      game_layer->ViewportNoTitleBarPtr());
 

@@ -47,7 +47,6 @@ void GameLayer::OnRender() {
 
 void GameLayer::OnImGuiRender() {
   if (show_viewport_) DrawViewportPanel();
-  if (show_hierarchy_) DrawHierarchyPanel();
   if (show_console_) DrawConsolePanel();
   scenes_.ImGuiRender();
 }
@@ -104,23 +103,6 @@ void GameLayer::DrawViewportPanel() {
     ImGui::EndPopup();
   }
 
-  ImGui::End();
-}
-
-void GameLayer::DrawHierarchyPanel() {
-  if (!ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse)) {
-    ImGui::End();
-    return;
-  }
-  if (ImGui::TreeNodeEx("SceneManager", ImGuiTreeNodeFlags_DefaultOpen)) {
-    if (engine::Scene* active = scenes_.Active()) {
-      ImGui::BulletText("active: %s", active->Name().c_str());
-    } else {
-      ImGui::BulletText("(no active scene)");
-    }
-    ImGui::BulletText("stack depth: %zu", scenes_.Depth());
-    ImGui::TreePop();
-  }
   ImGui::End();
 }
 

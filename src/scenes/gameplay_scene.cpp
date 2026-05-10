@@ -214,6 +214,7 @@ void GameplayScene::OnImGuiRender() {
   editor::DrawMenu(editor_, *world_, reload);
   editor::DrawCatalog(editor_, *world_);
   editor::DrawPainter(editor_, *world_);
+  editor::DrawHierarchy(editor_, *world_);
   editor::DrawInspector(editor_, *world_);
   if (reload) ReloadFromJson();
 }
@@ -232,6 +233,9 @@ void GameplayScene::ReloadFromJson() {
   game::systems::PatchPlayerSprite(*world_);
   game::systems::PatchBoxSprite(*world_);
   game::systems::PatchWallSprite(*world_);
+  // Selection points into the old registry — drop it so the Inspector
+  // doesn't dereference a dangling id on the next frame.
+  editor_.selected = entt::null;
 }
 
 }  // namespace scenes
