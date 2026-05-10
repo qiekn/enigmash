@@ -14,12 +14,14 @@ This project using c++23 & raylib, the structure follows ../baba/ & ../card/
 
 basically using google c++ code style, but line witdh can be 120 if necessary.
 
-git commit message must be simple.
-
 section comment use this format
 
 ```cpp
 - -----------------------------------------------------------------------------: context
 ```
+
+## Git
+
+git commit message must be simple: single-line `type(scope): summary`, no body paragraph.
 
 # CLAUDE's Notes
