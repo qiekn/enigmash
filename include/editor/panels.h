@@ -10,9 +10,10 @@ namespace game { class World; }
 
 namespace editor {
 
-// Available drawing tools. Mirrors baba's set minus Select (clipboard
-// paste isn't implemented yet — add when it's actually needed).
+// Available drawing tools. Mirrors baba's set; Select is the
+// "no-paint" tool that owns viewport selection + gizmo drag.
 enum class Tool : uint8_t {
+  Select,
   Brush,
   Line,
   RectOutline,
@@ -50,6 +51,12 @@ struct State {
   int hover_x = 0;
   int hover_y = 0;
   bool hover_valid = false;
+
+  // Gizmo drag state. Only meaningful while Tool::Select is active and
+  // the user is actively pressing on the selected entity's cell. The
+  // selected entity's Cell is updated live; on release the (already-
+  // current) cell stays put and `gizmo_dragging` is cleared.
+  bool gizmo_dragging = false;
 
   // Grid style. Painted by DrawGridBackground/Overlay inside the
   // gameplay BeginMode2D pass. `grid_color.a` is the base alpha; the
@@ -101,6 +108,12 @@ void HandleEditorMouse(State& s, game::World& w);
 // as semi-transparent fills in world coords. Call inside BeginMode2D
 // so units == world pixels.
 void DrawDragPreview(const State& s);
+
+// Draws a highlight border + 4 edge arrows around the selected
+// entity's cell. Call inside BeginMode2D, after tile rendering. No-op
+// when nothing is selected. Visual only; the drag is wired through
+// HandleEditorMouse's Tool::Select case.
+void DrawSelectionGizmo(const State& s, const game::World& w);
 
 // Paints the world bbox (`World::GetBounds()` × kTilePx) with
 // `s.bg_color`. Call inside BeginMode2D, before tile rendering.

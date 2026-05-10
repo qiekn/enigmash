@@ -4,6 +4,7 @@
 #include <raylib.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <unordered_set>
 #include <utility>
@@ -202,6 +203,46 @@ void EraseAt(game::World& w, int x, int y) {
     if (c.x == x && c.y == y) kill.push_back(e);
   }
   for (auto e : kill) reg.destroy(e);
+}
+
+// Topmost dynamic entity (Player or Pushable) at a cell — mirrors the
+// hierarchy's "select scope" so click-to-select feels consistent with
+// the tree. Returns entt::null when nothing eligible sits there.
+entt::entity SelectableAt(const game::World& w, int x, int y) {
+  const auto& reg = w.Registry();
+  entt::entity best = entt::null;
+  int8_t best_layer = -127;
+  auto consider = [&](entt::entity e) {
+    if (reg.all_of<game::Hidden>(e)) return;
+    const auto& c = reg.get<game::Cell>(e);
+    if (c.x != x || c.y != y) return;
+    int8_t layer = -127;
+    if (auto* z = reg.try_get<game::ZOrder>(e)) layer = z->layer;
+    if (layer < best_layer) return;
+    best = e;
+    best_layer = layer;
+  };
+  for (auto [e, c] : reg.view<const game::Cell, const game::Player>().each()) {
+    consider(e);
+  }
+  for (auto [e, c] : reg.view<const game::Cell, const game::Pushable>().each()) {
+    consider(e);
+  }
+  return best;
+}
+
+// Snap an entity's VisualXY to its current Cell so the spring stops
+// lerping from the pre-drag position. Same trick the Inspector uses
+// when typed coords change.
+void SnapVisualToCell(entt::registry& reg, entt::entity e) {
+  if (!reg.valid(e)) return;
+  auto* c = reg.try_get<game::Cell>(e);
+  auto* v = reg.try_get<game::VisualXY>(e);
+  if (c == nullptr || v == nullptr) return;
+  v->x = static_cast<float>(c->x * game::kTilePx);
+  v->y = static_cast<float>(c->y * game::kTilePx);
+  v->vx = 0.0f;
+  v->vy = 0.0f;
 }
 
 }  // namespace
@@ -456,6 +497,7 @@ void DrawToolbar(State& s) {
 
   struct Btn { const char* label; Tool t; ImGuiKey shortcut; };
   static constexpr Btn kBtns[] = {
+      {"Select", Tool::Select,      ImGuiKey_S},
       {"Brush",  Tool::Brush,       ImGuiKey_B},
       {"Line",   Tool::Line,        ImGuiKey_L},
       {"RectO",  Tool::RectOutline, ImGuiKey_None},
@@ -471,13 +513,14 @@ void DrawToolbar(State& s) {
     if (ImGui::Button(kBtns[i].label)) s.tool = kBtns[i].t;
     if (active) ImGui::PopStyleColor();
   }
-  ImGui::TextDisabled("shortcuts: 1..6 / B L F G E");
+  ImGui::TextDisabled("shortcuts: 1..7 / S B L F G E");
 
   // Suppress shortcuts when a text widget owns input — typing "F" into
   // the Inspector's int field shouldn't switch tools.
   if (!ImGui::GetIO().WantCaptureKeyboard) {
     static constexpr ImGuiKey kNum[] = {ImGuiKey_1, ImGuiKey_2, ImGuiKey_3,
-                                        ImGuiKey_4, ImGuiKey_5, ImGuiKey_6};
+                                        ImGuiKey_4, ImGuiKey_5, ImGuiKey_6,
+                                        ImGuiKey_7};
     for (size_t i = 0; i < std::size(kNum); ++i) {
       if (ImGui::IsKeyPressed(kNum[i])) s.tool = kBtns[i].t;
     }
@@ -500,7 +543,10 @@ void HandleEditorMouse(State& s, game::World& w) {
   const bool rmb_pressed = IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
 
   if (ImGui::GetIO().WantCaptureMouse || !s.hover_valid) {
-    if (lmb_released || rmb_pressed) s.dragging = false;
+    if (lmb_released || rmb_pressed) {
+      s.dragging = false;
+      s.gizmo_dragging = false;
+    }
     return;
   }
 
@@ -516,6 +562,44 @@ void HandleEditorMouse(State& s, game::World& w) {
   };
 
   switch (s.tool) {
+    case Tool::Select: {
+      // Click-to-select on press. If the press lands on the already-
+      // selected entity's cell, we instead start a gizmo drag — that
+      // makes the row in the Hierarchy and the cell in the viewport
+      // round-trip naturally.
+      auto& reg = w.Registry();
+      const bool sel_valid = (s.selected != entt::null) && reg.valid(s.selected) &&
+                             reg.all_of<game::Cell>(s.selected);
+      const game::Cell* sel_cell = sel_valid ? &reg.get<game::Cell>(s.selected) : nullptr;
+
+      if (lmb_pressed) {
+        if (sel_cell && sel_cell->x == col && sel_cell->y == row) {
+          s.gizmo_dragging = true;
+        } else {
+          const entt::entity hit = SelectableAt(w, col, row);
+          s.selected = hit;  // entt::null if nothing eligible — that's "deselect"
+          s.gizmo_dragging = false;
+        }
+      }
+
+      // Live-update during drag. Skip the snap if hover lands on the
+      // current cell; lets the spring stay quiet between same-cell frames.
+      if (s.gizmo_dragging && lmb_down && sel_valid) {
+        auto& c = reg.get<game::Cell>(s.selected);
+        if (c.x != col || c.y != row) {
+          c.x = col;
+          c.y = row;
+          SnapVisualToCell(reg, s.selected);
+        }
+      }
+
+      if (lmb_released) s.gizmo_dragging = false;
+      if (rmb_pressed) {
+        s.gizmo_dragging = false;
+        s.selected = entt::null;
+      }
+      break;
+    }
     case Tool::Brush:
       if (lmb_down) PlaceBrushAt(s, w, col, row);
       break;
@@ -555,6 +639,51 @@ void DrawDragPreview(const State& s) {
     DrawRectangle(x * game::kTilePx, y * game::kTilePx,
                   game::kTilePx, game::kTilePx, tint);
   }
+}
+
+void DrawSelectionGizmo(const State& s, const game::World& w) {
+  if (s.selected == entt::null) return;
+  const auto& reg = w.Registry();
+  if (!reg.valid(s.selected) || !reg.all_of<game::Cell>(s.selected)) return;
+
+  const auto& c = reg.get<game::Cell>(s.selected);
+  const float px = static_cast<float>(c.x * game::kTilePx);
+  const float py = static_cast<float>(c.y * game::kTilePx);
+  const float sz = static_cast<float>(game::kTilePx);
+
+  // Pulsing alpha so the gizmo is obviously alive even when sitting
+  // still over a similarly-bright tile.
+  const float t = static_cast<float>(GetTime());
+  const float pulse = 0.65f + 0.35f * std::sin(t * 4.0f);
+  const Color outline{255, 220, 0, static_cast<unsigned char>(255 * pulse)};
+  const Color handle = s.gizmo_dragging ? Color{120, 255, 120, 230}
+                                        : Color{255, 220, 0, 230};
+
+  // Outer outline. Two passes (inner thin + outer thin offset by 1) so
+  // the highlight reads against both light and dark tiles.
+  DrawRectangleLinesEx({px - 1, py - 1, sz + 2, sz + 2}, 2.0f, outline);
+  DrawRectangleLinesEx({px + 2, py + 2, sz - 4, sz - 4}, 1.0f,
+                       Color{0, 0, 0, 180});
+
+  // 4 edge arrows as drag affordance: small chevrons centred on each
+  // side, pointing outward. Triangle vertices are screen-axis aligned
+  // (no rotation needed since cells are square).
+  const float cx = px + sz * 0.5f;
+  const float cy = py + sz * 0.5f;
+  const float arm = sz * 0.18f;       // half-width of arrow base
+  const float reach = sz * 0.22f;     // how far the tip pokes out
+  // Top
+  DrawTriangle({cx - arm, py}, {cx + arm, py},
+               {cx, py - reach}, handle);
+  // Bottom
+  DrawTriangle({cx + arm, py + sz}, {cx - arm, py + sz},
+               {cx, py + sz + reach}, handle);
+  // Left
+  DrawTriangle({px, cy + arm}, {px, cy - arm},
+               {px - reach, cy}, handle);
+  // Right
+  DrawTriangle({px + sz, cy - arm}, {px + sz, cy + arm},
+               {px + sz + reach, cy}, handle);
 }
 
 void DrawGridBackground(const State& s, const game::World& w) {

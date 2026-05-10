@@ -206,6 +206,7 @@ void GameplayScene::OnRender(int w, int h) {
   game::systems::DrawTiles(*world_);
   editor::DrawGridOverlay(editor_, *world_);
   editor::DrawDragPreview(editor_);
+  editor::DrawSelectionGizmo(editor_, *world_);
   EndMode2D();
 
   engine::DrawText("M7 — editor: Catalog / Painter / Inspector + Reload",
