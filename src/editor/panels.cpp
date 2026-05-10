@@ -433,7 +433,8 @@ void DrawMenu(State& s, game::World& w, bool& reload_request) {
     ImGui::Checkbox("Painter", &s.show_painter); ImGui::SameLine();
     ImGui::Checkbox("Inspector", &s.show_inspector); ImGui::SameLine();
     ImGui::Checkbox("Hierarchy", &s.show_hierarchy); ImGui::SameLine();
-    ImGui::Checkbox("Tools", &s.show_toolbar);
+    ImGui::Checkbox("Tools", &s.show_toolbar); ImGui::SameLine();
+    ImGui::Checkbox("Grid", &s.show_grid_settings);
     ImGui::Separator();
     if (ImGui::Button("Reload world from JSON")) {
       reload_request = true;
@@ -554,6 +555,76 @@ void DrawDragPreview(const State& s) {
     DrawRectangle(x * game::kTilePx, y * game::kTilePx,
                   game::kTilePx, game::kTilePx, tint);
   }
+}
+
+void DrawGridBackground(const State& s, const game::World& w) {
+  const auto b = w.GetBounds();
+  if (b.max_x <= b.min_x || b.max_y <= b.min_y) return;
+  DrawRectangle(b.min_x * game::kTilePx, b.min_y * game::kTilePx,
+                (b.max_x - b.min_x) * game::kTilePx,
+                (b.max_y - b.min_y) * game::kTilePx, s.bg_color);
+}
+
+void DrawGridOverlay(const State& s, const game::World& w) {
+  if (!s.show_grid) return;
+  const auto b = w.GetBounds();
+  if (b.max_x <= b.min_x || b.max_y <= b.min_y) return;
+
+  Color line = s.grid_color;
+  line.a = static_cast<unsigned char>(
+      std::clamp(static_cast<float>(line.a) * s.grid_opacity, 0.0f, 255.0f));
+  const float t = std::max(0.5f, s.grid_thickness);
+  const float pitch = static_cast<float>(game::kTilePx);
+  const float ox = static_cast<float>(b.min_x) * pitch;
+  const float oy = static_cast<float>(b.min_y) * pitch;
+  const float w_px = static_cast<float>(b.max_x - b.min_x) * pitch;
+  const float h_px = static_cast<float>(b.max_y - b.min_y) * pitch;
+  const int cols = b.max_x - b.min_x;
+  const int rows = b.max_y - b.min_y;
+
+  // Verticals span full height. Horizontals are segmented between
+  // verticals so intersections aren't painted twice (keeps alpha
+  // uniform). Same trick as baba's DrawGridOverlay.
+  for (int col = 0; col <= cols; ++col) {
+    const float x = ox + col * pitch - t * 0.5f;
+    DrawRectangleRec({x, oy - t * 0.5f, t, h_px + t}, line);
+  }
+  for (int row = 0; row <= rows; ++row) {
+    const float y = oy + row * pitch - t * 0.5f;
+    for (int col = 0; col < cols; ++col) {
+      const float x = ox + col * pitch + t * 0.5f;
+      const float w = std::max(0.0f, pitch - t);
+      DrawRectangleRec({x, y, w, t}, line);
+    }
+  }
+}
+
+void DrawGridSettings(State& s) {
+  if (!s.show_grid_settings) return;
+  if (!ImGui::Begin("Grid", &s.show_grid_settings)) {
+    ImGui::End();
+    return;
+  }
+  ImGui::Checkbox("Show grid", &s.show_grid);
+
+  auto col_to_f = [](Color c) {
+    return ImVec4{c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f};
+  };
+  auto f_to_col = [](float v) {
+    return static_cast<unsigned char>(std::clamp(v * 255.0f, 0.0f, 255.0f));
+  };
+
+  ImVec4 bg = col_to_f(s.bg_color);
+  if (ImGui::ColorEdit4("Background", &bg.x, ImGuiColorEditFlags_NoInputs)) {
+    s.bg_color = Color{f_to_col(bg.x), f_to_col(bg.y), f_to_col(bg.z), f_to_col(bg.w)};
+  }
+  ImVec4 gc = col_to_f(s.grid_color);
+  if (ImGui::ColorEdit4("Grid line", &gc.x, ImGuiColorEditFlags_NoInputs)) {
+    s.grid_color = Color{f_to_col(gc.x), f_to_col(gc.y), f_to_col(gc.z), f_to_col(gc.w)};
+  }
+  ImGui::SliderFloat("Opacity", &s.grid_opacity, 0.0f, 1.0f, "%.2f");
+  ImGui::SliderFloat("Thickness", &s.grid_thickness, 0.5f, 6.0f, "%.1f px");
+  ImGui::End();
 }
 
 }  // namespace editor

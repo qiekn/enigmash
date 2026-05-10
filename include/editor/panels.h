@@ -1,6 +1,7 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <raylib.h>
 
 #include <cstdint>
 #include <string>
@@ -31,6 +32,7 @@ struct State {
   bool show_inspector = true;
   bool show_hierarchy = true;
   bool show_toolbar = true;
+  bool show_grid_settings = true;
 
   // Hierarchy → Inspector wiring. When valid, Inspector shows this
   // entity and offers cell editing; cleared on world reload because
@@ -48,6 +50,16 @@ struct State {
   int hover_x = 0;
   int hover_y = 0;
   bool hover_valid = false;
+
+  // Grid style. Painted by DrawGridBackground/Overlay inside the
+  // gameplay BeginMode2D pass. `grid_color.a` is the base alpha; the
+  // overlay multiplies it by `grid_opacity` so the slider does fade
+  // and the picker still does color.
+  bool show_grid = true;
+  Color bg_color{30, 30, 36, 255};
+  Color grid_color{120, 120, 140, 255};
+  float grid_opacity = 0.5f;
+  float grid_thickness = 1.0f;
 };
 
 // Read-only browser over ObjectsRegistry. Click a row to set the
@@ -89,5 +101,18 @@ void HandleEditorMouse(State& s, game::World& w);
 // as semi-transparent fills in world coords. Call inside BeginMode2D
 // so units == world pixels.
 void DrawDragPreview(const State& s);
+
+// Paints the world bbox (`World::GetBounds()` × kTilePx) with
+// `s.bg_color`. Call inside BeginMode2D, before tile rendering.
+void DrawGridBackground(const State& s, const game::World& w);
+
+// Paints grid lines over the world bbox using `s.grid_color`,
+// `s.grid_opacity`, `s.grid_thickness`. No-op when `s.show_grid`
+// is false. Call inside BeginMode2D, after tile rendering so the
+// lines sit on top.
+void DrawGridOverlay(const State& s, const game::World& w);
+
+// ColorEdit4 / SliderFloat / Checkbox UI for the grid style fields.
+void DrawGridSettings(State& s);
 
 }  // namespace editor

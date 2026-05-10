@@ -202,7 +202,9 @@ void GameplayScene::OnRender(int w, int h) {
   camera_.offset = snapped.offset;
 
   BeginMode2D(snapped);
+  editor::DrawGridBackground(editor_, *world_);
   game::systems::DrawTiles(*world_);
+  editor::DrawGridOverlay(editor_, *world_);
   editor::DrawDragPreview(editor_);
   EndMode2D();
 
@@ -217,6 +219,7 @@ void GameplayScene::OnImGuiRender() {
   bool reload = false;
   editor::DrawMenu(editor_, *world_, reload);
   editor::DrawToolbar(editor_);
+  editor::DrawGridSettings(editor_);
   editor::DrawCatalog(editor_, *world_);
   editor::DrawPainter(editor_, *world_);
   editor::DrawHierarchy(editor_, *world_);
