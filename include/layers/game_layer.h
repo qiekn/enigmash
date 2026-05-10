@@ -2,8 +2,8 @@
 
 #include <raylib.h>
 
+#include "engine/layer.h"
 #include "engine/scene_manager.h"
-#include "layer.h"
 
 // Owns the offscreen RenderTexture2D the game scene draws into and hosts
 // a SceneManager that drives the actual logo / menu / gameplay flow.

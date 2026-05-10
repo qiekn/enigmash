@@ -62,6 +62,7 @@ target_include_directories(imgui PUBLIC deps/imgui deps/imgui/backends)
 target_include_directories(imgui PRIVATE deps/raylib/src/external/glfw/include)
 
 add_executable(${PROJECT_NAME}
+  src/engine/layer_stack.cpp
   src/engine/scene_manager.cpp
   src/engine/text.cpp
   src/game/input.cpp
@@ -86,9 +87,8 @@ add_executable(${PROJECT_NAME}
   src/game/undo_ring.cpp
   src/game/world.cpp
   src/game.cpp
-  src/game_layer.cpp
-  src/imgui_layer.cpp
-  src/layer_stack.cpp
+  src/layers/game_layer.cpp
+  src/layers/imgui_layer.cpp
   src/main.cpp
   src/scenes/achievements_scene.cpp
   src/scenes/credits_scene.cpp
@@ -133,7 +133,7 @@ target_include_directories(${PROJECT_NAME}
     deps/magic-enum/include
     deps/raygui/src
     deps/raylib/src/external/glfw/include
-    src
+    include
 )
 
 target_link_libraries(${PROJECT_NAME}

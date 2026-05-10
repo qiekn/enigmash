@@ -11,7 +11,7 @@
 
 #include "engine/text.h"
 #include "game/audio.h"
-#include "game_layer.h"
+#include "layers/game_layer.h"
 #include "theme.h"
 
 namespace {

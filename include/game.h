@@ -2,8 +2,8 @@
 
 #include <raylib.h>
 
-#include "imgui_layer.h"
-#include "layer_stack.h"
+#include "engine/layer_stack.h"
+#include "layers/imgui_layer.h"
 
 class GameLayer;
 
