@@ -14,7 +14,7 @@ build :: () {
 
     print("Hello, Jailor!\n");
 
-    add_build_file("./src/main.jai", w);
+    add_build_file("./src/game.jai", w);
     set_build_options_dc(.{do_output=false});
 }
 

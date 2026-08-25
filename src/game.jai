@@ -1,0 +1,105 @@
+// ----------------------------------------------------------------------------: entry
+
+main :: () {
+    the_window = create_window(window_width, window_height, "ck: Enigmash");   
+    Simp.set_render_target(the_window);
+    Simp.set_shader_for_color(true);
+
+    toggle_fullscreen(the_window, true, *saved_window_info);
+
+    the_sprite = load_texture(SPRITE_PATH);
+
+    last_time := current_time_monotonic();
+    current_time : Apollo_Time;
+
+    while !game_should_quit {                          
+        Simp.clear_render_target(0.16, 0.17, 0.2, 1);
+        draw_background();
+
+        // update
+        current_time = current_time_monotonic();
+        delta_time : s64 = to_milliseconds(current_time - last_time);
+        last_time = current_time;
+
+        tile_size = FIXED_TILE_SIZE * zoom;
+        update_player_input_event(delta_time);
+        update_window_events();
+        handle_window_resizes();
+        handle_input();
+
+        // render
+        draw_one_frame();
+
+
+        Simp.swap_buffers(the_window);
+        sleep_milliseconds(10);
+        reset_temporary_storage();   
+    }
+}
+
+// ----------------------------------------------------------------------------: helpers
+
+handle_window_resizes :: () {
+    for get_window_resizes() {
+        if it.window == the_window {
+            window_width = it.width;
+            window_height = it.height;
+            render_width  = window_width;
+            render_height = window_height;
+            Simp.update_window(it.window);
+        }
+    }
+}
+
+handle_input :: () {
+    for events_this_frame {
+        if it.type == {
+            case .QUIT;
+                game_should_quit = true;
+
+            case .KEYBOARD;
+                if it.key_code == .ESCAPE {
+                    game_should_quit = true;
+                    continue;
+                }
+
+                handle_player_input(it.key_code, it.key_pressed);
+        }
+    }
+}
+
+draw_one_frame :: () {
+
+    /*
+    p0 := Vector3.{0, 0, 0};
+    p1 := Vector3.{xx window_width, 0, 0};
+    p2 := Vector3.{xx window_width / 2.0, xx window_height, 0};
+    Simp.immediate_triangle(p0, p1, p2, RED, GREEN, BLUE);
+    */
+
+    draw_colored_rect(10, 10);
+    draw_sprite(.Player, the_player.x, the_player.y);
+}
+
+// ----------------------------------------------------------------------------: modules
+
+#import "Basic";
+
+#import "Input";
+#import "Math";
+
+Simp :: #import "Simp";
+#import "Window_Creation";
+
+#load "config.jai";
+#load "globals.jai";
+#load "colors.jai";
+
+#load "sprites.jai";
+#load "entities.jai";
+#load "renderer.jai";
+#load "movement.jai";
+#load "player_input.jai";
+
+#load "helpers/background.jai";
+
