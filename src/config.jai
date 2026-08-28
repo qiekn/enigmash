@@ -15,6 +15,7 @@ SPRITE_PATH :: "assets/textures/sprites.png";
 MOVE_REPEAT_DELAY    :: 150;
 MOVE_REPEAT_INTERVAL :: 150; // PuzzleScript Style: 150ms
 
-FONT_FOLDER :: "assets/fonts";
-TEXTUER_FOLDER :: "assets/textures";
+FONT\   _FOLDER :: "assets/fonts";
+TEXTUER\_FOLDER :: "assets/textures";
+SOUND\  _FOLDER :: "assets/sounds";
 
