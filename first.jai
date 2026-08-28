@@ -2,7 +2,7 @@
 #import "Compiler";
 
 build :: () {
-    w := compiler_create_workspace("Jailor");
+    w := compiler_create_workspace("Jail");
     if !w {
         print("The world is not ready for Jai!\n");
         return;

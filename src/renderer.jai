@@ -50,3 +50,11 @@ draw_sprite :: (sprite: Sprite, x: int, y: int) {
 
     Simp.immediate_flush();
 }
+
+clear_background :: (c : Color = BLACK) {
+    Simp.clear_render_target(c.x, c.y, c.z, c.w);
+}
+
+clear_background :: (x: float, y: float, z: float, w: float) {
+    Simp.clear_render_target(x, y, z, w);
+}

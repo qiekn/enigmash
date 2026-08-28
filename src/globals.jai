@@ -15,6 +15,7 @@ window_height : s32 = 800;
 render_width  : s32 = 1200;
 render_height : s32 = 800;
 
+basic_font : *Simp.Dynamic_Font;
 
 game_should_quit := false;
 

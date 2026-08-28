@@ -1,3 +1,11 @@
+Program_Mode :: enum {
+    GAME;
+    EDITOR;
+    MENU;
+}
+
+program_mode := Program_Mode.GAME;
+
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
@@ -12,9 +20,11 @@ main :: () {
     last_time := current_time_monotonic();
     current_time : Apollo_Time;
 
-    while !game_should_quit {                          
-        Simp.clear_render_target(0.16, 0.17, 0.2, 1);
-        draw_background();
+    init_fonts();
+    init_menu_fonts();
+
+    while !game_should_quit {
+        clear_background(0.16, 0.17, 0.2, 1);
 
         // update
         current_time = current_time_monotonic();
@@ -28,7 +38,14 @@ main :: () {
         handle_input();
 
         // render
-        draw_one_frame();
+        if program_mode == .GAME {
+            draw_one_frame();
+        } else if program_mode == .EDITOR {
+
+        } else if program_mode == .MENU {
+            draw_menu();
+            draw_version();
+        }
 
 
         Simp.swap_buffers(the_window);
@@ -58,9 +75,13 @@ handle_input :: () {
                 game_should_quit = true;
 
             case .KEYBOARD;
-                if it.key_code == .ESCAPE {
-                    game_should_quit = true;
+                if program_mode == .MENU {
+                    handle_menu_input(it.key_code, it.key_pressed);
                     continue;
+                }
+
+                if it.key_code == .ESCAPE {
+                    if it.key_pressed then toggle_menu();
                 }
 
                 handle_player_input(it.key_code, it.key_pressed);
@@ -77,9 +98,11 @@ draw_one_frame :: () {
     Simp.immediate_triangle(p0, p1, p2, RED, GREEN, BLUE);
     */
 
+    draw_background();
     draw_colored_rect(10, 10);
     draw_sprite(.Player, the_player.x, the_player.y);
 }
+
 
 // ----------------------------------------------------------------------------: modules
 
@@ -99,7 +122,9 @@ Simp :: #import "Simp";
 #load "entities.jai";
 #load "renderer.jai";
 #load "movement.jai";
+#load "fonts.jai";
 #load "player_input.jai";
+#load "menu.jai";
 
 #load "helpers/background.jai";
 
