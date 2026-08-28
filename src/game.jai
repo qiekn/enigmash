@@ -64,6 +64,8 @@ handle_window_resizes :: () {
             render_width  = window_width;
             render_height = window_height;
             Simp.update_window(it.window);
+            init_fonts();
+            init_menu_fonts();
         }
     }
 }
@@ -99,7 +101,7 @@ draw_one_frame :: () {
     */
 
     draw_background();
-    draw_colored_rect(10, 10);
+    draw_rect(10, 10);
     draw_sprite(.Player, the_player.x, the_player.y);
 }
 

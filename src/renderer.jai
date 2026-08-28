@@ -1,5 +1,5 @@
 // 绘制一个纯色方块
-draw_colored_rect :: (x: int, y: int, color : Color = ORANGE) {
+draw_rect :: (x: int, y: int, color : Color = ORANGE) {
     x0 := cast(float)(x * tile_size);
     y0 := cast(float)(y * tile_size);
 

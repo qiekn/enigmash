@@ -74,7 +74,7 @@ handle_confirm :: () {
 #scope_export
 
 init_menu_fonts :: () {
-    base_height := cast(int) (window_height / 12);
+    base_height := cast(int) (window_height / 18);
 
     title_font   = Simp.get_font_at_size(FONT_FOLDER, "Karmina-Bold.otf", xx (base_height * 1.6));
     body_font    = Simp.get_font_at_size(FONT_FOLDER, "Karmina-Bold.otf", base_height);

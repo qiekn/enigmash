@@ -14,7 +14,7 @@ draw_checkerboard :: () {
     for col: 0..cols-1 {
         for row: 0..rows-1 {
             color := ifx (col + row) % 2 == 0 then color_yes else color_no;
-            draw_colored_rect(col, row, color);
+            draw_rect(col, row, color);
         }
     }
 }
