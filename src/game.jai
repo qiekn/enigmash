@@ -29,31 +29,13 @@ game_should_quit := false;
 the_player : Player;
 the_camera : Camera;
 
-the_map    : [MAP_HEIGHT][MAP_WIDTH] Tile;    // 104x104x4B = 43 KB
-the_crates : [..] Crate;
-the_spawn  : Position;
-
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
-    the_window = create_window(window_width, window_height, "ck: Enigmash");   
-    Simp.set_render_target(the_window);
-    Simp.set_shader_for_color(true);
-
-    toggle_fullscreen(the_window, true, *saved_window_info);
-
-    the_sprite = load_texture(SPRITE_PATH);
-
     last_time := current_time_monotonic();
     current_time : Apollo_Time;
 
-    init_fonts();
-    init_menu_fonts();
-
-    init_sounds();
-
-    load_level(LEVEL_PATH);
-    camera_reset();
+    init_game();
 
     // play_music(); // @NOTE current, we don't want enable background music. Maybe add an option in menu
 
@@ -95,6 +77,23 @@ main :: () {
 }
 
 // ----------------------------------------------------------------------------: helpers
+
+init_game :: () {
+    // init window
+    the_window = create_window(window_width, window_height, "ck: Enigmash");   
+    Simp.set_render_target(the_window);
+    toggle_fullscreen(the_window, true, *saved_window_info);
+
+    // init textures
+    the_sprite = load_texture(SPRITE_PATH);
+
+    init_fonts();
+    init_menu_fonts();
+
+    init_sounds();
+
+    camera_reset();
+}
 
 handle_window_resizes :: () {
     for get_window_resizes() {
@@ -146,10 +145,10 @@ draw_one_frame :: () {
     Simp.immediate_triangle(p0, p1, p2, RED, GREEN, BLUE);
     */
 
-    draw_level();
+    draw_background();
 
     // 玩家永远在最上层
-    draw_sprite(.Player, world_at(the_player.x, the_player.y), the_player.x, the_player.y);
+    draw_sprite(.Player, the_player.x, the_player.y);
 
     // draw_sprite 自己不 flush（为了攒批），这里统一收口
     Simp.immediate_flush();
@@ -162,11 +161,9 @@ draw_one_frame :: () {
 
 #import "Basic";
 
-#import "File";
 #import "Input";
 #import "Math";
 #import "Random";
-#import "String";
 
 Simp :: #import "Simp";
 using Sound :: #import "Sound_Player";
@@ -182,8 +179,9 @@ using Sound :: #import "Sound_Player";
 #load "colors.jai";
 #load "menu.jai";
 
-#load "level.jai";
 #load "entities.jai";
 #load "player_input.jai";
-#load "movement.jai";
+#load "move_system.jai";
+
+#load "helpers/background.jai";
 

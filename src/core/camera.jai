@@ -216,49 +216,35 @@ handle_camera_wheel :: (event: Event) {
 draw_camera_debug :: () {
     if !debug_font  return;
 
-    vx0, vy0, vx1, vy1 := camera_visible_grid();
+    font := debug_font;
+    color := DEBUG_TEXT_COLOR;
 
-    line_h := debug_font.character_height * 3 / 2;
-    x      := 20;
-    y      := window_height - line_h;
+    line_height := font.character_height * 3 / 2;
+    x := 20;
+    y := window_height - line_height;
 
-    draw_text(debug_font, tprint("camera  %", the_camera.mode), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h;
+    draw_item :: (text : string) #expand {
+        draw_text(`font, text, `x, `y, `color);
+        `y -= `line_height;
+    }
 
-    draw_text(debug_font, tprint("pos     %, %",
-                                 formatFloat(the_camera.pos.x, trailing_width = 1),
-                                 formatFloat(the_camera.pos.y, trailing_width = 1)), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h;
+    draw_item(tprint("camera  %", the_camera.mode));
+    draw_item(tprint("zoom    %  (tile = % px)", formatFloat(the_camera.zoom, trailing_width = 2), camera_tile_px()));
+    draw_item(tprint("player  %, %", the_player.x, the_player.y));
 
-    draw_text(debug_font, tprint("zoom    %  (tile = % px)",
-                                 formatFloat(the_camera.zoom, trailing_width = 2),
-                                 camera_tile_px()), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h;
-
-    draw_text(debug_font, tprint("visible %,% .. %,%", vx0, vy0, vx1, vy1), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h;
-
-    draw_text(debug_font, tprint("player  %, %", the_player.x, the_player.y), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h;
-
-    // 光标下那一格 —— 调边界模型最直接的工具
+    // Cursor position
     mx, my, ok := get_mouse_pointer_position(the_window, true);
     if ok {
         w := screen_to_world(cast(float) mx, cast(float) my);
-        cx := cast(int) floor(w.x);
-        cy := cast(int) floor(w.y);
-
-        if in_bounds(cx, cy) {
-            t := the_map[cy][cx];
-            draw_text(debug_font, tprint("cursor  %,%  world % / hidden %  %  edges %", cx, cy, t.world, t.hidden, t.type, t.edges), x, y, DEBUG_TEXT_COLOR);
-        } else {
-            draw_text(debug_font, tprint("cursor  %,%  (out of map)", cx, cy), x, y, DEBUG_TEXT_COLOR);
-        }
+        draw_item(tprint("cursor  %, %", cast(int) floor(w.x), cast(int) floor(w.y)));
     }
-    y -= line_h;
 
-    draw_text(debug_font, tprint("crates  %", the_crates.count), x, y, DEBUG_TEXT_COLOR);
-    y -= line_h * 2;
+    draw_item("");
 
-    draw_text(debug_font, "Tab: follow/free   arrows: pan   wheel: zoom   0: reset   F: fit map", x, y, DEBUG_TEXT_COLOR);
+    draw_item("help:");
+    draw_item("  tab: follow/free");
+    draw_item("  arrows: pan move");
+    draw_item("  wheel: zoom");
+    draw_item("  o: reset");
+    draw_item("  f: fit map");
 }
