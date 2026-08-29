@@ -16,12 +16,11 @@ render_width  : s32 = 1200;
 render_height : s32 = 800;
 
 basic_font : *Simp.Dynamic_Font;
+debug_font : *Simp.Dynamic_Font;
 
 game_should_quit := false;
-
-zoom := 16; // @HACK 后面会实现鼠标滚轮缩放的功能
-tile_size := FIXED_TILE_SIZE * 16;
 
 // ----------------------------------------------------------------------------: game state
 
 the_player : Player;
+the_camera : Camera;

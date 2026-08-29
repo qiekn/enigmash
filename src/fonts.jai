@@ -3,6 +3,9 @@ init_fonts :: () {
 
     basic_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-BoldItalic.ttf", pixel_height);
     assert(basic_font != null);
+
+    debug_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-Regular.ttf", window_height / 45);
+    assert(debug_font != null);
 }
 
 // With defaut font

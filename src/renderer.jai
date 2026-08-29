@@ -1,21 +1,20 @@
 // 绘制一个纯色方块
 draw_rect :: (x: int, y: int, color : Color = ORANGE) {
-    x0 := cast(float)(x * tile_size);
-    y0 := cast(float)(y * tile_size);
-
-    x1 := x0 + cast(float) tile_size;
-    y1 := y0 + cast(float) tile_size;
+    ts := camera_tile_px();
+    p  := world_to_screen(cast(float) x, cast(float) y);
 
     Simp.set_shader_for_color(true);
-    Simp.immediate_quad(x0, y0, x1, y1, color);
+    Simp.immediate_quad(p.x, p.y, p.x + ts, p.y + ts, color);
 }
 
 draw_sprite :: (sprite: Sprite, x: int, y: int) {
-    x0 := cast(float)(x * tile_size);
-    y0 := cast(float)(y * tile_size);
+    ts := camera_tile_px();
+    p  := world_to_screen(cast(float) x, cast(float) y);
 
-    x1 := x0 + cast(float) tile_size;
-    y1 := y0 + cast(float) tile_size;
+    x0 := p.x;
+    y0 := p.y;
+    x1 := x0 + ts;
+    y1 := y0 + ts;
 
     // @HACK sprites.png 5x5 pixels tile 横向排列
     // 我这里单独处理的 the_sprite

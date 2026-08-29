@@ -25,6 +25,8 @@ main :: () {
 
     init_sounds();
 
+    camera_reset();
+
     // play_music(); // @NOTE current, we don't want enable background music. Maybe add an option in menu
 
     while !game_should_quit {
@@ -35,11 +37,15 @@ main :: () {
         delta_time : s64 = to_milliseconds(current_time - last_time);
         last_time = current_time;
 
-        tile_size = FIXED_TILE_SIZE * zoom;
         update_player_input_event(delta_time);
         update_window_events();
         handle_window_resizes();
         handle_input();
+
+        // 菜单里方向键是用来选菜单项的，别让它偷偷推着摄像机跑
+        if program_mode == .GAME {
+            camera_update(cast(float) delta_time / 1000.0);
+        }
 
         Sound.update();
 
@@ -82,6 +88,9 @@ handle_input :: () {
             case .QUIT;
                 game_should_quit = true;
 
+            case .MOUSE_WHEEL;
+                if program_mode == .GAME  handle_camera_wheel(it);
+
             case .KEYBOARD;
                 if program_mode == .MENU {
                     handle_menu_input(it.key_code, it.key_pressed);
@@ -91,6 +100,9 @@ handle_input :: () {
                 if it.key_code == .ESCAPE {
                     if it.key_pressed then toggle_menu();
                 }
+
+                // 摄像机先挑走它关心的键（Tab / 0 / F / 方向键）
+                if handle_camera_key(it.key_code, it.key_pressed)  continue;
 
                 handle_player_input(it.key_code, it.key_pressed);
         }
@@ -109,6 +121,8 @@ draw_one_frame :: () {
     draw_background();
     draw_rect(10, 10);
     draw_sprite(.Player, the_player.x, the_player.y);
+
+    draw_camera_debug();
 }
 
 
@@ -130,6 +144,7 @@ using Sound :: #import "Sound_Player";
 
 #load "sprites.jai";
 #load "entities.jai";
+#load "camera.jai";
 #load "renderer.jai";
 #load "movement.jai";
 #load "fonts.jai";
