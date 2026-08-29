@@ -149,11 +149,11 @@ camera_reset :: () {
 
 // 缩放到整张地图刚好铺满屏幕
 camera_fit_map :: () {
-    zx := cast(float) render_width  / cast(float) (MAP_WIDTH  * FIXED_TILE_SIZE);
-    zy := cast(float) render_height / cast(float) (MAP_HEIGHT * FIXED_TILE_SIZE);
+    zx := cast(float) render_width  / cast(float)(MAP_WIDTH  * FIXED_TILE_SIZE);
+    zy := cast(float) render_height / cast(float)(MAP_HEIGHT * FIXED_TILE_SIZE);
 
     the_camera.zoom = clamp(min(zx, zy), CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM);
-    the_camera.pos  = .{cast(float) MAP_WIDTH * 0.5, cast(float) MAP_HEIGHT * 0.5};
+    the_camera.pos  = .{MAP_WIDTH * 0.5, MAP_HEIGHT * 0.5};
     the_camera.mode = .FREE;    // 看整张地图必然要脱离玩家
 }
 
@@ -239,6 +239,25 @@ draw_camera_debug :: () {
     y -= line_h;
 
     draw_text(debug_font, tprint("player  %, %", the_player.x, the_player.y), x, y, DEBUG_TEXT_COLOR);
+    y -= line_h;
+
+    // 光标下那一格 —— 调边界模型最直接的工具
+    mx, my, ok := get_mouse_pointer_position(the_window, true);
+    if ok {
+        w := screen_to_world(cast(float) mx, cast(float) my);
+        cx := cast(int) floor(w.x);
+        cy := cast(int) floor(w.y);
+
+        if in_bounds(cx, cy) {
+            t := the_map[cy][cx];
+            draw_text(debug_font, tprint("cursor  %,%  world % / hidden %  %  edges %", cx, cy, t.world, t.hidden, t.type, t.edges), x, y, DEBUG_TEXT_COLOR);
+        } else {
+            draw_text(debug_font, tprint("cursor  %,%  (out of map)", cx, cy), x, y, DEBUG_TEXT_COLOR);
+        }
+    }
+    y -= line_h;
+
+    draw_text(debug_font, tprint("crates  %", the_crates.count), x, y, DEBUG_TEXT_COLOR);
     y -= line_h * 2;
 
     draw_text(debug_font, "Tab: follow/free   arrows: pan   wheel: zoom   0: reset   F: fit map", x, y, DEBUG_TEXT_COLOR);

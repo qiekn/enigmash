@@ -4,7 +4,34 @@ Program_Mode :: enum {
     MENU;
 }
 
+// ----------------------------------------------------------------------------: global variables
+
 program_mode := Program_Mode.GAME;
+
+saved_window_info : Saved_Window_Info;
+
+the_window : Window_Type;
+the_sprite : Simp.Texture;
+
+window_width  : s32 = 1200;
+window_height : s32 = 800;
+
+render_width  : s32 = 1200;
+render_height : s32 = 800;
+
+basic_font : *Simp.Dynamic_Font;
+debug_font : *Simp.Dynamic_Font;
+
+game_should_quit := false;
+
+// ----------------------------------------------------------------------------: game state
+
+the_player : Player;
+the_camera : Camera;
+
+the_map    : [MAP_HEIGHT][MAP_WIDTH] Tile;    // 104x104x4B = 43 KB
+the_crates : [..] Crate;
+the_spawn  : Position;
 
 // ----------------------------------------------------------------------------: entry
 
@@ -25,6 +52,7 @@ main :: () {
 
     init_sounds();
 
+    load_level(LEVEL_PATH);
     camera_reset();
 
     // play_music(); // @NOTE current, we don't want enable background music. Maybe add an option in menu
@@ -118,9 +146,13 @@ draw_one_frame :: () {
     Simp.immediate_triangle(p0, p1, p2, RED, GREEN, BLUE);
     */
 
-    draw_background();
-    draw_rect(10, 10);
-    draw_sprite(.Player, the_player.x, the_player.y);
+    draw_level();
+
+    // 玩家永远在最上层
+    draw_sprite(.Player, world_at(the_player.x, the_player.y), the_player.x, the_player.y);
+
+    // draw_sprite 自己不 flush（为了攒批），这里统一收口
+    Simp.immediate_flush();
 
     draw_camera_debug();
 }
@@ -130,27 +162,28 @@ draw_one_frame :: () {
 
 #import "Basic";
 
+#import "File";
 #import "Input";
 #import "Math";
 #import "Random";
+#import "String";
 
 Simp :: #import "Simp";
 using Sound :: #import "Sound_Player";
 #import "Window_Creation";
 
-#load "config.jai";
-#load "globals.jai";
-#load "colors.jai";
+#load "core/sprites.jai";
+#load "core/camera.jai";
+#load "core/renderer.jai";
+#load "core/sounds.jai";
+#load "core/fonts.jai";
 
-#load "sprites.jai";
-#load "entities.jai";
-#load "camera.jai";
-#load "renderer.jai";
-#load "movement.jai";
-#load "fonts.jai";
-#load "sounds.jai";
-#load "player_input.jai";
+#load "config.jai"; // All constants
+#load "colors.jai";
 #load "menu.jai";
 
-#load "helpers/background.jai";
+#load "level.jai";
+#load "entities.jai";
+#load "player_input.jai";
+#load "movement.jai";
 
