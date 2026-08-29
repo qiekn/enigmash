@@ -23,6 +23,9 @@ main :: () {
     init_fonts();
     init_menu_fonts();
 
+    init_sounds();
+    play_music();
+
     while !game_should_quit {
         clear_background(0.16, 0.17, 0.2, 1);
 
@@ -36,6 +39,8 @@ main :: () {
         update_window_events();
         handle_window_resizes();
         handle_input();
+
+        Sound.update();
 
         // render
         if program_mode == .GAME {
@@ -112,8 +117,10 @@ draw_one_frame :: () {
 
 #import "Input";
 #import "Math";
+#import "Random";
 
 Simp :: #import "Simp";
+using Sound :: #import "Sound_Player";
 #import "Window_Creation";
 
 #load "config.jai";
@@ -125,6 +132,7 @@ Simp :: #import "Simp";
 #load "renderer.jai";
 #load "movement.jai";
 #load "fonts.jai";
+#load "sounds.jai";
 #load "player_input.jai";
 #load "menu.jai";
 

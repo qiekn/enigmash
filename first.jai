@@ -9,7 +9,7 @@ build :: () {
     }
 
     options := get_build_options(w);
-    options.output_executable_name = "game";
+    options.output_executable_name = "enigmash";
     set_build_options(options, w);
 
     print("Hello, Jailor!\n");
