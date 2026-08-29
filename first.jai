@@ -11,7 +11,7 @@ build :: () {
     options.output_executable_name = "enigmash";
     set_build_options(options, w);
 
-    add_build_file("./src/game.jai", w);
+    add_build_file("./src/main.jai", w);
     set_build_options_dc(.{do_output=false});
 }
 

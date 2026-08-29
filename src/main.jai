@@ -176,12 +176,11 @@ using Sound :: #import "Sound_Player";
 #load "core/fonts.jai";
 
 #load "config.jai"; // All constants
-#load "colors.jai";
 #load "menu.jai";
 
 #load "entities.jai";
 #load "player_input.jai";
 #load "move_system.jai";
 
-#load "helpers/background.jai";
+#load "helpers/checkboard.jai";
 
