@@ -24,7 +24,8 @@ main :: () {
     init_menu_fonts();
 
     init_sounds();
-    play_music();
+
+    // play_music(); // @NOTE current, we don't want enable background music. Maybe add an option in menu
 
     while !game_should_quit {
         clear_background(0.16, 0.17, 0.2, 1);
