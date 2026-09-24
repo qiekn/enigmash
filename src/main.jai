@@ -30,7 +30,10 @@ show_debug       := false;      // F3
 main :: () {
     // 无窗口回放（和原版引擎对照测试用）
     args := get_command_line_arguments();
-    for args  if it == "-replay"  exit(xx run_replay(args));
+    for args  if it == "-replay" {
+        init_data_package(set_cwd = false);
+        exit(xx run_replay(args));
+    }
 
     last_time := current_time_monotonic();
     current_time : Apollo_Time;
@@ -81,6 +84,9 @@ main :: () {
 // ----------------------------------------------------------------------------: helpers
 
 init_game :: () {
+    // 资源包（同时把工作目录切到 exe 所在目录）
+    init_data_package();
+
     // init window
     the_window = create_window(window_width, window_height, "ck: Enigmash");
     Simp.set_render_target(the_window);
@@ -98,8 +104,8 @@ init_game :: () {
     ui_init();
 
     // 关卡 + 存档
-    if !session_load_level(*game, DEFAULT_LEVEL_PATH) {
-        log_error("Can't load the level '%'.", DEFAULT_LEVEL_PATH);
+    if !session_load_default_level(*game) {
+        log_error("Can't load the level '%'.", DEFAULT_LEVEL_NAME);
         exit(1);
     }
     if !session_load_save(*game)  session_new_game(*game);
@@ -240,6 +246,7 @@ using Sound :: #import "Sound_Player";
 
 #load "generated/atlas.jai";
 
+#load "core/package.jai";
 #load "core/sprites.jai";
 #load "core/camera.jai";
 #load "core/renderer.jai";

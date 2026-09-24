@@ -1,14 +1,15 @@
 // 无窗口回放：给同一串按键，逐步输出规范化的格子状态，用来和原版引擎（tools/oracle）逐格比对。
 //
-//     enigmash.exe -replay keys.txt -dump out.txt [-local] [-level path/to.lvl]
+//     enigmash.exe -replay keys.txt -dump out.txt [-local] [-level path/to.level]
 //
 // keys.txt：用逗号或空白分隔的 up/down/left/right/action/undo/restart
 // -local：模拟原版 local_radius 17（和原版对照时要开）
+// 不给 -level 时用默认关卡（见 load_default_level）
 
 run_replay :: (args: [] string) -> int {
     keys_path  := "";
     dump_path  := "";
-    level_path := DEFAULT_LEVEL_PATH;
+    level_path := "";
 
     i := 1;
     while i < args.count {
@@ -25,7 +26,8 @@ run_replay :: (args: [] string) -> int {
 
     s := *game;
     s.headless = true;
-    if !session_load_level(s, level_path)  return 1;
+    loaded := ifx level_path then session_load_level(s, level_path) else session_load_default_level(s);
+    if !loaded  return 1;
     session_new_game(s, show_intro = false);
     session_drain(s);
 

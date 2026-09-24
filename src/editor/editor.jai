@@ -46,7 +46,7 @@ Editor :: struct {
 
     schematic     := false;
     show_hidden   := false;
-    show_edges    := true;
+    show_edges    := false;
     show_entities := true;
     show_regions  := false;
 
@@ -84,7 +84,7 @@ playtesting      := false;
 
 enter_editor :: () {
     if !ed.loaded {
-        if !editor_load(DEFAULT_LEVEL_PATH)  editor_new_level(MAP_WIDTH, MAP_HEIGHT);
+        if !editor_load_default()  editor_new_level(MAP_WIDTH, MAP_HEIGHT);
         if !ed.letter_text  ed.letter_text = copy_string("A");
     }
     program_mode = .EDITOR;
@@ -106,11 +106,28 @@ editor_load :: (path: string) -> bool {
         editor_set_status("Failed to load %", path);
         return false;
     }
+    editor_take_level(level, path);
+    return true;
+}
+
+// 默认关卡（散文件优先，否则资源包）；保存时写到 default_level_path()
+editor_load_default :: () -> bool {
+    level, ok := load_default_level();
+    if !ok {
+        editor_set_status("Failed to load the default level");
+        return false;
+    }
+    editor_take_level(level, level.path);
+    return true;
+}
+
+editor_take_level :: (level: Level, path: string) {
+    path_copy := copy_string(path);      // path 可能指向 ed.level 里、马上要被释放的字符串
     level_free(*ed.level);
     ed.level  = level;
     ed.loaded = true;
     free(ed.path);
-    ed.path  = copy_string(path);
+    ed.path  = path_copy;
     ed.dirty = false;
     editor_clear_history();
     ed.regions_dirty = true;
@@ -122,8 +139,7 @@ editor_load :: (path: string) -> bool {
     camera_fit_map();
 
     editor_validate();
-    editor_set_status("Loaded % (% x %)", path, level.w, level.h);
-    return true;
+    editor_set_status("Loaded % (% x %)", ed.path, level.w, level.h);
 }
 
 editor_new_level :: (w: s32, h: s32) {
@@ -162,6 +178,7 @@ editor_save :: () {
         editor_set_status("No file path");
         return;
     }
+    make_directory_if_it_does_not_exist(path_strip_filename(ed.path), recursive = true);
     if save_level(*ed.level, ed.path) {
         ed.dirty = false;
         editor_validate();

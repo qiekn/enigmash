@@ -1,4 +1,4 @@
-// 关卡（静态数据）与游戏状态（动态数据），以及 .lvl 文本格式的读写。
+// 关卡（静态数据）与游戏状态（动态数据），以及 .level 文本格式的读写。
 // 格式说明见 docs/architecture.md「关卡文件格式」。
 
 Pos :: struct { x, y: s32; }
@@ -124,15 +124,51 @@ ENTITY_KINDS :: Entity_Kind.[
 ];
 
 load_level :: (path: string) -> Level, ok: bool {
-    l: Level;
-    l.path = copy_string(path);
-
     text, read_ok := read_entire_file(path);
     if !read_ok {
         log_error("Can't read level file '%'.", path);
+        l: Level;
         return l, false;
     }
     defer free(text);
+    l, ok := parse_level(text, path);
+    return l, ok;
+}
+
+// 默认关卡的散文件路径：开发机上是仓库 data/levels/（编辑器改完不用重新打包就能玩），
+// 否则是 exe 旁边的 data/levels/（发布版编辑器保存到这里，覆盖包里的那份）
+default_level_path :: () -> string {
+    dev := dev_level_path(DEFAULT_LEVEL_NAME);
+    if dev  return dev;
+    return tprint("data/levels/%", DEFAULT_LEVEL_NAME);
+}
+
+// 默认关卡：有散文件就读散文件，否则读资源包
+load_default_level :: () -> Level, ok: bool {
+    path := default_level_path();
+    if file_exists(path) {
+        l, ok := load_level(path);
+        return l, ok;
+    }
+
+    name := tprint("levels/%", DEFAULT_LEVEL_NAME);
+    text, ok := data_file_string(name);
+    if !ok {
+        l: Level;
+        return l, false;
+    }
+    l, parsed := parse_level(text, name);
+    if parsed {
+        free(l.path);
+        l.path = copy_string(path);
+    }
+    return l, parsed;
+}
+
+// path 只用于报错和 Level.path（编辑器保存时写回这里）
+parse_level :: (text: string, path: string) -> Level, ok: bool {
+    l: Level;
+    l.path = copy_string(path);
 
     lines := split(text, "\n",, temp);
     for * lines  it.* = trim_right(it.*, "\r");

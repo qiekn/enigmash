@@ -105,9 +105,9 @@ menu_return_mode := Program_Mode.GAME;
 init_menu_fonts :: () {
     base_height := cast(int) (window_height / 18);
 
-    title_font   = Simp.get_font_at_size(FONT_FOLDER, "Karmina-Bold.otf", xx (base_height * 1.6));
-    body_font    = Simp.get_font_at_size(FONT_FOLDER, "Karmina-Bold.otf", base_height);
-    version_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-Regular.ttf", xx (base_height * 0.4));
+    title_font   = font_at_size("Karmina-Bold.otf", xx (base_height * 1.6));
+    body_font    = font_at_size("Karmina-Bold.otf", base_height);
+    version_font = font_at_size("OpenSans-Regular.ttf", xx (base_height * 0.4));
     assert(title_font != null);
 }
 

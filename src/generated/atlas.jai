@@ -1,6 +1,6 @@
 // 由 tools/gen_atlas.jai 生成，不要手改。
 
-ATLAS_PATH :: "assets/textures/atlas.png";
+ATLAS_PATH :: "textures/atlas.png";   // 资源包内路径
 ATLAS_COLS :: 16;
 ATLAS_ROWS :: 10;
 ATLAS_CELL :: 7;   // 像素；中间 5x5 是本体

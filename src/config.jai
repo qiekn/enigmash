@@ -28,11 +28,14 @@ VIEW_TILES :: 13.0;           // 游戏默认视野：屏幕高度铺满 13 格�
 MOVE_REPEAT_DELAY    :: 150;
 MOVE_REPEAT_INTERVAL :: 150; // PuzzleScript Style: 150ms
 
-FONT\   _FOLDER :: "assets/fonts";
-TEXTUER\_FOLDER :: "assets/textures";
-SOUND\  _FOLDER :: "assets/sounds";
+// 资源包内的路径（相对仓库 data/，见 core/package.jai）
+FONT\   _FOLDER :: "fonts";
+TEXTUER\_FOLDER :: "textures";
+SOUND\  _FOLDER :: "sounds";
 
-DEFAULT_LEVEL_PATH :: "assets/levels/enigmash.lvl";
+DEFAULT_LEVEL_NAME :: "enigmash.level";          // 包内在 levels/ 下
+
+SAVE_DIR :: "save";                              // 相对 exe 所在目录
 
 
 // ----------------------------------------------------------------------------: colors

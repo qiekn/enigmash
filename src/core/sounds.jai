@@ -15,8 +15,10 @@ started_bgm := false;
 init_sounds :: () {
     load_sound :: (basename: string, extension := "wav") -> Sound_Data {
         name := tprint("%/%.%", SOUND_FOLDER, basename, extension);
-        data := load_audio_file(name);
+        bytes, ok := data_file_string(name);
+        if !ok  exit(1);
 
+        data := load_audio_data(name, bytes);
         if !data.loaded exit(1);
 
         return data;

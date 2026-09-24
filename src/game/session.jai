@@ -45,6 +45,13 @@ session_load_level :: (s: *Session, path: string) -> bool {
     return true;
 }
 
+session_load_default_level :: (s: *Session) -> bool {
+    level, ok := load_default_level();
+    if !ok  return false;
+    session_set_level(s, level);
+    return true;
+}
+
 // 接管一个已经加载好的关卡（编辑器试玩也走这里）
 session_set_level :: (s: *Session, level: Level) {
     session_clear(s);
@@ -249,7 +256,7 @@ session_player_cell :: (s: *Session) -> Pos, bool {
 
 // ----------------------------------------------------------------------------: 存档
 
-SAVE_PATH  :: "saves/save.dat";
+SAVE_PATH  :: #run tprint("%/save.dat", SAVE_DIR);     // 相对 exe 所在目录（init_data_package 把工作目录切到那里）
 SAVE_MAGIC :: "ENGS";
 SAVE_VERSION :: 1;
 
@@ -270,7 +277,7 @@ session_save :: (s: *Session) {
         put(*b, st.open);
     }
 
-    make_directory_if_it_does_not_exist("saves");
+    make_directory_if_it_does_not_exist(SAVE_DIR);
     data := builder_to_string(*b);
     defer free(data);
     if !write_entire_file(SAVE_PATH, data)  log_error("Failed to write %.", SAVE_PATH);

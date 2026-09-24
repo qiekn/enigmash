@@ -2,8 +2,8 @@
 // 每条规则前面是原文和行号（ps:行号 = .refs/enigmash_puzzlescript.txt 的行号）。
 //
 // 写法约定：
-//   for pass: stable() ...                        一个规则组，反复执行直到不再改变
-//   for scan(d, len) { it = 第一个格子 }     一次按原版顺序的匹配遍历，D = d
+//   for pass: stable() ...                  一个规则组，反复执行直到不再改变
+//   for scan(d, len) { it = 第一个格子 }    一次按原版顺序的匹配遍历，D = d
 //   c1 := nb(it, D)                         pattern 里的下一个格子
 
 rules_normal :: () {
