@@ -59,5 +59,17 @@ play_music :: () {
     set_repeating(stream, true);
     start_playing(stream);
     started_bgm = true;
-    
+
+}
+
+music_enabled := false;   // 默认不开背景音乐，菜单 Options 里可以打开
+
+set_music_enabled :: (enabled: bool) {
+    music_enabled = enabled;
+    if enabled {
+        play_music();
+    } else if started_bgm {
+        stop_stream_abruptly(*music);
+        started_bgm = false;
+    }
 }

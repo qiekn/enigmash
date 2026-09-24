@@ -7,9 +7,9 @@ version\ _font  : *Simp.Dynamic_Font;
 
 Menu_Action :: enum {
     RESUME;
+    NEW_GAME;
+    EDITOR;
     OPTIONS;
-    LOAD_CAMPAIGN;
-    NEW_CAMPAIGN;
     QUIT;
 }
 
@@ -20,17 +20,20 @@ Menu_Item :: struct {
 }
 
 menu_items :: Menu_Item.[
-    .{.RESUME,        "Resume Game",               ""},
-    .{.OPTIONS,       "Options",                   ""},
-    .{.LOAD_CAMPAIGN, "Load a Different Campaign", ""},
-    .{.NEW_CAMPAIGN,  "Start a New Campaign",      "Choose Again to Restart"},
-    .{.QUIT,          "Quit",                      "Quit (Are you sure?)"},
+    .{.RESUME,   "Continue",     ""},
+    .{.NEW_GAME, "New Game",     "Start Over? (progress will be lost)"},
+    .{.EDITOR,   "Level Editor", ""},
+    .{.OPTIONS,  "Options",      ""},
+    .{.QUIT,     "Quit",         "Quit (Are you sure?)"},
 ];
 
 selected_index        := 0;
 pending_confirm_index := -1;    // 正在等待二次确认的那一项，-1 表示没有
 
 in_options_submenu := false;    // 目前只有这一个子菜单，所以不需要栈
+options_index      := 0;
+
+OPTION_COUNT :: 2;              // Music / Back
 
 reset_confirmation :: () {
     pending_confirm_index = -1;
@@ -40,6 +43,7 @@ reset_menu_state :: () {
     selected_index        = 0;
     pending_confirm_index = -1;
     in_options_submenu    = false;
+    options_index         = 0;
 }
 
 handle_confirm :: () {
@@ -55,23 +59,48 @@ handle_confirm :: () {
 
     if item.action == {
         case .RESUME;
-            toggle_menu();
+            close_menu();
+
+        case .NEW_GAME;
+            start_new_game();
+            menu_return_mode = .GAME;
+            close_menu();
+
+        case .EDITOR;
+            enter_editor();
 
         case .OPTIONS;
             in_options_submenu = true;
-
-        case .LOAD_CAMPAIGN;
-            // @Incomplete 还没有 campaign 的加载流程
-
-        case .NEW_CAMPAIGN;
-            // @Incomplete 还没有 campaign 的重开流程
+            options_index = 0;
 
         case .QUIT;
             game_should_quit = true;
     }
 }
 
+handle_options_input :: (key: Key_Code) {
+    if key == {
+        case .ESCAPE;
+            in_options_submenu = false;
+
+        case #char "W"; #through;
+        case .ARROW_UP;
+            options_index = (options_index + OPTION_COUNT - 1) % OPTION_COUNT;
+
+        case #char "S"; #through;
+        case .ARROW_DOWN;
+            options_index = (options_index + 1) % OPTION_COUNT;
+
+        case .SPACEBAR; #through;
+        case .ENTER;
+            if options_index == 0  set_music_enabled(!music_enabled);
+            else                   in_options_submenu = false;
+    }
+}
+
 #scope_export
+
+menu_return_mode := Program_Mode.GAME;
 
 init_menu_fonts :: () {
     base_height := cast(int) (window_height / 18);
@@ -82,30 +111,36 @@ init_menu_fonts :: () {
     assert(title_font != null);
 }
 
-toggle_menu :: () {
-    using Program_Mode;
+open_menu :: () {
+    if program_mode != .MENU  menu_return_mode = program_mode;
+    program_mode = .MENU;
+    reset_menu_state();
+    release_player_keys();
+}
 
-    if program_mode == GAME {
-        program_mode = MENU;
-        reset_menu_state();
-    } else {
-        program_mode = GAME;
-    }
+close_menu :: () {
+    program_mode = menu_return_mode;
+    if program_mode == .GAME  active_camera = *game_camera;
+    if program_mode == .EDITOR  active_camera = *editor_camera;
+}
+
+toggle_menu :: () {
+    if program_mode == .MENU  close_menu();
+    else                      open_menu();
 }
 
 handle_menu_input :: (key: Key_Code, pressed: u32) {
     if !pressed return;    // 菜单只关心按下的那一帧
 
     if in_options_submenu {
-        // 子菜单目前是空的，只能退回主菜单
-        if key == .ESCAPE  in_options_submenu = false;
+        handle_options_input(key);
         return;
     }
 
     if key == {
         case .ESCAPE;
             reset_confirmation();
-            toggle_menu();
+            close_menu();
 
         case #char "W"; #through;
         case .ARROW_UP;
@@ -125,38 +160,36 @@ handle_menu_input :: (key: Key_Code, pressed: u32) {
     }
 }
 
-draw_menu_item :: (item: Menu_Item, index: int, y: int) {
-    is_selected   := index == selected_index;
-    is_confirming := index == pending_confirm_index;
-
-    label := ifx is_confirming then item.confirm_label else item.label;
-    color := ifx is_selected   then ORANGE             else WHITE;
-
+draw_menu_item :: (label: string, index: int, selected: int, y: int) {
+    color := ifx index == selected then ORANGE else WHITE;
     draw_text_centered(body_font, label, y, color);
 }
 
 draw_menu :: () {
     clear_background(BACKGROUND_COLOR);
 
+    title_y := cast(int)(window_height * 0.72);
+    stride := body_font.character_height * 3 / 2;
+    item_y := title_y - title_font.character_height - stride;
+
     if in_options_submenu {
-        draw_text(title_font, "Hello, Options");
-        return;    // 子菜单内容暂时留空
+        draw_text_centered(title_font, "Options", title_y, WHITE);
+        draw_menu_item(tprint("Music: %", ifx music_enabled "On" else "Off"), 0, options_index, item_y);
+        draw_menu_item("Back", 1, options_index, item_y - stride);
+        return;
     }
 
     //
     // Title
     //
-    title_y := cast(int)(window_height * 0.72);
     draw_text_centered(title_font, "ENIGMASH - Jai Rewrite", title_y, WHITE);
 
     //
     // Items
     //
-    stride := body_font.character_height * 3 / 2;
-    item_y := title_y - title_font.character_height - stride;
-
     for menu_items {
-        draw_menu_item(it, it_index, item_y);
+        label := ifx it_index == pending_confirm_index then it.confirm_label else it.label;
+        draw_menu_item(label, it_index, selected_index, item_y);
         item_y -= stride;
     }
 }

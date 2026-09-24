@@ -1,3 +1,7 @@
+message_font : *Simp.Dynamic_Font;
+editor_font  : *Simp.Dynamic_Font;   // 编辑器面板 / 画布标注
+small_font   : *Simp.Dynamic_Font;
+
 init_fonts :: () {
     pixel_height := window_height / 12;
 
@@ -6,6 +10,15 @@ init_fonts :: () {
 
     debug_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-Regular.ttf", window_height / 45);
     assert(debug_font != null);
+
+    message_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-SemiBold.ttf", window_height / 32);
+    assert(message_font != null);
+
+    editor_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-Regular.ttf", max(window_height / 50, 12));
+    assert(editor_font != null);
+
+    small_font = Simp.get_font_at_size(FONT_FOLDER, "OpenSans-Regular.ttf", max(window_height / 70, 10));
+    assert(small_font != null);
 }
 
 // With defaut font

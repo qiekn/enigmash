@@ -1,5 +1,3 @@
-SPRITE_SHEET_ROW :: 1; // @Temporary
-
 // ----------------------------------------------------------------------------: primitives
 
 // 绘制一个纯色方块（整格）
@@ -11,6 +9,32 @@ draw_rect :: (x: int, y: int, color : Color = ORANGE) {
     Simp.immediate_quad(p.x, p.y, p.x + tile_size, p.y + tile_size, color);
 }
 
+// 世界坐标里的任意矩形（格为单位，可以是小数）
+draw_world_rect :: (x0: float, y0: float, x1: float, y1: float, color: Color) {
+    a := world_to_screen(x0, y0);
+    b := world_to_screen(x1, y1);
+    Simp.set_shader_for_color(true);
+    Simp.immediate_quad(a.x, a.y, b.x, b.y, color);
+}
+
+// 屏幕像素矩形
+draw_screen_rect :: (x0: float, y0: float, x1: float, y1: float, color: Color) {
+    Simp.set_shader_for_color(true);
+    Simp.immediate_quad(x0, y0, x1, y1, color);
+}
+
+// 格子描边（thickness 为像素）
+draw_cell_outline :: (x: int, y: int, color: Color, thickness := 2.0) {
+    ts := camera_tile_px();
+    p  := world_to_screen(cast(float) x, cast(float) y);
+    t  := thickness;
+    Simp.set_shader_for_color(true);
+    Simp.immediate_quad(p.x,          p.y,          p.x + ts, p.y + t,  color);
+    Simp.immediate_quad(p.x,          p.y + ts - t, p.x + ts, p.y + ts, color);
+    Simp.immediate_quad(p.x,          p.y,          p.x + t,  p.y + ts, color);
+    Simp.immediate_quad(p.x + ts - t, p.y,          p.x + ts, p.y + ts, color);
+}
+
 // ----------------------------------------------------------------------------: sprites
 //
 // 注意：这里刻意不调 immediate_begin / immediate_flush。
@@ -18,37 +42,54 @@ draw_rect :: (x: int, y: int, color : Color = ORANGE) {
 // 一整屏地图也只要几次 draw call。代价是调用方画完必须自己 flush 一次
 // （见 draw_one_frame）。
 
+Sprite_UV :: struct { u0, v0, u1, v1: float; }
+
+// 启动时算一次（缩小看全图时每帧要画几万个精灵，别每次都做除法）
+sprite_uv_table : [#run enum_highest_value(Sprite) + 1] Sprite_UV;
+
+init_sprite_uvs :: () {
+    for * sprite_uv_table {
+        u0, v0, u1, v1 := sprite_uv_compute(cast(Sprite) it_index);
+        it.* = .{u0, v0, u1, v1};
+    }
+}
+
+sprite_uv :: inline (kind: Sprite) -> (u0: float, v0: float, u1: float, v1: float) {
+    t := *sprite_uv_table[cast(int) kind];
+    return t.u0, t.v0, t.u1, t.v1;
+}
+
+sprite_uv_compute :: (kind: Sprite) -> (u0: float, v0: float, u1: float, v1: float) {
+    idx := cast(int) kind;
+    col := idx % ATLAS_COLS;
+    row := idx / ATLAS_COLS;
+
+    tw := cast(float)(ATLAS_COLS * ATLAS_CELL);
+    th := cast(float)(ATLAS_ROWS * ATLAS_CELL);
+
+    // 每个格子中间 5x5 是本体，外圈 1px 是复制出来的边缘（防止采样串到隔壁精灵）
+    px0 := cast(float)(col * ATLAS_CELL + 1);
+    py0 := cast(float)(row * ATLAS_CELL + 1);   // 从图片顶部数
+
+    // Simp 的 shader 里有 1 - v，所以 v = 0 是图片底部
+    return px0 / tw, 1.0 - (py0 + 5) / th, (px0 + 5) / tw, 1.0 - py0 / th;
+}
+
 draw_sprite :: (kind: Sprite, x: int, y: int, tint := WHITE) {
     tile_size := camera_tile_px();
     p  := world_to_screen(cast(float) x, cast(float) y);
+    draw_sprite_screen(kind, p.x, p.y, tile_size, tint);
+}
 
-    x0 := p.x;
-    y0 := p.y;
-    x1 := x0 + tile_size;
-    y1 := y0 + tile_size;
+// 屏幕像素位置（左下角）和边长
+draw_sprite_screen :: (kind: Sprite, x0: float, y0: float, size: float, tint := WHITE) {
+    u0, v0, u1, v1 := sprite_uv(kind);
 
-    col := min(cast(int) kind, SPRITE_COLS - 1);
-    row := 6 - SPRITE_SHEET_ROW;
-
-    // UV 直接按格数算，不依赖纹理实际像素尺寸
-    u0 := cast(float) col       / cast(float) SPRITE_COLS;
-    u1 := cast(float)(col + 1)  / cast(float) SPRITE_COLS;
-    v0 := cast(float) row       / cast(float) SPRITE_ROWS;
-    v1 := cast(float)(row + 1)  / cast(float) SPRITE_ROWS;
-
-    p0 := Vector2.{x0, y0};
-    p1 := Vector2.{x1, y0};
-    p2 := Vector2.{x1, y1};
-    p3 := Vector2.{x0, y1};
-
-    uv0 := Vector2.{u0, v0};
-    uv1 := Vector2.{u1, v0};
-    uv2 := Vector2.{u1, v1};
-    uv3 := Vector2.{u0, v1};
+    x1 := x0 + size;
+    y1 := y0 + size;
 
     Simp.set_shader_for_images(*the_sprite);
-
-    Simp.immediate_quad(p0, p1, p2, p3, tint, uv0, uv1, uv2, uv3);
+    Simp.immediate_quad(.{x0, y0}, .{x1, y0}, .{x1, y1}, .{x0, y1}, tint, .{u0, v0}, .{u1, v0}, .{u1, v1}, .{u0, v1});
 }
 
 // ----------------------------------------------------------------------------: clear background
