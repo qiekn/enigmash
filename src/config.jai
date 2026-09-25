@@ -55,6 +55,8 @@ CYAN :: Vector4.{0, 1, 1, 1};
 
 ORANGE :: Vector4.{0.92, 0.54, 0.19, 1};
 
+MENU_VISIBLE_CAMPAIGNS :: 6;       // 战役列表一屏最多显示几项
+
 BACKGROUND_COLOR :: Vector4.{0, 0.27, 0.41, 1};
 DEBUG_TEXT_COLOR :: Vector4.{0.6, 1, 0.6, 0.9};
 

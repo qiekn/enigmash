@@ -261,8 +261,52 @@ session_player_cell :: (s: *Session) -> Pos, bool {
 
 // ----------------------------------------------------------------------------: 存档
 
-SAVE_PATH  :: #run tprint("%/save.dat", SAVE_DIR);     // 相对 exe 所在目录（init_data_package 把工作目录切到那里）
+// 多存档：每个战役一个文件 save/campaign_<id>.dat（相对 exe 所在目录，init_data_package 把工作目录切到那里）
+LEGACY_SAVE_PATH :: #run tprint("%/save.dat", SAVE_DIR);
 SAVE_MAGIC :: "ENGS";
+
+current_campaign := 1;
+
+campaign_save_path :: (id: int) -> string /* Temporary_Storage */ {
+    return tprint("%/campaign_%.dat", SAVE_DIR, id);
+}
+
+// 现有的战役编号，升序（Temporary_Storage）
+list_campaigns :: () -> [] int {
+    ids: [..] int;
+    ids.allocator = temp;
+    files := file_list(SAVE_DIR,, temp);
+    for files {
+        name := path_filename(it);
+        if !begins_with(name, "campaign_") || !ends_with(name, ".dat")  continue;
+        digits := slice(name, 9, name.count - 9 - 4);
+        id, ok, rest := string_to_int(digits);
+        if ok && !rest && id > 0  array_add(*ids, id);
+    }
+    quick_sort(ids, (a, b) => a - b);
+    return ids;
+}
+
+// 最近写过的战役；没有存档返回 0。旧版单存档 save.dat 顺手迁成 1 号战役
+latest_campaign :: () -> int {
+    if file_exists(LEGACY_SAVE_PATH) && !file_exists(campaign_save_path(1)) {
+        file_move(LEGACY_SAVE_PATH, campaign_save_path(1));
+    }
+    best := 0;
+    best_time: Apollo_Time;
+    for list_campaigns() {
+        t, _, ok := file_modtime_and_size(campaign_save_path(it));
+        if !ok  continue;
+        if !best || t > best_time { best = it; best_time = t; }
+    }
+    return best;
+}
+
+next_campaign_id :: () -> int {
+    ids := list_campaigns();
+    if !ids  return 1;
+    return ids[ids.count-1] + 1;
+}
 SAVE_VERSION :: 1;
 
 session_save :: (s: *Session) {
@@ -285,12 +329,13 @@ session_save :: (s: *Session) {
     make_directory_if_it_does_not_exist(SAVE_DIR);
     data := builder_to_string(*b);
     defer free(data);
-    if !write_entire_file(SAVE_PATH, data)  log_error("Failed to write %.", SAVE_PATH);
+    path := campaign_save_path(current_campaign);
+    if !write_entire_file(path, data)  log_error("Failed to write %.", path);
 }
 
 // 返回 false：没有存档，或存档对应的关卡已经改过
 session_load_save :: (s: *Session) -> bool {
-    data, ok := read_entire_file(SAVE_PATH, log_errors = false);
+    data, ok := read_entire_file(campaign_save_path(current_campaign), log_errors = false);
     if !ok  return false;
     defer free(data);
 
@@ -336,11 +381,12 @@ session_load_save :: (s: *Session) -> bool {
 }
 
 session_has_save :: () -> bool {
-    return file_exists(SAVE_PATH);
+    return file_exists(campaign_save_path(current_campaign));
 }
 
 session_delete_save :: () {
-    if file_exists(SAVE_PATH)  file_delete(SAVE_PATH);
+    path := campaign_save_path(current_campaign);
+    if file_exists(path)  file_delete(path);
 }
 
 // 关卡初始状态的指纹：关卡被编辑过，旧存档就作废

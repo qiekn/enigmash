@@ -101,13 +101,19 @@ init_game :: () {
 
     ui_init();
 
-    // 关卡 + 存档
+    // 关卡 + 存档（默认接着玩最近写过的那个战役）
     if !session_load_default_level(*game) {
         log_error("Can't load the level '%'.", DEFAULT_LEVEL_NAME);
         exit(1);
     }
+    current_campaign = latest_campaign();
+    if !current_campaign  current_campaign = 1;
     if !session_load_save(*game)  session_new_game(*game);
 
+    reset_game_camera();
+}
+
+reset_game_camera :: () {
     active_camera = *game_camera;
     camera_map_w = game.level.w;
     camera_map_h = game.level.h;
@@ -115,16 +121,27 @@ init_game :: () {
     camera_reset();
 }
 
-start_new_game :: () {
+// 新开一个战役（新存档槽），不影响已有的存档
+start_new_campaign :: () {
+    if !playtesting && !game.won  session_save(*game);
     playtesting  = false;
     play_session = *game;
+    current_campaign = next_campaign_id();
     session_new_game(*game);
     session_save(*game);
-    active_camera = *game_camera;
-    camera_map_w = game.level.w;
-    camera_map_h = game.level.h;
-    update_game_camera_target();
-    camera_reset();
+    reset_game_camera();
+}
+
+load_campaign :: (id: int) {
+    if !playtesting && !game.won && id != current_campaign  session_save(*game);
+    playtesting  = false;
+    play_session = *game;
+    current_campaign = id;
+    if !session_load_save(*game) {
+        session_new_game(*game);
+        session_save(*game);
+    }
+    reset_game_camera();
 }
 
 // 镜头跟随原版的 camera 对象（隧道里飞、camerastick / camerashiftleft 都靠它）
@@ -187,6 +204,18 @@ handle_input :: () {
 
                 // 摄像机先挑走它关心的键（Tab / 0 / F / FREE 模式下的方向键）
                 if handle_camera_key(it.key_code, it.key_pressed)  continue;
+
+                // FREE 模式下空格把镜头挪到玩家身上（消息框 / 通关画面时空格照旧交给玩家）
+                if it.key_code == .SPACEBAR && game_camera.mode == .FREE && !play_session.message && !play_session.won {
+                    if it.key_pressed {
+                        p, ok := session_player_cell(play_session);
+                        if ok {
+                            w := grid_to_world(*play_session.level, p);
+                            camera_glide_to(.{w.x + 0.5, w.y + 0.5});
+                        }
+                    }
+                    continue;
+                }
 
                 handle_player_input(it.key_code, it.key_pressed);
         }

@@ -17,6 +17,9 @@ Camera :: struct {
     mode := Camera_Mode.FOLLOW;
     target : Vector2;               // FOLLOW 模式的目标（世界坐标，格子中心）
     vel    : Vector2;               // FOLLOW 模式的当前速度（格/秒）
+
+    gliding    : bool;              // FREE 模式下正平滑移向 glide_goal（空格：把玩家挪到屏幕中心）
+    glide_goal : Vector2;
 }
 
 game_camera   : Camera;
@@ -96,7 +99,7 @@ camera_clamp :: () {
 }
 
 // 方向键平移，只在 FREE 模式下生效
-camera_pan :: (dt: float) {
+camera_pan :: (dt: float) -> moved: bool {
     dx := 0.0;
     dy := 0.0;
 
@@ -105,7 +108,7 @@ camera_pan :: (dt: float) {
     if is_key_down(.ARROW_DOWN)   dy -= 1;
     if is_key_down(.ARROW_UP)     dy += 1;
 
-    if dx == 0 && dy == 0  return;
+    if dx == 0 && dy == 0  return false;
 
     // 斜向要归一化，否则比直线快 sqrt(2) 倍
     len := sqrt(dx*dx + dy*dy);
@@ -117,6 +120,7 @@ camera_pan :: (dt: float) {
 
     active_camera.pos.x += dx * speed * dt;
     active_camera.pos.y += dy * speed * dt;
+    return true;
 }
 
 #scope_export
@@ -126,12 +130,30 @@ camera_pan :: (dt: float) {
 // dt 单位是秒；pan_with_arrows = FREE 模式下是否用方向键平移
 camera_update :: (dt: float, pan_with_arrows := true) {
     if active_camera.mode == .FOLLOW {
+        active_camera.gliding = false;
         active_camera.pos = smooth_damp(active_camera.pos, active_camera.target, *active_camera.vel, CAMERA_FOLLOW_SMOOTH_TIME, dt);
-    } else if pan_with_arrows {
-        camera_pan(dt);
+    } else {
+        // 手动平移会打断滑动
+        if pan_with_arrows && camera_pan(dt)  active_camera.gliding = false;
+
+        if active_camera.gliding {
+            active_camera.pos = smooth_damp(active_camera.pos, active_camera.glide_goal, *active_camera.vel, CAMERA_FOLLOW_SMOOTH_TIME, dt);
+            d := active_camera.pos - active_camera.glide_goal;
+            if d.x*d.x + d.y*d.y < 0.0001 {
+                active_camera.pos = active_camera.glide_goal;
+                active_camera.gliding = false;
+            }
+        }
     }
 
     camera_clamp();
+}
+
+// FREE 模式下平滑移到 p（世界坐标），不切回跟随
+camera_glide_to :: (p: Vector2) {
+    active_camera.glide_goal = p;
+    active_camera.gliding    = true;
+    active_camera.vel        = .{};
 }
 
 // 临界阻尼弹簧（Game Programming Gems 4, 1.10），帧率无关。
