@@ -222,9 +222,9 @@ draw_right_panel :: (focused: *bool) {
         editor_update_regions();
         i := ed_index(ed.hover);
         cell := l.initial.cells[i];
-        text_label(*c, tprint("%, %   region %", ed.hover.x, ed.hover.y, ed.region_of[i]));
-        text_label(*c, tprint("world %   hidden %", cast(int) cell.num, cast(int) cell.hide));
         text_label(*c, tprint("%", cell_summary(cell, l.letters[i])));
+        text_label(*c, tprint("position (%, %) region %", ed.hover.x, ed.hover.y, ed.region_of[i]));
+        text_label(*c, tprint("world % & % ", cast(int) cell.num, cast(int) cell.hide));
     } else {
         text_label(*c, "-");
     }
