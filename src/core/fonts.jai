@@ -1,36 +1,36 @@
 message_font : *Simp.Dynamic_Font;
-editor_font  : *Simp.Dynamic_Font;   // 编辑器面板 / 画布标注
+editor_font  : *Simp.Dynamic_Font;
 small_font   : *Simp.Dynamic_Font;
 
 init_fonts :: () {
     pixel_height := window_height / 12;
 
-    basic_font = font_at_size("OpenSans-BoldItalic.ttf", pixel_height);
+    basic_font = load_font("OpenSans-BoldItalic.ttf", pixel_height);
     assert(basic_font != null);
 
-    debug_font = font_at_size("OpenSans-Regular.ttf", window_height / 45);
+    debug_font = load_font("OpenSans-Regular.ttf", window_height / 45);
     assert(debug_font != null);
 
-    message_font = font_at_size("OpenSans-SemiBold.ttf", window_height / 32);
+    message_font = load_font("OpenSans-SemiBold.ttf", window_height / 32);
     assert(message_font != null);
 
-    editor_font = font_at_size("OpenSans-Regular.ttf", max(window_height / 50, 12));
+    editor_font = load_font("OpenSans-Regular.ttf", max(window_height / 50, 12));
     assert(editor_font != null);
 
-    small_font = font_at_size("OpenSans-Regular.ttf", max(window_height / 70, 10));
+    small_font = load_font("OpenSans-Regular.ttf", max(window_height / 70, 10));
     assert(small_font != null);
 }
 
 // 从资源包里取字体。Simp 的内存版 get_font_at_size 不按尺寸缓存（每次都 New 一个），
 // 而窗口 resize 会重建全部字体，所以这里自己按 (文件名, 像素高) 缓存
-font_at_size :: (name: string, pixel_height: int) -> *Simp.Dynamic_Font {
-    for font_cache  if it.name == name && it.height == pixel_height  return it.font;
+load_font :: (name: string, size: int) -> *Simp.Dynamic_Font {
+    for font_cache  if it.name == name && it.height == size  return it.font;
 
     memory, ok := data_file(tprint("%/%", FONT_FOLDER, name));
     if !ok  return null;
 
-    font := Simp.get_font_at_size(memory, pixel_height);
-    array_add(*font_cache, .{name, pixel_height, font});
+    font := Simp.get_font_at_size(memory, size);
+    array_add(*font_cache, .{name, size, font});
     return font;
 }
 
