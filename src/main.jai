@@ -23,12 +23,10 @@ basic_font : *Simp.Dynamic_Font;
 debug_font : *Simp.Dynamic_Font;
 
 game_should_quit := false;
-show_debug       := false;      // F3
 
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
-    // 无窗口回放（和原版引擎对照测试用）
     args := get_command_line_arguments();
     for args  if it == "-replay" {
         init_data_package(set_cwd = false);
@@ -54,6 +52,7 @@ main :: () {
         if program_mode == .GAME {
             update_player_input_event(delta_time);
             session_update(play_session, cast(float) delta_time);
+            wave_fx_update(play_session, cast(float) delta_time);
             update_game_camera_target();
             camera_update(dt_seconds);
         } else if program_mode == .EDITOR {
@@ -73,7 +72,6 @@ main :: () {
                 draw_version();
         }
 
-        // swap_buffers 自带 vsync 等待；这里再 sleep 会错过垂直同步，帧率掉到 ~40
         Simp.swap_buffers(the_window);
         reset_temporary_storage();
     }
@@ -182,8 +180,6 @@ handle_input :: () {
                     continue;
                 }
 
-                if it.key_code == .F3 && it.key_pressed { show_debug = !show_debug; continue; }
-
                 if program_mode == .EDITOR {
                     editor_handle_event(it);
                     continue;
@@ -202,13 +198,12 @@ draw_game_frame :: () {
 
     s := play_session;
     active_camera = *game_camera;
-    draw_level(*s.level, *s.state);
+    draw_level(*s.level, wave_fx_display_state(s));
 
     // draw_sprite 自己不 flush（为了攒批），这里统一收口
     Simp.immediate_flush();
 
     draw_hud();
-    if show_debug  draw_camera_debug();
 }
 
 draw_editor_frame :: () {
@@ -268,6 +263,7 @@ using Sound :: #import "Sound_Player";
 
 #load "render/draw_world.jai";
 #load "render/draw_hud.jai";
+#load "render/wave_fx.jai";
 
 #load "editor/editor.jai";
 #load "editor/editor_ui.jai";

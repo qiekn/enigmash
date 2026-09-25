@@ -13,7 +13,7 @@ PACKAGE_EXCLUDE :: string.["levels/level.data"];
 //   bin/data/enigmash.package    data/ 下的全部资源（Simple_Package）
 //   bin/save/                    存档
 //
-// 默认开优化（保留调试信息）；`jai first.jai - debug` 出未优化版本
+// `jai first.jai - release` 优化版本
 #run {
     w := compiler_create_workspace("Jail");
     if !w {
@@ -32,9 +32,9 @@ PACKAGE_EXCLUDE :: string.["levels/level.data"];
         }
     }
 
-    debug := false;
-    for get_build_options().compile_time_command_line  if it == "debug"  debug = true;
-    if !debug  set_optimization(*options, .OPTIMIZED);
+    release := false;
+    for get_build_options().compile_time_command_line if it == "release"  release = true;
+    if release set_optimization(*options, .OPTIMIZED);
 
     set_build_options(options, w);
 

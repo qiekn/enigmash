@@ -25,6 +25,8 @@ Session :: struct {
 
     headless    : bool;             // 回放 / 测试：不放音效、不存档
     no_save     : bool;             // 编辑器试玩：不存档
+
+    jumps       : int;              // 状态跳变计数（新游戏 / 读档 / 撤销 / 重开），渲染层据此跳过过渡动画
 }
 
 Undo_Cell :: struct { index: s32; cell: Cell; }
@@ -67,6 +69,7 @@ session_clear :: (s: *Session) {
     s.again_ms   = 0;
     s.message    = "";
     s.won        = false;
+    s.jumps     += 1;
 }
 
 session_new_game :: (s: *Session, show_intro := true) {
@@ -227,6 +230,7 @@ session_undo :: (s: *Session) {
     pop_undo(s);
     s.againing = false;
     s.won = false;
+    s.jumps += 1;
 }
 
 session_restart :: (s: *Session) {
@@ -235,6 +239,7 @@ session_restart :: (s: *Session) {
     state_copy(*s.state, s.restart_target);
     s.againing = false;
     s.won = false;
+    s.jumps += 1;
     run_start_tick(s);
 }
 

@@ -20,13 +20,18 @@ CAMERA_MAX_ZOOM     :: 24.0;
 CAMERA_ZOOM_STEP    :: 1.15;  // 鼠标滑轮每一格滚轮的缩放倍率
 
 CAMERA_PAN_SPEED    :: 20.0;  // 在默认缩放下的平移速度 (Girds/seconds)
-CAMERA_FOLLOW_SPEED :: 12.0;  // 指数平滑系数，相机移动不是瞬移
+// 跟随用临界阻尼弹簧（带速度）：大约多少秒追上目标。
+// 长按方向键时玩家 MOVE_REPEAT_INTERVAL 走一格，镜头保留速度、匀速跟上，不会每格停一下
+CAMERA_FOLLOW_SMOOTH_TIME :: 0.15;
 CAMERA_CLAMP_MARGIN :: 8.0;   // 允许摄像机看出地图外多少格
 
 VIEW_TILES :: 13.0;           // 游戏默认视野：屏幕高度铺满 13 格（原版 zoomscreen 13x13）
 
 MOVE_REPEAT_DELAY    :: 150;
 MOVE_REPEAT_INTERVAL :: 150; // PuzzleScript Style: 150ms
+
+// 翻转波的显示速度：原版第 16 个 tick 瞬间铺满的那部分，画面上按每圈这么多毫秒继续往外扩（只影响画面）
+SWAP_WAVE_RING_MS :: 20.0;
 
 // 资源包内的路径（相对仓库 data/，见 core/package.jai）
 FONT\   _FOLDER :: "fonts";

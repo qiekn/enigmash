@@ -30,17 +30,17 @@ init_data_package :: (set_cwd := true) {
 }
 
 // 取包里的一个条目；返回的内存属于包，程序结束前一直有效
-data_file :: (name: string) -> [] u8, bool {
+data_file :: (name: string, optional := false) -> [] u8, bool {
     found, entry := table_find(*data_package.lookup, name);
     if !found {
-        log_error("Resource '%' is not in the package.", name);
+        if !optional  log_error("Resource '%' is not in the package.", name);
         return .[], false;
     }
     return entry.data, true;
 }
 
-data_file_string :: (name: string) -> string, bool {
-    bytes, ok := data_file(name);
+data_file_string :: (name: string, optional := false) -> string, bool {
+    bytes, ok := data_file(name, optional);
     return xx bytes, ok;
 }
 

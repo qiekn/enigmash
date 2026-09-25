@@ -7,6 +7,7 @@
 // 不给 -level 时用默认关卡（见 load_default_level）
 
 run_replay :: (args: [] string) -> int {
+    trace_ticks := false;
     keys_path  := "";
     dump_path  := "";
     level_path := "";
@@ -18,6 +19,7 @@ run_replay :: (args: [] string) -> int {
         if a == "-dump"   && i + 1 < args.count { dump_path  = args[i+1]; i += 2; continue; }
         if a == "-level"  && i + 1 < args.count { level_path = args[i+1]; i += 2; continue; }
         if a == "-local"  { emulate_local_radius = true; i += 1; continue; }
+        if a == "-ticks"  { trace_ticks = true; i += 1; continue; }
         i += 1;
     }
 
@@ -55,6 +57,22 @@ run_replay :: (args: [] string) -> int {
                     return 1;
             }
             s.message = "";
+            if trace_ticks {
+                // 逐 tick 打印：每个 again tick 之后，逻辑上 / 画面上各世界的格子数（一 tick 当一帧）
+                count_worlds :: (st: *Game_State) -> [8] int {
+                    counts: [8] int;
+                    for st.cells  counts[cast(int) it.num] += 1;
+                    return counts;
+                }
+                wave_fx_update(s, TICK_MS);
+                t := 0;
+                while s.againing || wave_fx_busy() {
+                    if s.againing  again_step(s);
+                    wave_fx_update(s, TICK_MS);
+                    t += 1;
+                    print("step % tick %: logic % shown %\n", step + 1, t, count_worlds(*s.state), count_worlds(wave_fx_display_state(s)));
+                }
+            }
             session_drain(s);
 
             step += 1;

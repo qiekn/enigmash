@@ -16,6 +16,7 @@ Camera :: struct {
     zoom := CAMERA_DEFAULT_ZOOM;    // 1 tile = FIXED_TILE_SIZE * zoom 像素
     mode := Camera_Mode.FOLLOW;
     target : Vector2;               // FOLLOW 模式的目标（世界坐标，格子中心）
+    vel    : Vector2;               // FOLLOW 模式的当前速度（格/秒）
 }
 
 game_camera   : Camera;
@@ -125,9 +126,7 @@ camera_pan :: (dt: float) {
 // dt 单位是秒；pan_with_arrows = FREE 模式下是否用方向键平移
 camera_update :: (dt: float, pan_with_arrows := true) {
     if active_camera.mode == .FOLLOW {
-        // 指数平滑，帧率无关
-        t := 1.0 - exp(-CAMERA_FOLLOW_SPEED * dt);
-        active_camera.pos = lerp(active_camera.pos, active_camera.target, t);
+        active_camera.pos = smooth_damp(active_camera.pos, active_camera.target, *active_camera.vel, CAMERA_FOLLOW_SMOOTH_TIME, dt);
     } else if pan_with_arrows {
         camera_pan(dt);
     }
@@ -135,9 +134,25 @@ camera_update :: (dt: float, pan_with_arrows := true) {
     camera_clamp();
 }
 
+// 临界阻尼弹簧（Game Programming Gems 4, 1.10），帧率无关。
+// 和纯指数平滑的区别是它记着速度：目标一格一格地跳时，镜头会以接近匀速的方式跟上，
+// 而不是每一格都「加速冲过去再刹停」。
+smooth_damp :: (current: Vector2, target: Vector2, vel: *Vector2, smooth_time: float, dt: float) -> Vector2 {
+    if dt <= 0  return current;
+    omega := 2.0 / max(smooth_time, 0.0001);
+    x     := omega * dt;
+    decay := 1.0 / (1.0 + x + 0.48 * x * x + 0.235 * x * x * x);
+
+    change := current - target;
+    temp   := (vel.* + change * omega) * dt;
+    vel.*   = (vel.* - temp * omega) * decay;
+    return target + (change + temp) * decay;
+}
+
 // 直接移到目标上（传送、读档之后不要慢慢飘过去）
 camera_snap :: () {
     active_camera.pos = active_camera.target;
+    active_camera.vel = .{};
     camera_clamp();
 }
 
@@ -163,6 +178,7 @@ camera_reset :: () {
     active_camera.zoom = camera_view_zoom();
     active_camera.mode = .FOLLOW;
     active_camera.pos  = active_camera.target;
+    active_camera.vel  = .{};
 }
 
 // 缩放到整张地图刚好铺满屏幕
@@ -234,44 +250,4 @@ handle_camera_wheel :: (event: Event, always_anchor_mouse := false) {
     }
 
     camera_zoom_by(steps, anchor);
-}
-
-// ----------------------------------------------------------------------------: 调试
-
-// HUD 用的是 OpenSans，没有 CJK 字形，所以这里一律用 ASCII
-draw_camera_debug :: () {
-    if !debug_font  return;
-
-    font := debug_font;
-    color := DEBUG_TEXT_COLOR;
-
-    line_height := font.character_height * 3 / 2;
-    x := 20;
-    y := window_height - line_height;
-
-    draw_item :: (text : string) #expand {
-        draw_text(`font, text, `x, `y, `color);
-        `y -= `line_height;
-    }
-
-    draw_item(tprint("camera  %", active_camera.mode));
-    draw_item(tprint("zoom    %  (tile = % px)", formatFloat(active_camera.zoom, trailing_width = 2), camera_tile_px()));
-
-    p, ok := session_player_cell(play_session);
-    if ok  draw_item(tprint("player  %, %", p.x, p.y));
-
-    mx, my, mok := get_mouse_pointer_position(the_window, true);
-    if mok {
-        w := screen_to_world(cast(float) mx, cast(float) my);
-        g := world_to_grid(*play_session.level, cast(int) floor(w.x), cast(int) floor(w.y));
-        draw_item(tprint("cursor  %, %", g.x, g.y));
-    }
-
-    draw_item("");
-    draw_item("debug (F3):");
-    draw_item("  tab: follow/free");
-    draw_item("  arrows: pan (free)");
-    draw_item("  wheel: zoom");
-    draw_item("  0: reset view");
-    draw_item("  f: fit map");
 }
