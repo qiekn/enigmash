@@ -2,7 +2,7 @@ OUTPUT_EXECUTABLE_NAME :: "enigmash";
 OUTPUT_DIRECTORY       :: "bin";
 
 DATA_SOURCE_DIRECTORY  :: "data";                 // 仓库里的资源
-PACKAGE_PATH           :: "bin/data/enigmash.package";
+PACKAGE_PATH           :: "bin/data.package";
 SAVE_DIRECTORY         :: "bin/save";
 
 // 不进资源包的文件（相对 data/）：原版关卡只给转换脚本和对照测试用

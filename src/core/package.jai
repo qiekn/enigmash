@@ -1,10 +1,10 @@
-// 资源包：构建时 first.jai 把 data/ 打成 bin/data/enigmash.package（Simple_Package），
+// 资源包：构建时 first.jai 把 data/ 打成 bin/enigmash.package（Simple_Package），
 // 运行时整包读进内存，按「相对 data/ 的路径」取条目，例如 "fonts/OpenSans-Regular.ttf"。
 //
 // 关卡例外：开发机上（仓库里的 data/levels/ 还在）优先读 / 写仓库里的散文件，
 // 这样编辑器保存后不用重新打包就能试玩；发布出去没有仓库时只读包里的那份。
 
-PACKAGE_PATH :: "data/enigmash.package";
+PACKAGE_PATH :: "data.package";
 
 // 仓库 data/ 的绝对路径（编译期确定），只在开发机上存在
 DEV_DATA_DIR :: #run -> string {
