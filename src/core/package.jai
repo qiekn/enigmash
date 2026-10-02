@@ -15,12 +15,10 @@ DEV_DATA_DIR :: #run -> string {
 
 data_package : Load_Package;
 
-// 包按 exe 所在目录找，和工作目录无关。
-// set_cwd：游戏模式把工作目录切到 exe 旁边（save/ 等相对路径都以它为准）；
-//          回放模式不切，命令行里的相对路径仍然相对调用者。
-init_data_package :: (set_cwd := true) {
+// 包按 exe 所在目录找；工作目录切到 exe 旁边（save/ 等相对路径都以它为准）。
+init_data_package :: () {
     exe_dir := path_strip_filename(get_path_of_running_executable());
-    if set_cwd  set_working_directory(exe_dir);
+    set_working_directory(exe_dir);
 
     path := tprint("%/%", exe_dir, PACKAGE_PATH);
     if !init_from_file(*data_package, path) {

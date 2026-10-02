@@ -38,11 +38,13 @@ Editor :: struct {
     brush         := Brush.WALL;
     world_value   : s32 = 1;
     world_hidden  := false;
+    world_fill    := false;        // 世界工具：true = 点一下填整个区域；false = 逐格刷（按住 Shift 临时切到填充）
+    world_auto_edges := true;      // 逐格刷时自动在不同世界之间加边界、相同世界之间去掉边界
     entity_index  : s32 = 0;       // ENTITY_KINDS 的下标；等于 ENTITY_KINDS.count 表示装饰字母
+    entity_show_all := false;
     letter_text   : string;        // 堆上
     tunnel_index  : s32 = -1;
     tunnel_stage  := Tunnel_Stage.END0;
-    message_index : s32 = 0;
 
     schematic     := false;
     show_hidden   := false;
@@ -59,16 +61,26 @@ Editor :: struct {
     stroke   : Edit_Step;
     stroking := false;
     stroke_erase := false;
-    edge_value   := false;         // 边界拖动：这一笔是加还是删
-    edge_decided := false;
     last_paint   : Pos = .{-1, -1};
+
+    // 边界工具：从一个格点拖到另一个格点画一条直线（格点坐标 = 世界坐标，y 朝上）
+    edge_dragging : bool;
+    edge_erase    : bool;
+    edge_start, edge_end : Pos;
 
     hover       : Pos;
     hover_valid : bool;
     hover_frac  : Vector2;         // 鼠标在格子里的位置 [0,1)，y 朝上
+    hover_vertex       : Pos;      // 离鼠标最近的格点，夹在地图范围内
+    hover_vertex_valid : bool;
 
     panning    : bool;
     last_mouse : Vector2;
+
+    // 文本弹窗：编辑 level.messages 里 id 为 modal_id 的那条
+    modal_open   : bool;
+    modal_id     : string;         // 堆上
+    modal_serial : s64;            // 每次打开换一个，让文本框用新状态（光标、内容）
 
     status   : string;             // 堆上
     problems : [..] string;        // 堆上
@@ -297,7 +309,6 @@ ed_set_cell :: (i: s32, cell: Cell) { ed_set(i, cell, ed.level.letters[i]); }
 begin_stroke :: () {
     free_step(*ed.stroke);
     ed.stroking = true;
-    ed.edge_decided = false;
     ed.last_paint = .{-1, -1};
 }
 
@@ -312,13 +323,17 @@ stroke_touch_tunnels :: () {
 end_stroke :: () {
     if !ed.stroking  return;
     ed.stroking = false;
-    if ed.stroke.has_tunnels  copy_tunnels(*ed.stroke.tunnels_after, ed.level.tunnels);
+    if ed.stroke.has_tunnels {
+        copy_tunnels(*ed.stroke.tunnels_after, ed.level.tunnels);
+        ed.level.initial.open = initial_open_bits(*ed.level);
+    }
     if !ed.stroke.changes.count && !ed.stroke.has_tunnels  return;
 
     array_add(*ed.undo, ed.stroke);
     ed.stroke = .{};
     for * ed.redo  free_step(it);
     array_reset(*ed.redo);
+    editor_validate();
 }
 
 editor_undo :: () {
@@ -329,11 +344,15 @@ editor_undo :: () {
         ed.level.initial.cells[it.index] = it.before;
         ed.level.letters[it.index] = it.letter_before;
     }
-    if step.has_tunnels  copy_tunnels(*ed.level.tunnels, step.tunnels_before);
+    if step.has_tunnels {
+        copy_tunnels(*ed.level.tunnels, step.tunnels_before);
+        ed.level.initial.open = initial_open_bits(*ed.level);
+    }
     array_add(*ed.redo, step);
     ed.dirty = true;
     ed.regions_dirty = true;
     clamp_tunnel_index();
+    editor_validate();
     editor_set_status("Undo");
 }
 
@@ -345,11 +364,15 @@ editor_redo :: () {
         ed.level.initial.cells[it.index] = it.after;
         ed.level.letters[it.index] = it.letter_after;
     }
-    if step.has_tunnels  copy_tunnels(*ed.level.tunnels, step.tunnels_after);
+    if step.has_tunnels {
+        copy_tunnels(*ed.level.tunnels, step.tunnels_after);
+        ed.level.initial.open = initial_open_bits(*ed.level);
+    }
     array_add(*ed.undo, step);
     ed.dirty = true;
     ed.regions_dirty = true;
     clamp_tunnel_index();
+    editor_validate();
     editor_set_status("Redo");
 }
 
@@ -365,12 +388,18 @@ apply_tool_at :: (p: Pos, erase: bool) {
     if ed.tool == {
         case .BRUSH;   apply_brush(p, erase);
         case .ENTITY;  apply_entity(p, erase);
-        case .EDGE;    apply_edge(p);
-        case .WORLD;   if ed.last_paint != p  apply_world(p, erase);
+        case .EDGE;    // 边界按格点拖线，见 editor_handle_event / finish_edge_drag
+        case .WORLD;
+            if world_fill_mode() { if ed.last_paint != p  apply_world_fill(p, erase); }
+            else                   apply_world_paint(p, erase);
         case .TUNNEL;  if ed.last_paint != p  apply_tunnel(p, erase);
         case .PICK;    apply_pick(p);
     }
     ed.last_paint = p;
+}
+
+world_fill_mode :: () -> bool {
+    return ed.world_fill != ((input_button_states[Key_Code.SHIFT] & .DOWN) != 0);
 }
 
 apply_brush :: (p: Pos, erase: bool) {
@@ -430,23 +459,24 @@ apply_entity :: (p: Pos, erase: bool) {
         c.mark |= k.mark;
     }
     ed_set(i, c, letter);
+
+    // 这一笔的第一格放的是带文本的实体：弹出文本框
+    if !erase && ed.last_paint.x < 0 && ed.entity_index < ENTITY_KINDS.count {
+        id := ENTITY_MESSAGE[ed.entity_index];
+        if id  editor_open_message(id);
+    }
 }
 
-// 边界在格子的边上：看鼠标离哪条边最近
-apply_edge :: (p: Pos) {
-    f := ed.hover_frac;
-    dl := f.x;  dr := 1 - f.x;  dd := f.y;  du := 1 - f.y;   // 世界坐标 y 朝上：du = 离上边
-    best := min(min(dl, dr), min(dd, du));
-    if best > 0.3  return;   // 在格子中间，不算点到边
+// 实体触发的消息 id（和 ENTITY_KINDS 一一对应；空 = 不带文本）。同一种实体共用一条文本。
+ENTITY_MESSAGE :: string.["", "", "", "hint_reset", "branch", "branch", "branch", "uhh", "bad_idea", "oops", "candy_bowl", "secret", "", "", ""];
 
-    // 统一成「某格的右边 / 下边（逻辑坐标，row 向下）」
-    a := p;
-    right := true;
-    if best == dl      { a.x -= 1; right = true;  }
-    else if best == dr { right = true; }
-    else if best == du { a.y -= 1; right = false; }   // 上边 = 上一行的下边
-    else               { right = false; }            // 下边
+// 实体面板默认只列这几种，其余的勾选 "All entities" 才显示
+COMMON_ENTITIES :: s32.[0, 3, 11];   // checkpoint, hint_reset, secret
 
+#run assert(ENTITY_MESSAGE.count == ENTITY_KINDS.count);
+
+// 改一条边界：a 的右边（right）或下边（逻辑坐标，row 向下）
+ed_set_edge :: (a: Pos, right: bool, on: bool) {
     b := a;
     if right  b.x += 1; else b.y += 1;
     if !ed_in_bounds(a) || !ed_in_bounds(b)  return;
@@ -457,21 +487,72 @@ apply_edge :: (p: Pos) {
     cb := ed.level.initial.cells[ib];
     flag_a := ifx right then Obj.STOP_R else .STOP_D;
     flag_b := ifx right then Obj.STOP_L else .STOP_U;
-
-    // 这一笔第一次真正点到边时决定是加还是删
-    if !ed.edge_decided {
-        ed.edge_value = !(ca.obj & flag_a);
-        ed.edge_decided = true;
-    }
-
-    if ed.edge_value { ca.obj |= flag_a;  cb.obj |= flag_b; }
-    else             { ca.obj &= ~flag_a; cb.obj &= ~flag_b; }
+    if on { ca.obj |= flag_a;  cb.obj |= flag_b; }
+    else  { ca.obj &= ~flag_a; cb.obj &= ~flag_b; }
     ed_set_cell(ia, ca);
     ed_set_cell(ib, cb);
     ed.regions_dirty = true;
 }
 
-apply_world :: (p: Pos, erase: bool) {
+ed_has_edge :: (a: Pos, right: bool) -> bool {
+    b := a;
+    if right  b.x += 1; else b.y += 1;
+    if !ed_in_bounds(a) || !ed_in_bounds(b)  return false;
+    return (ed.level.initial.cells[ed_index(a)].obj & ifx right then Obj.STOP_R else .STOP_D) != 0;
+}
+
+// 单击（没拖动）：切换离鼠标最近的那条边；右键只删
+toggle_nearest_edge :: (p: Pos, erase: bool) {
+    f := ed.hover_frac;
+    dl := f.x;  dr := 1 - f.x;  dd := f.y;  du := 1 - f.y;   // 世界坐标 y 朝上：du = 离上边
+    best := min(min(dl, dr), min(dd, du));
+
+    // 统一成「某格的右边 / 下边（逻辑坐标，row 向下）」
+    a := p;
+    right := true;
+    if best == dl      { a.x -= 1; }
+    else if best == dr { }
+    else if best == du { a.y -= 1; right = false; }   // 上边 = 上一行的下边
+    else               { right = false; }            // 下边
+
+    ed_set_edge(a, right, !erase && !ed_has_edge(a, right));
+}
+
+// 格点 s 到 e 的一条横线或竖线（格点坐标 = 世界坐标，y 朝上），线上每一段都设成 on
+apply_edge_line :: (s: Pos, e: Pos, on: bool) {
+    l := *ed.level;
+    if s.y == e.y {
+        // 世界 y = vy 的横线：上面一格（row = h-1-vy）的下边
+        row := l.h - 1 - s.y;
+        for x: min(s.x, e.x)..max(s.x, e.x)-1  ed_set_edge(.{x, row}, false, on);
+    } else {
+        // 世界 x = vx 的竖线：左边一格的右边
+        for wy: min(s.y, e.y)..max(s.y, e.y)-1  ed_set_edge(.{s.x - 1, l.h - 1 - wy}, true, on);
+    }
+}
+
+finish_edge_drag :: () {
+    ed.edge_dragging = false;
+    begin_stroke();
+    if ed.edge_start == ed.edge_end {
+        if ed.hover_valid  toggle_nearest_edge(ed.hover, ed.edge_erase);
+    } else {
+        apply_edge_line(ed.edge_start, ed.edge_end, !ed.edge_erase);
+    }
+    end_stroke();
+}
+
+// 拖动中：终点吸附到起点所在的横线或竖线上
+update_edge_drag :: () {
+    if !ed.hover_vertex_valid  return;
+    s := ed.edge_start;
+    v := ed.hover_vertex;
+    if abs(v.x - s.x) >= abs(v.y - s.y)  ed.edge_end = .{v.x, s.y};
+    else                                 ed.edge_end = .{s.x, v.y};
+}
+
+// 点一下：把这一格所在的整个区域（边界围起来的连通块）设成当前世界
+apply_world_fill :: (p: Pos, erase: bool) {
     editor_update_regions();
     r := ed.region_of[ed_index(p)];
     v := ifx erase then World.NONE else cast(World) ed.world_value;
@@ -485,6 +566,28 @@ apply_world :: (p: Pos, erase: bool) {
     }
 }
 
+// 逐格刷世界；自动边界开着时，和四邻世界不同就加边界，相同就去掉
+apply_world_paint :: (p: Pos, erase: bool) {
+    i := ed_index(p);
+    c := ed.level.initial.cells[i];
+    v := ifx erase then World.NONE else cast(World) ed.world_value;
+    if ed.world_hidden  c.hide = v;
+    else                c.num  = v;
+    ed_set_cell(i, c);
+    ed.regions_dirty = true;
+    if !ed.world_auto_edges  return;
+
+    check :: (c: Cell, q: Pos, a: Pos, right: bool) {
+        if !ed_in_bounds(q)  return;
+        n := ed.level.initial.cells[ed_index(q)];
+        ed_set_edge(a, right, n.num != c.num || n.hide != c.hide);
+    }
+    check(c, .{p.x + 1, p.y}, p, true);
+    check(c, .{p.x - 1, p.y}, .{p.x - 1, p.y}, true);
+    check(c, .{p.x, p.y + 1}, p, false);
+    check(c, .{p.x, p.y - 1}, .{p.x, p.y - 1}, false);
+}
+
 apply_tunnel :: (p: Pos, erase: bool) {
     if ed.tunnel_index < 0 || ed.tunnel_index >= ed.level.tunnels.count {
         editor_set_status("Create a tunnel first (right panel)");
@@ -493,7 +596,7 @@ apply_tunnel :: (p: Pos, erase: bool) {
     stroke_touch_tunnels();
     t := *ed.level.tunnels[ed.tunnel_index];
     if ed.tunnel_stage == {
-        case .END0;  t.ends[0].pos = p;
+        case .END0;  t.ends[0].pos = p;  ed.tunnel_stage = .PATH;   // 放完起点接着画路径
         case .END1;  t.ends[1].pos = p;
         case .PATH;
             if erase { if t.path.count  t.path.count -= 1; }
@@ -513,6 +616,39 @@ apply_pick :: (p: Pos) {
     ed.world_value = cast(s32) c.num;
     ed.tool = .BRUSH;
     editor_set_status("Picked %", BRUSH_NAMES[ed.brush]);
+}
+
+// ----------------------------------------------------------------------------: 文本弹窗
+
+// 打开文本弹窗编辑消息 id；关卡里还没有这条就先加一条空的
+editor_open_message :: (id: string) {
+    l := *ed.level;
+    found := false;
+    for l.messages  if it.id == id { found = true; break; }
+    if !found {
+        array_add(*l.messages, .{copy_string(id), copy_string("")});
+        ed.dirty = true;
+    }
+    modify_string(*ed.modal_id, id);
+    ed.modal_open = true;
+    ed.modal_serial += 1;
+}
+
+editor_close_modal :: () {
+    ed.modal_open = false;
+    active_widget_deactivate_all();
+}
+
+editor_find_message :: (id: string) -> *Message_Def {
+    for * ed.level.messages  if it.id == id  return it;
+    return null;
+}
+
+modify_string :: (s: *string, v: string) {
+    if s.* == v  return;
+    old := s.*;
+    s.* = copy_string(v);
+    free(old);
 }
 
 // ----------------------------------------------------------------------------: 区域与校验
@@ -618,11 +754,21 @@ editor_handle_event :: (event: Event) {
                 ed.last_mouse = mouse_position();
                 return;
             }
+            if ed.tool == .EDGE {
+                if ed.hover_vertex_valid {
+                    ed.edge_dragging = true;
+                    ed.edge_erase = key == .MOUSE_BUTTON_RIGHT;
+                    ed.edge_start = ed.hover_vertex;
+                    ed.edge_end   = ed.hover_vertex;
+                }
+                return;
+            }
             begin_stroke();
             ed.stroke_erase = key == .MOUSE_BUTTON_RIGHT;
             if ed.hover_valid  apply_tool_at(ed.hover, ed.stroke_erase);
         } else {
             if key == .MOUSE_BUTTON_MIDDLE || ed.panning { ed.panning = false; }
+            if ed.edge_dragging && key != .MOUSE_BUTTON_MIDDLE  finish_edge_drag();
             end_stroke();
         }
         return;
@@ -678,23 +824,29 @@ editor_update :: (dt: float) {
         ed.last_mouse = m;
     }
 
-    // 悬停格
+    // 悬停格 / 格点
     ed.hover_valid = false;
+    ed.hover_vertex_valid = false;
     if !mouse_over_panels() {
+        l := *ed.level;
         w := screen_to_world(m.x, m.y);
         wx := cast(int) floor(w.x);
         wy := cast(int) floor(w.y);
-        g := world_to_grid(*ed.level, wx, wy);
+        g := world_to_grid(l, wx, wy);
         if ed_in_bounds(g) {
             ed.hover = g;
             ed.hover_valid = true;
             ed.hover_frac = .{w.x - wx, w.y - wy};
         }
+        ed.hover_vertex = .{cast(s32) clamp(floor(w.x + 0.5), 0, cast(float) l.w), cast(s32) clamp(floor(w.y + 0.5), 0, cast(float) l.h)};
+        ed.hover_vertex_valid = true;
     }
 
+    if ed.edge_dragging  update_edge_drag();
+
     // 按住拖动连续画
-    if ed.stroking && ed.hover_valid && (ed.tool == .BRUSH || ed.tool == .ENTITY || ed.tool == .EDGE) {
-        if ed.hover != ed.last_paint || ed.tool == .EDGE  apply_tool_at(ed.hover, ed.stroke_erase);
+    if ed.stroking && ed.hover_valid && ed.hover != ed.last_paint {
+        if ed.tool == .BRUSH || ed.tool == .ENTITY || (ed.tool == .WORLD && !world_fill_mode())  apply_tool_at(ed.hover, ed.stroke_erase);
     }
 
     camera_update(dt, pan_with_arrows = !editor_text_focused);
@@ -719,9 +871,10 @@ editor_draw_canvas :: () {
     else             draw_level(l, state);
 
     if ed.show_regions  draw_region_overlay(l);
-    if ed.show_edges    draw_edge_overlay(l, state);
+    if ed.show_edges || ed.tool == .EDGE || ed.tool == .WORLD  draw_edge_overlay(l, state);
     draw_tunnel_overlay(l);
-    if ed.hover_valid   draw_hover();
+    if ed.tool == .EDGE  draw_edge_tool();
+    else if ed.hover_valid  draw_hover();
     Simp.immediate_flush();
 
     if ed.show_entities  draw_entity_labels(l);
@@ -797,8 +950,8 @@ draw_hover :: () {
     w := grid_to_world(*ed.level, ed.hover);
     draw_cell_outline(cast(int) w.x, cast(int) w.y, .{1, 1, 1, 0.9});
 
-    // 世界工具：高亮整个区域
-    if ed.tool == .WORLD {
+    // 世界工具的填充模式：高亮整个区域
+    if ed.tool == .WORLD && world_fill_mode() {
         editor_update_regions();
         l := *ed.level;
         r := ed.region_of[ed_index(ed.hover)];
@@ -806,6 +959,24 @@ draw_hover :: () {
         for x: x0..x1  for wy: wy0..wy1 {
             if ed.region_of[x * l.h + (l.h - 1 - wy)] == r  draw_rect(x, wy, .{1, 1, 1, 0.18});
         }
+    }
+}
+
+// 边界工具：格点光标 + 正在拖的线（绿 = 加，红 = 删）
+draw_edge_tool :: () {
+    ts := camera_tile_px();
+    t := max(3.0, ts / 6) / ts;   // 线宽的一半（格为单位）
+
+    if ed.edge_dragging {
+        s := ed.edge_start;
+        e := ed.edge_end;
+        col := ifx ed.edge_erase then Vector4.{1, 0.25, 0.25, 0.9} else Vector4.{0.3, 1, 0.4, 0.9};
+        draw_world_rect(min(s.x, e.x) - t, min(s.y, e.y) - t, max(s.x, e.x) + t, max(s.y, e.y) + t, col);
+    }
+    if ed.hover_vertex_valid {
+        v := ed.hover_vertex;
+        r := t * 1.8;
+        draw_world_rect(v.x - r, v.y - r, v.x + r, v.y + r, .{1, 1, 1, 0.95});
     }
 }
 

@@ -11,7 +11,7 @@ program_mode := Program_Mode.MENU;
 saved_window_info : Saved_Window_Info;
 
 the_window : Window_Type;
-the_sprite : Simp.Texture;      // 图集（src/generated/atlas.jai）
+the_sprite : Simp.Texture;
 
 window_width  : s32 = 1200;
 window_height : s32 = 800;
@@ -27,12 +27,6 @@ game_should_quit := false;
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
-    args := get_command_line_arguments();
-    for args  if it == "-replay" {
-        init_data_package(set_cwd = false);
-        exit(xx run_replay(args));
-    }
-
     last_time := current_time_monotonic();
     current_time : Apollo_Time;
 
@@ -156,10 +150,8 @@ update_game_camera_target :: () {
 handle_window_resizes :: () {
     for get_window_resizes() {
         if it.window == the_window {
-            window_width = it.width;
-            window_height = it.height;
-            render_width  = window_width;
-            render_height = window_height;
+            window_width, window_height = it.width, it.height;
+            render_width, render_height = window_width, window_height;
             Simp.update_window(it.window);
             init_fonts();
             init_menu_fonts();
@@ -188,6 +180,10 @@ handle_input :: () {
                 }
 
                 if it.key_code == .ESCAPE && it.key_pressed {
+                    if program_mode == .EDITOR && ed.modal_open {
+                        editor_close_modal();
+                        continue;
+                    }
                     if program_mode == .EDITOR && editor_text_focused {
                         active_widget_deactivate_all();
                         continue;
@@ -288,7 +284,6 @@ using Sound :: #import "Sound_Player";
 #load "game/rules_normal.jai";
 #load "game/rules_late.jai";
 #load "game/session.jai";
-#load "game/replay.jai";
 
 #load "render/draw_world.jai";
 #load "render/draw_hud.jai";
