@@ -196,8 +196,6 @@ handle_input :: () {
 #import "File_Utilities";
 #import "Sort";
 
-#load "generated/atlas.jai";
-
 #load "core/package.jai";
 #load "core/textures.jai";
 #load "core/camera.jai";
