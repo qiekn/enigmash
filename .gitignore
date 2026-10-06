@@ -4,3 +4,8 @@
 .refs/
 .build/
 bin/
+
+# personal files
+
+docs/
+tutorials

@@ -1,3 +1,5 @@
+editor_camera : Camera;
+
 // 关卡编辑器：状态、工具、可撤销的编辑、区域计算、校验、试玩、画布标注。
 // 面板（GetRect）在 editor_ui.jai。
 //
@@ -101,9 +103,8 @@ enter_editor :: () {
     }
     program_mode = .EDITOR;
     menu_return_mode = .EDITOR;
-    active_camera = *editor_camera;
-    camera_map_w = ed.level.w;
-    camera_map_h = ed.level.h;
+    editor_camera.bounds.x = cast(float) ed.level.w;
+    editor_camera.bounds.y = cast(float) ed.level.h;
     release_player_keys();
 }
 
@@ -145,10 +146,9 @@ editor_take_level :: (level: Level, path: string) {
     ed.regions_dirty = true;
     ed.tunnel_index = cast(s32) ifx level.tunnels.count then 0 else -1;
 
-    active_camera = *editor_camera;
-    camera_map_w = level.w;
-    camera_map_h = level.h;
-    camera_fit_map();
+    editor_camera.bounds.x = cast(float) level.w;
+    editor_camera.bounds.y = cast(float) level.h;
+    camera_fit_map(*editor_camera);
 
     editor_validate();
     editor_set_status("Loaded % (% x %)", ed.path, level.w, level.h);
@@ -177,9 +177,9 @@ editor_new_level :: (w: s32, h: s32) {
     editor_clear_history();
     ed.regions_dirty = true;
     ed.tunnel_index = -1;
-    camera_map_w = w;
-    camera_map_h = h;
-    camera_fit_map();
+    editor_camera.bounds.x = cast(float) w;
+    editor_camera.bounds.y = cast(float) h;
+    camera_fit_map(*editor_camera);
     editor_set_status("New % x % level", w, h);
 }
 
@@ -250,11 +250,10 @@ editor_playtest :: (from_cursor: bool) {
     playtesting  = true;
     program_mode = .GAME;
     menu_return_mode = .GAME;
-    active_camera = *game_camera;
-    camera_map_w = l.w;
-    camera_map_h = l.h;
+    game_camera.bounds.x = cast(float) l.w;
+    game_camera.bounds.y = cast(float) l.h;
     update_game_camera_target();
-    camera_reset();
+    camera_reset(*game_camera);
 }
 
 editor_stop_playtest :: () {
@@ -737,7 +736,7 @@ editor_text_focused := false;   // 有文本框在输入时，快捷键让路（
 
 editor_handle_event :: (event: Event) {
     if event.type == .MOUSE_WHEEL {
-        if !mouse_over_panels()  handle_camera_wheel(event, always_anchor_mouse = true);
+        if !mouse_over_panels()  handle_camera_wheel(*editor_camera, event, always_anchor_mouse = true);
         return;
     }
     if event.type != .KEYBOARD  return;
@@ -794,7 +793,7 @@ editor_handle_event :: (event: Event) {
         case .TAB;      ed.schematic = !ed.schematic;
         case #char "H"; ed.show_hidden = !ed.show_hidden;
         case #char "G"; ed.show_regions = !ed.show_regions;
-        case #char "F"; camera_fit_map();
+        case #char "F"; camera_fit_map(*editor_camera);
         case #char "B"; ed.tool = .BRUSH;
         case #char "E"; ed.tool = .EDGE;
         case #char "W"; ed.tool = .WORLD;
@@ -820,7 +819,7 @@ editor_update :: (dt: float) {
     // 视口：拖动平移
     m := mouse_position();
     if ed.panning {
-        camera_drag(m - ed.last_mouse);
+        camera_drag(*editor_camera, m - ed.last_mouse);
         ed.last_mouse = m;
     }
 
@@ -829,7 +828,7 @@ editor_update :: (dt: float) {
     ed.hover_vertex_valid = false;
     if !mouse_over_panels() {
         l := *ed.level;
-        w := screen_to_world(m.x, m.y);
+        w := screen_to_world(*editor_camera, m.x, m.y);
         wx := cast(int) floor(w.x);
         wy := cast(int) floor(w.y);
         g := world_to_grid(l, wx, wy);
@@ -849,7 +848,7 @@ editor_update :: (dt: float) {
         if ed.tool == .BRUSH || ed.tool == .ENTITY || (ed.tool == .WORLD && !world_fill_mode())  apply_tool_at(ed.hover, ed.stroke_erase);
     }
 
-    camera_update(dt, pan_with_arrows = !editor_text_focused);
+    update_camera_controls(*editor_camera, dt, pan_with_arrows = !editor_text_focused);
 }
 
 // ----------------------------------------------------------------------------: 画布
@@ -868,20 +867,20 @@ editor_draw_canvas :: () {
     defer if ed.show_hidden  state_free(*preview);
 
     if ed.schematic  draw_schematic(l, state);
-    else             draw_level(l, state);
+    else             draw_level(*editor_camera, l, state);
 
     if ed.show_regions  draw_region_overlay(l);
     if ed.show_edges || ed.tool == .EDGE || ed.tool == .WORLD  draw_edge_overlay(l, state);
     draw_tunnel_overlay(l);
     if ed.tool == .EDGE  draw_edge_tool();
     else if ed.hover_valid  draw_hover();
-    Simp.immediate_flush();
+    flush_graphics();
 
     if ed.show_entities  draw_entity_labels(l);
 }
 
 visible_cells :: (l: *Level) -> x0: int, x1: int, wy0: int, wy1: int {
-    vx0, vy0, vx1, vy1 := camera_visible_grid();
+    vx0, vy0, vx1, vy1 := camera_visible_grid(*editor_camera);
     return max(vx0, 0), min(vx1, l.w - 1), max(vy0, 0), min(vy1, l.h - 1);
 }
 
@@ -892,11 +891,11 @@ draw_schematic :: (l: *Level, state: *Game_State) {
         c := state.cells[x * l.h + row];
         col := WORLD_COLORS[cast(int) c.num];
         if c.obj & .WALL  col = .{col.x * 0.45, col.y * 0.45, col.z * 0.45, 1};
-        draw_rect(x, wy, col);
-        if c.obj & .SUNK    draw_world_rect(x + 0.3, wy + 0.3, x + 0.7, wy + 0.7, .{0.1, 0.2, 0.6, 1});
-        if c.obj & .TOGGLE  draw_world_rect(x + 0.2, wy + 0.2, x + 0.8, wy + 0.8, .{0.8, 0.1, 0.1, 1});
-        if c.obj & .THING   draw_world_rect(x + 0.3, wy + 0.3, x + 0.7, wy + 0.7, .{0.6, 0.35, 0.1, 1});
-        if c.obj & .PLAYER  draw_world_rect(x + 0.25, wy + 0.25, x + 0.75, wy + 0.75, .{0.95, 0.4, 0.9, 1});
+        draw_rect(*editor_camera, x, wy, col);
+        if c.obj & .SUNK    draw_world_rect(*editor_camera, x + 0.3, wy + 0.3, x + 0.7, wy + 0.7, .{0.1, 0.2, 0.6, 1});
+        if c.obj & .TOGGLE  draw_world_rect(*editor_camera, x + 0.2, wy + 0.2, x + 0.8, wy + 0.8, .{0.8, 0.1, 0.1, 1});
+        if c.obj & .THING   draw_world_rect(*editor_camera, x + 0.3, wy + 0.3, x + 0.7, wy + 0.7, .{0.6, 0.35, 0.1, 1});
+        if c.obj & .PLAYER  draw_world_rect(*editor_camera, x + 0.25, wy + 0.25, x + 0.75, wy + 0.75, .{0.95, 0.4, 0.9, 1});
     }
 }
 
@@ -907,27 +906,27 @@ draw_region_overlay :: (l: *Level) {
         r := ed.region_of[x * l.h + (l.h - 1 - wy)];
         h := cast(u32)(r * 2654435761);
         col := Vector4.{cast(float)((h >> 16) & 255) / 255, cast(float)((h >> 8) & 255) / 255, cast(float)(h & 255) / 255, 0.35};
-        draw_rect(x, wy, col);
+        draw_rect(*editor_camera, x, wy, col);
     }
 }
 
 draw_edge_overlay :: (l: *Level, state: *Game_State) {
     x0, x1, wy0, wy1 := visible_cells(l);
-    ts := camera_tile_px();
+    ts := camera_tile_px(*editor_camera);
     t := max(2.0, ts / 8) / ts;   // 线宽（格为单位）
     col := Vector4.{1, 0.85, 0.2, 0.9};
     for x: x0..x1  for wy: wy0..wy1 {
         row := l.h - 1 - wy;
         c := state.cells[x * l.h + row];
-        if c.obj & .STOP_R  draw_world_rect(x + 1 - t, cast(float) wy, x + 1 + t, wy + 1.0, col);
-        if c.obj & .STOP_D  draw_world_rect(cast(float) x, wy - t, x + 1.0, wy + t, col);
+        if c.obj & .STOP_R  draw_world_rect(*editor_camera, x + 1 - t, cast(float) wy, x + 1 + t, wy + 1.0, col);
+        if c.obj & .STOP_D  draw_world_rect(*editor_camera, cast(float) x, wy - t, x + 1.0, wy + t, col);
     }
     // 地图边框
     edge := Vector4.{1, 1, 1, 0.5};
-    draw_world_rect(-t, -t, l.w + t, t, edge);
-    draw_world_rect(-t, l.h - t, l.w + t, l.h + t, edge);
-    draw_world_rect(-t, -t, t, l.h + t, edge);
-    draw_world_rect(l.w - t, -t, l.w + t, l.h + t, edge);
+    draw_world_rect(*editor_camera, -t, -t, l.w + t, t, edge);
+    draw_world_rect(*editor_camera, -t, l.h - t, l.w + t, l.h + t, edge);
+    draw_world_rect(*editor_camera, -t, -t, t, l.h + t, edge);
+    draw_world_rect(*editor_camera, l.w - t, -t, l.w + t, l.h + t, edge);
 }
 
 draw_tunnel_overlay :: (l: *Level) {
@@ -937,18 +936,18 @@ draw_tunnel_overlay :: (l: *Level) {
         for e, ei: t.ends {
             w := grid_to_world(l, e.pos);
             col := ifx ei == 0 then Vector4.{1, 0.5, 0.1, a} else Vector4.{1, 0.2, 0.6, a};
-            draw_world_rect(w.x + 0.1, w.y + 0.1, w.x + 0.9, w.y + 0.9, col);
+            draw_world_rect(*editor_camera, w.x + 0.1, w.y + 0.1, w.x + 0.9, w.y + 0.9, col);
         }
         for p: t.path {
             w := grid_to_world(l, p);
-            draw_world_rect(w.x + 0.35, w.y + 0.35, w.x + 0.65, w.y + 0.65, .{0.2, 0.9, 1, a});
+            draw_world_rect(*editor_camera, w.x + 0.35, w.y + 0.35, w.x + 0.65, w.y + 0.65, .{0.2, 0.9, 1, a});
         }
     }
 }
 
 draw_hover :: () {
     w := grid_to_world(*ed.level, ed.hover);
-    draw_cell_outline(cast(int) w.x, cast(int) w.y, .{1, 1, 1, 0.9});
+    draw_cell_outline(*editor_camera, cast(int) w.x, cast(int) w.y, .{1, 1, 1, 0.9});
 
     // 世界工具的填充模式：高亮整个区域
     if ed.tool == .WORLD && world_fill_mode() {
@@ -957,26 +956,26 @@ draw_hover :: () {
         r := ed.region_of[ed_index(ed.hover)];
         x0, x1, wy0, wy1 := visible_cells(l);
         for x: x0..x1  for wy: wy0..wy1 {
-            if ed.region_of[x * l.h + (l.h - 1 - wy)] == r  draw_rect(x, wy, .{1, 1, 1, 0.18});
+            if ed.region_of[x * l.h + (l.h - 1 - wy)] == r  draw_rect(*editor_camera, x, wy, .{1, 1, 1, 0.18});
         }
     }
 }
 
 // 边界工具：格点光标 + 正在拖的线（绿 = 加，红 = 删）
 draw_edge_tool :: () {
-    ts := camera_tile_px();
+    ts := camera_tile_px(*editor_camera);
     t := max(3.0, ts / 6) / ts;   // 线宽的一半（格为单位）
 
     if ed.edge_dragging {
         s := ed.edge_start;
         e := ed.edge_end;
         col := ifx ed.edge_erase then Vector4.{1, 0.25, 0.25, 0.9} else Vector4.{0.3, 1, 0.4, 0.9};
-        draw_world_rect(min(s.x, e.x) - t, min(s.y, e.y) - t, max(s.x, e.x) + t, max(s.y, e.y) + t, col);
+        draw_world_rect(*editor_camera, min(s.x, e.x) - t, min(s.y, e.y) - t, max(s.x, e.x) + t, max(s.y, e.y) + t, col);
     }
     if ed.hover_vertex_valid {
         v := ed.hover_vertex;
         r := t * 1.8;
-        draw_world_rect(v.x - r, v.y - r, v.x + r, v.y + r, .{1, 1, 1, 0.95});
+        draw_world_rect(*editor_camera, v.x - r, v.y - r, v.x + r, v.y + r, .{1, 1, 1, 0.95});
     }
 }
 
@@ -984,7 +983,7 @@ draw_edge_tool :: () {
 ENTITY_GLYPHS :: string.["*", "Z", "'", ":", "<", ">", "\\", ";", ",", "?", "_", "\"", "W", "0", "-"];
 
 draw_entity_labels :: (l: *Level) {
-    ts := camera_tile_px();
+    ts := camera_tile_px(*editor_camera);
     if ts < 12  return;
     font := ifx ts >= 28 then editor_font else small_font;
     if !font  return;
@@ -1007,9 +1006,22 @@ draw_entity_labels :: (l: *Level) {
 
         text := glyphs[0];
         for 1..n-1  text = tprint("%1%2", text, glyphs[it]);
-        p := world_to_screen(cast(float) x, cast(float) wy);
-        tw := Simp.prepare_text(font, text);
+        p := world_to_screen(*editor_camera, cast(float) x, cast(float) wy);
+        tw := prepare_text(font, text);
         draw_screen_rect(p.x + 1, p.y + ts - font.character_height - 2, p.x + tw + 4, p.y + ts - 1, .{0, 0, 0, 0.6});
-        Simp.draw_prepared_text(font, xx (p.x + 2), xx (p.y + ts - font.character_height - 1), .{1, 1, 0.4, 1});
+        draw_prepared_text(font, xx (p.x + 2), xx (p.y + ts - font.character_height - 1), .{1, 1, 0.4, 1});
     }
+}
+
+draw_editor_frame :: () {
+    clear_background(GAME_CLEAR_COLOR);
+
+    x, y, width, height := get_dimensions(the_window, true);
+    ui_per_frame_update(the_window, width, height, seconds_since_init());
+
+    editor_draw_canvas();
+    flush_graphics();
+
+    editor_draw_panels();
+    draw_popups();
 }

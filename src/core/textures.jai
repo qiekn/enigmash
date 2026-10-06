@@ -1,8 +1,8 @@
-// 精灵枚举由 tools/gen_atlas.jai 生成（src/generated/atlas.jai），这里只负责加载纹理。
+Texture :: Simp.Texture;
 
 // 从资源包里读纹理（name 是包内路径）
-load_texture :: (name : string) -> Simp.Texture {
-    texture : Simp.Texture;
+load_texture :: (name : string) -> Texture {
+    texture : Texture;
     memory, ok := data_file(name);
     assert(ok, "Texture '%' is not in the package.", name);
     success := Simp.texture_load_from_memory(*texture, memory);
@@ -18,3 +18,5 @@ load_texture :: (name : string) -> Simp.Texture {
 #scope_file
 
 #import "GL";
+
+Simp :: #import "Simp";

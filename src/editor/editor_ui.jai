@@ -146,7 +146,7 @@ editor_draw_panels :: () {
     right_rect  = get_rect(W - right_w, bottom_h, right_w, H - top_h - bottom_h);
 
     panel_bg(top_rect);  panel_bg(bottom_rect);  panel_bg(left_rect);  panel_bg(right_rect);
-    Simp.immediate_flush();
+    flush_graphics();
 
     focused := false;
     draw_top_bar(*focused);
@@ -425,7 +425,7 @@ draw_message_modal :: () {
     b := 2.0;
     draw_screen_rect(modal_rect.x - b, modal_rect.y - b, modal_rect.x + modal_rect.w + b, modal_rect.y + modal_rect.h + b, .{1, 0.8, 0.4, 0.8});
     draw_screen_rect(modal_rect.x, modal_rect.y, modal_rect.x + modal_rect.w, modal_rect.y + modal_rect.h, .{0.12, 0.12, 0.15, 1});
-    Simp.immediate_flush();
+    flush_graphics();
 
     c := Column.{modal_rect.x + 12, modal_rect.w - 24, modal_rect.y + modal_rect.h - 8};
     label(next_row(*c), tprint("Text: %", ed.modal_id), *title_theme);
@@ -457,7 +457,7 @@ draw_message_modal :: () {
 draw_status_bar :: () {
     r := shrink(bottom_rect, 2);
     text := tprint("%   |   zoom %   |   %   |   LMB apply  RMB erase  MMB/Space drag pan  wheel zoom  Ctrl+Z/Y undo/redo  Ctrl+S save  F5 play  Shift+F5 play from cursor",
-                   ed.status, formatFloat(active_camera.zoom, trailing_width = 2), TOOL_NAMES[ed.tool]);
+                   ed.status, formatFloat(editor_camera.zoom, trailing_width = 2), TOOL_NAMES[ed.tool]);
     label(r, text, *label_theme);
 }
 

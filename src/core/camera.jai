@@ -1,164 +1,89 @@
-// 2D 网格摄像机
-//
-// Simp 的投影矩阵是写死的屏幕正交投影（immediate_set_2d_projection），没有公开的自定义
-// 矩阵入口，所以 world(grid) -> screen(pixel) 的变换在 CPU 侧做，全部收敛到
-// world_to_screen() / screen_to_world() 这一对互逆函数里。
-//
-// 游戏和编辑器各有一个 Camera，active_camera 指向当前用的那个。
-
-Camera_Mode :: enum {
-    FOLLOW;  // 平滑跟随目标（游戏：原版的 camera 对象所在格）
-    FREE;    // 自由摄像机（编辑器 / 调试）
-}
+// 网格摄像机：世界单位为格，屏幕单位为像素，y 轴向上。
+// 视口、边界与参数由调用方设置；坐标变换保持像素取整和精确互逆。
+Camera_Mode :: enum { FOLLOW; FREE; }
 
 Camera :: struct {
-    pos  : Vector2;                 // 摄像机中心，单位 = grid（float，允许在格子之间）
-    zoom := CAMERA_DEFAULT_ZOOM;    // 1 tile = FIXED_TILE_SIZE * zoom 像素
+    pos, target, vel: Vector2;
+    zoom := 1.0;
     mode := Camera_Mode.FOLLOW;
-    target : Vector2;               // FOLLOW 模式的目标（世界坐标，格子中心）
-    vel    : Vector2;               // FOLLOW 模式的当前速度（格/秒）
+    gliding: bool;
+    glide_goal: Vector2;
 
-    gliding    : bool;              // FREE 模式下正平滑移向 glide_goal（空格：把玩家挪到屏幕中心）
-    glide_goal : Vector2;
+    viewport: Vector2;
+    bounds: Vector2;
+    tile_pixels := 1.0;
+    min_zoom := 0.01;
+    max_zoom := 100.0;
+    zoom_step := 1.15;
+    clamp_margin: float;
+    smooth_time := 0.15;
 }
 
-game_camera   : Camera;
-editor_camera : Camera;
-active_camera := *game_camera;
-
-// 地图尺寸（格），用于 clamp / fit。由当前关卡设置
-camera_map_w := MAP_WIDTH;
-camera_map_h := MAP_HEIGHT;
-
-// ----------------------------------------------------------------------------: 坐标变换
-
-// tile 的实际边长。取整到整数像素，否则 5x5 的像素画在非整数缩放下会粗细不均、
-// tile 之间还会露出缝。
-camera_tile_px :: () -> float {
-    px := floor(FIXED_TILE_SIZE * active_camera.zoom + 0.5);
+camera_tile_px :: (camera: *Camera) -> float {
+    px := floor(camera.tile_pixels * camera.zoom + 0.5);
     return max(px, 1.0);
 }
 
-// world (0,0) 这个角落落在屏幕上的像素位置。同样取整，这样 tile 边界永远压在整像素上。
-camera_origin :: () -> Vector2 {
-    ts := camera_tile_px();
+camera_origin :: (camera: *Camera) -> Vector2 {
+    ts := camera_tile_px(camera);
     return .{
-        floor(cast(float) render_width  * 0.5 - active_camera.pos.x * ts + 0.5),
-        floor(cast(float) render_height * 0.5 - active_camera.pos.y * ts + 0.5),
+        floor(cast(float) camera.viewport.x  * 0.5 - camera.pos.x * ts + 0.5),
+        floor(cast(float) camera.viewport.y * 0.5 - camera.pos.y * ts + 0.5),
     };
 }
 
-world_to_screen :: (wx: float, wy: float) -> Vector2 {
-    ts := camera_tile_px();
-    o  := camera_origin();
+world_to_screen :: (camera: *Camera, wx: float, wy: float) -> Vector2 {
+    ts := camera_tile_px(camera);
+    o  := camera_origin(camera);
     return .{wx * ts + o.x, wy * ts + o.y};
 }
 
-// world_to_screen 的精确逆运算 —— 「缩放锚定鼠标」手感正确的前提。
-screen_to_world :: (sx: float, sy: float) -> Vector2 {
-    ts := camera_tile_px();
-    o  := camera_origin();
+screen_to_world :: (camera: *Camera, sx: float, sy: float) -> Vector2 {
+    ts := camera_tile_px(camera);
+    o  := camera_origin(camera);
     return .{(sx - o.x) / ts, (sy - o.y) / ts};
 }
 
-// 当前可见的 grid 范围（闭区间，两端都向外取整一格），用来做剔除。
-// 注意 Simp 是 y 轴朝上的，所以屏幕 (0,0) 是左下角，对应 world 的最小 y。
-camera_visible_grid :: () -> (x0: int, y0: int, x1: int, y1: int) {
-    lo := screen_to_world(0.0, 0.0);
-    hi := screen_to_world(cast(float) render_width, cast(float) render_height);
+camera_visible_grid :: (camera: *Camera) -> (x0: int, y0: int, x1: int, y1: int) {
+    lo := screen_to_world(camera, 0.0, 0.0);
+    hi := screen_to_world(camera, cast(float) camera.viewport.x, cast(float) camera.viewport.y);
 
     return cast(int) floor(lo.x), cast(int) floor(lo.y),
            cast(int) ceil (hi.x), cast(int) ceil (hi.y);
 }
 
-// 让 VIEW_TILES 格刚好铺满屏幕高度（原版 zoomscreen 13x13）
-camera_view_zoom :: () -> float {
-    tile := floor(cast(float) render_height / VIEW_TILES);
-    return clamp(tile / FIXED_TILE_SIZE, CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM);
+camera_clamp :: (camera: *Camera) {
+    max_x := cast(float) camera.bounds.x + camera.clamp_margin;
+    max_y := cast(float) camera.bounds.y + camera.clamp_margin;
+
+    camera.pos.x = clamp(camera.pos.x, -camera.clamp_margin, max_x);
+    camera.pos.y = clamp(camera.pos.y, -camera.clamp_margin, max_y);
 }
 
-// ----------------------------------------------------------------------------: 内部
-
-#scope_file
-
-is_key_down :: (key: Key_Code) -> bool {
-    return (input_button_states[key] & .DOWN) != 0;
-}
-
-screen_center :: () -> Vector2 {
-    return .{cast(float) render_width * 0.5, cast(float) render_height * 0.5};
-}
-
-// 留 margin 是为了能看清地图边界，而不是被硬卡在边上
-camera_clamp :: () {
-    max_x := cast(float) camera_map_w + CAMERA_CLAMP_MARGIN;
-    max_y := cast(float) camera_map_h + CAMERA_CLAMP_MARGIN;
-
-    active_camera.pos.x = clamp(active_camera.pos.x, -CAMERA_CLAMP_MARGIN, max_x);
-    active_camera.pos.y = clamp(active_camera.pos.y, -CAMERA_CLAMP_MARGIN, max_y);
-}
-
-// 方向键平移，只在 FREE 模式下生效
-camera_pan :: (dt: float) -> moved: bool {
-    dx := 0.0;
-    dy := 0.0;
-
-    if is_key_down(.ARROW_LEFT)   dx -= 1;
-    if is_key_down(.ARROW_RIGHT)  dx += 1;
-    if is_key_down(.ARROW_DOWN)   dy -= 1;
-    if is_key_down(.ARROW_UP)     dy += 1;
-
-    if dx == 0 && dy == 0  return false;
-
-    // 斜向要归一化，否则比直线快 sqrt(2) 倍
-    len := sqrt(dx*dx + dy*dy);
-    dx /= len;
-    dy /= len;
-
-    // 速度随 zoom 归一化：放大时慢、缩小时快，屏幕上看到的移动速度才是恒定的
-    speed := CAMERA_PAN_SPEED * CAMERA_DEFAULT_ZOOM / active_camera.zoom;
-
-    active_camera.pos.x += dx * speed * dt;
-    active_camera.pos.y += dy * speed * dt;
-    return true;
-}
-
-#scope_export
-
-// ----------------------------------------------------------------------------: 状态更新
-
-// dt 单位是秒；pan_with_arrows = FREE 模式下是否用方向键平移
-camera_update :: (dt: float, pan_with_arrows := true) {
-    if active_camera.mode == .FOLLOW {
-        active_camera.gliding = false;
-        active_camera.pos = smooth_damp(active_camera.pos, active_camera.target, *active_camera.vel, CAMERA_FOLLOW_SMOOTH_TIME, dt);
+camera_update :: (camera: *Camera, dt: float) {
+    if camera.mode == .FOLLOW {
+        camera.gliding = false;
+        camera.pos = smooth_damp(camera.pos, camera.target, *camera.vel, camera.smooth_time, dt);
     } else {
-        // 手动平移会打断滑动
-        if pan_with_arrows && camera_pan(dt)  active_camera.gliding = false;
-
-        if active_camera.gliding {
-            active_camera.pos = smooth_damp(active_camera.pos, active_camera.glide_goal, *active_camera.vel, CAMERA_FOLLOW_SMOOTH_TIME, dt);
-            d := active_camera.pos - active_camera.glide_goal;
+        if camera.gliding {
+            camera.pos = smooth_damp(camera.pos, camera.glide_goal, *camera.vel, camera.smooth_time, dt);
+            d := camera.pos - camera.glide_goal;
             if d.x*d.x + d.y*d.y < 0.0001 {
-                active_camera.pos = active_camera.glide_goal;
-                active_camera.gliding = false;
+                camera.pos = camera.glide_goal;
+                camera.gliding = false;
             }
         }
     }
 
-    camera_clamp();
+    camera_clamp(camera);
 }
 
-// FREE 模式下平滑移到 p（世界坐标），不切回跟随
-camera_glide_to :: (p: Vector2) {
-    active_camera.glide_goal = p;
-    active_camera.gliding    = true;
-    active_camera.vel        = .{};
+camera_glide_to :: (camera: *Camera, p: Vector2) {
+    camera.glide_goal = p;
+    camera.gliding    = true;
+    camera.vel        = .{};
 }
 
-// 临界阻尼弹簧（Game Programming Gems 4, 1.10），帧率无关。
-// 和纯指数平滑的区别是它记着速度：目标一格一格地跳时，镜头会以接近匀速的方式跟上，
-// 而不是每一格都「加速冲过去再刹停」。
 smooth_damp :: (current: Vector2, target: Vector2, vel: *Vector2, smooth_time: float, dt: float) -> Vector2 {
     if dt <= 0  return current;
     omega := 2.0 / max(smooth_time, 0.0001);
@@ -171,105 +96,40 @@ smooth_damp :: (current: Vector2, target: Vector2, vel: *Vector2, smooth_time: f
     return target + (change + temp) * decay;
 }
 
-// 直接移到目标上（传送、读档之后不要慢慢飘过去）
-camera_snap :: () {
-    active_camera.pos = active_camera.target;
-    active_camera.vel = .{};
-    camera_clamp();
+camera_snap :: (camera: *Camera) {
+    camera.pos = camera.target;
+    camera.vel = .{};
+    camera_clamp(camera);
 }
 
-// steps 是滚轮格数，可以是小数（细分滚轮）
-camera_zoom_by :: (steps: float, anchor_screen: Vector2) {
+camera_zoom_by :: (camera: *Camera, steps: float, anchor_screen: Vector2) {
     if steps == 0  return;
 
     // 记下锚点当前对应的 world 坐标，缩放后再把摄像机挪回去，
     // 这样锚点底下的那个格子就不会跑
-    before := screen_to_world(anchor_screen.x, anchor_screen.y);
+    before := screen_to_world(camera, anchor_screen.x, anchor_screen.y);
 
-    new_zoom := active_camera.zoom * pow(CAMERA_ZOOM_STEP, steps);
-    active_camera.zoom = clamp(new_zoom, CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM);
+    new_zoom := camera.zoom * pow(camera.zoom_step, steps);
+    camera.zoom = clamp(new_zoom, camera.min_zoom, camera.max_zoom);
 
-    after := screen_to_world(anchor_screen.x, anchor_screen.y);
-    active_camera.pos += before - after;
+    after := screen_to_world(camera, anchor_screen.x, anchor_screen.y);
+    camera.pos += before - after;
 
-    camera_clamp();
+    camera_clamp(camera);
 }
 
-// 回到默认视野（13 格高）、吸附目标、切回跟随
-camera_reset :: () {
-    active_camera.zoom = camera_view_zoom();
-    active_camera.mode = .FOLLOW;
-    active_camera.pos  = active_camera.target;
-    active_camera.vel  = .{};
+camera_fit_map :: (camera: *Camera) {
+    zx := cast(float) camera.viewport.x  / cast(float)(camera.bounds.x * camera.tile_pixels);
+    zy := cast(float) camera.viewport.y / cast(float)(camera.bounds.y * camera.tile_pixels);
+
+    camera.zoom = clamp(min(zx, zy), camera.min_zoom, camera.max_zoom);
+    camera.pos  = .{camera.bounds.x * 0.5, camera.bounds.y * 0.5};
+    camera.mode = .FREE;
 }
 
-// 缩放到整张地图刚好铺满屏幕
-camera_fit_map :: () {
-    zx := cast(float) render_width  / cast(float)(camera_map_w * FIXED_TILE_SIZE);
-    zy := cast(float) render_height / cast(float)(camera_map_h * FIXED_TILE_SIZE);
-
-    active_camera.zoom = clamp(min(zx, zy), CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM);
-    active_camera.pos  = .{camera_map_w * 0.5, camera_map_h * 0.5};
-    active_camera.mode = .FREE;    // 看整张地图必然要脱离玩家
-}
-
-// 鼠标拖动平移（编辑器）：delta 是屏幕像素
-camera_drag :: (delta: Vector2) {
-    ts := camera_tile_px();
-    active_camera.pos.x -= delta.x / ts;
-    active_camera.pos.y -= delta.y / ts;
-    camera_clamp();
-}
-
-// ----------------------------------------------------------------------------: 输入
-
-// 返回 true 表示这个按键归摄像机管，不要再往下传给玩家
-handle_camera_key :: (key: Key_Code, pressed: u32) -> handled: bool {
-    if !pressed  return false;
-
-    if key == {
-        case .TAB;
-            if active_camera.mode == .FOLLOW  active_camera.mode = .FREE;
-            else                              active_camera.mode = .FOLLOW;
-            return true;
-
-        case #char "0";
-            camera_reset();
-            return true;
-
-        case #char "F";
-            camera_fit_map();
-            return true;
-    }
-
-    // 方向键是「持续按住」生效的（camera_pan 每帧轮询 input_button_states），
-    // 这里只负责在 FREE 模式下把事件吞掉
-    if active_camera.mode == .FREE {
-        if key == {
-            case .ARROW_LEFT;  #through;
-            case .ARROW_RIGHT; #through;
-            case .ARROW_UP;    #through;
-            case .ARROW_DOWN;
-                return true;
-        }
-    }
-
-    return false;
-}
-
-handle_camera_wheel :: (event: Event, always_anchor_mouse := false) {
-    if event.typical_wheel_delta == 0  return;
-
-    // 用 float 相除，细分滚轮才不会被截断成 0
-    steps := cast(float) event.wheel_delta / cast(float) event.typical_wheel_delta;
-
-    anchor := screen_center();
-
-    // FOLLOW 模式摄像机锁在目标上，挪不动，只能以屏幕中心为锚点
-    if active_camera.mode == .FREE || always_anchor_mouse {
-        mx, my, ok := get_mouse_pointer_position(the_window, true);
-        if ok  anchor = .{cast(float) mx, cast(float) my};
-    }
-
-    camera_zoom_by(steps, anchor);
+camera_drag :: (camera: *Camera, delta: Vector2) {
+    ts := camera_tile_px(camera);
+    camera.pos.x -= delta.x / ts;
+    camera.pos.y -= delta.y / ts;
+    camera_clamp(camera);
 }

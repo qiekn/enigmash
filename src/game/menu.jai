@@ -1,9 +1,8 @@
 #scope_file
 
-title\   _font  : *Simp.Dynamic_Font;
-body\    _font  : *Simp.Dynamic_Font;
-version\ _font  : *Simp.Dynamic_Font;
-
+title\   _font  : *Font;
+body\    _font  : *Font;
+version\ _font  : *Font;
 
 Menu_Action :: enum {
     RESUME;
@@ -135,9 +134,9 @@ menu_return_mode := Program_Mode.GAME;
 init_menu_fonts :: () {
     base_height := cast(int) (window_height / 18);
 
-    title_font   = load_font("Karmina-Bold.otf", xx (base_height * 1.6));
-    body_font    = load_font("Karmina-Bold.otf", base_height);
-    version_font = load_font("OpenSans-Regular.ttf", xx (base_height * 0.4));
+    title_font   = load_font(tprint("%/%", FONT_FOLDER, "Karmina-Bold.otf"), xx (base_height * 1.6));
+    body_font    = load_font(tprint("%/%", FONT_FOLDER, "Karmina-Bold.otf"), base_height);
+    version_font = load_font(tprint("%/%", FONT_FOLDER, "OpenSans-Regular.ttf"), xx (base_height * 0.4));
     assert(title_font != null);
 }
 
@@ -150,8 +149,6 @@ open_menu :: () {
 
 close_menu :: () {
     program_mode = menu_return_mode;
-    if program_mode == .GAME  active_camera = *game_camera;
-    if program_mode == .EDITOR  active_camera = *editor_camera;
 }
 
 toggle_menu :: () {
@@ -250,9 +247,32 @@ draw_version :: () {
     text := sprint("Version %.%.%", MAJOR_VERSION, MINOR_VERSION, BABY_VERSION);
     defer free(text);
 
-    text_width := Simp.prepare_text(font, text);
+    text_width := prepare_text(font, text);
     text_x := window_width - text_width - 20;
     text_y := 20;
 
     draw_text(font, text, text_x, text_y, WHITE);
+}
+
+// 新开一个战役（新存档槽），不影响已有的存档。
+start_new_campaign :: () {
+    if !playtesting && !game.won  session_save(*game);
+    playtesting  = false;
+    play_session = *game;
+    current_campaign = next_campaign_id();
+    session_new_game(*game);
+    session_save(*game);
+    reset_game_camera();
+}
+
+load_campaign :: (id: int) {
+    if !playtesting && !game.won && id != current_campaign  session_save(*game);
+    playtesting  = false;
+    play_session = *game;
+    current_campaign = id;
+    if !session_load_save(*game) {
+        session_new_game(*game);
+        session_save(*game);
+    }
+    reset_game_camera();
 }

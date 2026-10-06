@@ -11,16 +11,12 @@ program_mode := Program_Mode.MENU;
 saved_window_info : Saved_Window_Info;
 
 the_window : Window_Type;
-the_sprite : Simp.Texture;
 
 window_width  : s32 = 1200;
 window_height : s32 = 800;
 
 render_width  : s32 = 1200;
 render_height : s32 = 800;
-
-basic_font : *Simp.Dynamic_Font;
-debug_font : *Simp.Dynamic_Font;
 
 game_should_quit := false;
 
@@ -31,6 +27,7 @@ main :: () {
     current_time : Apollo_Time;
 
     init_game();
+    defer shutdown_audio();
 
     while !game_should_quit {
         // update
@@ -48,12 +45,13 @@ main :: () {
             session_update(play_session, cast(float) delta_time);
             wave_fx_update(play_session, cast(float) delta_time);
             update_game_camera_target();
-            camera_update(dt_seconds);
+            update_camera_controls(*game_camera, dt_seconds);
         } else if program_mode == .EDITOR {
             editor_update(dt_seconds);
         }
 
-        Sound.update();
+        play_session_sounds(play_session);
+        update_audio();
 
         // render
         if program_mode == {
@@ -66,7 +64,7 @@ main :: () {
                 draw_version();
         }
 
-        Simp.swap_buffers(the_window);
+        present_graphics(the_window);
         reset_temporary_storage();
     }
 
@@ -81,16 +79,18 @@ init_game :: () {
 
     // init window
     the_window = create_window(window_width, window_height, "ck: Enigmash");
-    Simp.set_render_target(the_window);
+    set_graphics_target(the_window);
     toggle_fullscreen(the_window, true, *saved_window_info);
 
     // init textures
-    the_sprite = load_texture(ATLAS_PATH);
-    init_sprite_uvs();
+    init_sprites();
+    game_camera = make_game_camera();
+    editor_camera = make_game_camera();
 
     init_fonts();
     init_menu_fonts();
 
+    init_audio();
     init_sounds();
 
     ui_init();
@@ -107,55 +107,17 @@ init_game :: () {
     reset_game_camera();
 }
 
-reset_game_camera :: () {
-    active_camera = *game_camera;
-    camera_map_w = game.level.w;
-    camera_map_h = game.level.h;
-    update_game_camera_target();
-    camera_reset();
-}
-
-// 新开一个战役（新存档槽），不影响已有的存档
-start_new_campaign :: () {
-    if !playtesting && !game.won  session_save(*game);
-    playtesting  = false;
-    play_session = *game;
-    current_campaign = next_campaign_id();
-    session_new_game(*game);
-    session_save(*game);
-    reset_game_camera();
-}
-
-load_campaign :: (id: int) {
-    if !playtesting && !game.won && id != current_campaign  session_save(*game);
-    playtesting  = false;
-    play_session = *game;
-    current_campaign = id;
-    if !session_load_save(*game) {
-        session_new_game(*game);
-        session_save(*game);
-    }
-    reset_game_camera();
-}
-
-// 镜头跟随原版的 camera 对象（隧道里飞、camerastick / camerashiftleft 都靠它）
-update_game_camera_target :: () {
-    s := play_session;
-    p, ok := session_camera_cell(s);
-    if !ok  return;
-    w := grid_to_world(*s.level, p);
-    game_camera.target = .{w.x + 0.5, w.y + 0.5};
-}
-
 handle_window_resizes :: () {
     for get_window_resizes() {
         if it.window == the_window {
             window_width, window_height = it.width, it.height;
             render_width, render_height = window_width, window_height;
-            Simp.update_window(it.window);
+            resize_graphics(it.window);
             init_fonts();
             init_menu_fonts();
-            game_camera.zoom = camera_view_zoom();
+            game_camera.viewport = .{cast(float) render_width, cast(float) render_height};
+            editor_camera.viewport = game_camera.viewport;
+            game_camera.zoom = camera_view_zoom(*game_camera);
         }
     }
 }
@@ -170,7 +132,7 @@ handle_input :: () {
 
         if it.type == {
             case .MOUSE_WHEEL;
-                if program_mode == .GAME    handle_camera_wheel(it);
+                if program_mode == .GAME    handle_camera_wheel(*game_camera, it);
                 if program_mode == .EDITOR  editor_handle_event(it);
 
             case .KEYBOARD;
@@ -199,7 +161,7 @@ handle_input :: () {
                 }
 
                 // 摄像机先挑走它关心的键（Tab / 0 / F / FREE 模式下的方向键）
-                if handle_camera_key(it.key_code, it.key_pressed)  continue;
+                if handle_camera_key(*game_camera, it.key_code, it.key_pressed)  continue;
 
                 // FREE 模式下空格把镜头挪到玩家身上（消息框 / 通关画面时空格照旧交给玩家）
                 if it.key_code == .SPACEBAR && game_camera.mode == .FREE && !play_session.message && !play_session.won {
@@ -207,7 +169,7 @@ handle_input :: () {
                         p, ok := session_player_cell(play_session);
                         if ok {
                             w := grid_to_world(*play_session.level, p);
-                            camera_glide_to(.{w.x + 0.5, w.y + 0.5});
+                            camera_glide_to(*game_camera, .{w.x + 0.5, w.y + 0.5});
                         }
                     }
                     continue;
@@ -218,34 +180,6 @@ handle_input :: () {
     }
 }
 
-draw_game_frame :: () {
-    clear_background(GAME_CLEAR_COLOR);
-
-    s := play_session;
-    active_camera = *game_camera;
-    draw_level(*s.level, wave_fx_display_state(s));
-
-    // draw_sprite 自己不 flush（为了攒批），这里统一收口
-    Simp.immediate_flush();
-
-    draw_hud();
-}
-
-draw_editor_frame :: () {
-    clear_background(GAME_CLEAR_COLOR);
-    active_camera = *editor_camera;
-
-    x, y, width, height := get_dimensions(the_window, true);
-    ui_per_frame_update(the_window, width, height, seconds_since_init());
-
-    editor_draw_canvas();
-    Simp.immediate_flush();
-
-    editor_draw_panels();
-    draw_popups();
-}
-
-
 // ----------------------------------------------------------------------------: modules
 
 #import "Basic";
@@ -254,8 +188,6 @@ draw_editor_frame :: () {
 #import "Math";
 #import "Random";
 
-Simp :: #import "Simp";
-using Sound :: #import "Sound_Player";
 #import "Window_Creation";
 #import "GetRect";
 
@@ -267,27 +199,31 @@ using Sound :: #import "Sound_Player";
 #load "generated/atlas.jai";
 
 #load "core/package.jai";
-#load "core/sprites.jai";
+#load "core/textures.jai";
 #load "core/camera.jai";
-#load "core/renderer.jai";
-#load "core/sounds.jai";
+#load "core/graphics.jai";
+#load "core/audio.jai";
 #load "core/fonts.jai";
 
 #load "config.jai"; // All constants
-#load "menu.jai";
+#load "game/menu.jai";
 
-#load "player_input.jai";
+#load "game/input.jai";
 
 #load "game/types.jai";
 #load "game/level.jai";
-#load "game/engine.jai";
+#load "game/simulation.jai";
 #load "game/rules_normal.jai";
 #load "game/rules_late.jai";
 #load "game/session.jai";
+#load "game/camera.jai";
+#load "game/sprites.jai";
+#load "game/sounds.jai";
+#load "game/fonts.jai";
 
-#load "render/draw_world.jai";
-#load "render/draw_hud.jai";
-#load "render/wave_fx.jai";
+#load "game/render/draw_world.jai";
+#load "game/render/draw_hud.jai";
+#load "game/render/wave_fx.jai";
 
 #load "editor/editor.jai";
 #load "editor/editor_ui.jai";

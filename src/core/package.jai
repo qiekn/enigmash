@@ -42,13 +42,6 @@ data_file_string :: (name: string, optional := false) -> string, bool {
     return xx bytes, ok;
 }
 
-// 关卡在开发机上的散文件路径（仓库 data/ 下）。没有仓库时返回 ""。
-dev_level_path :: (name: string) -> string {
-    dir := tprint("%/levels", DEV_DATA_DIR);
-    if !file_exists(dir)  return "";
-    return tprint("%/%", dir, name);
-}
-
 #scope_file
 
 #import "Simple_Package";

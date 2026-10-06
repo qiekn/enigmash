@@ -23,6 +23,8 @@ Session :: struct {
     won         : bool;
     inputs_since_save : int;
 
+    sound_commands : [..] Cmd;     // 已接受的 tick 命令，由音效表现层消费
+
     headless    : bool;             // 回放 / 测试：不放音效、不存档
     no_save     : bool;             // 编辑器试玩：不存档
 
@@ -62,6 +64,7 @@ session_set_level :: (s: *Session, level: Level) {
 }
 
 session_clear :: (s: *Session) {
+    array_reset(*s.sound_commands);
     for s.undo_diffs  array_free(it.cells);
     array_reset(*s.undo_diffs);
     s.undo_count = 0;
@@ -151,7 +154,7 @@ again_step :: (s: *Session) {
 handle_tick :: (s: *Session, res: Tick_Result) {
     c := res.commands;
 
-    if !s.headless  play_tick_sounds(c);
+    if !s.headless  array_add(*s.sound_commands, c);
 
     if c & .MESSAGE {
         s.message = find_message(*s.level, res.message);
@@ -170,17 +173,6 @@ handle_tick :: (s: *Session, res: Tick_Result) {
     }
 
     s.againing = (c & .AGAIN) && res.modified;
-}
-
-play_tick_sounds :: (c: Cmd) {
-    if c & .SFX0  play_sound(*push_box);
-    if c & .SFX1  play_sound(*push_box);    // 原版世界 2 跳 / 爬的音效没有素材，按审阅决定用推箱子音效代替
-    if c & .SFX2  play_sound(*rock_drop);
-    if c & .SFX3  play_sound(*push_rock);
-    if c & .SFX4  play_sound(*push_ball);   // 原版 SFX4 与 SFX5 是同一个种子
-    if c & .SFX5  play_sound(*push_ball);
-    if c & .SFX6  play_sound(*snake_move);
-    if c & .SFX7  play_sound(*world_mutation);
 }
 
 session_dismiss_message :: (s: *Session) {

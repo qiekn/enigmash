@@ -369,11 +369,11 @@ collect_cell :: (x: s32, y: s32, d: *Cell_Draw) {
 // ---------------------------------------------------------------------------- 绘制
 
 // 把关卡画出来。可见范围来自当前镜头；逻辑行 row 在屏幕上是 world y = h-1-row
-draw_level :: (level: *Level, state: *Game_State) {
+draw_level :: (camera: *Camera, level: *Level, state: *Game_State) {
     rv_level = level;
     rv_state = state;
 
-    vx0, vy0, vx1, vy1 := camera_visible_grid();
+    vx0, vy0, vx1, vy1 := camera_visible_grid(camera);
     x0 := max(vx0, 0);
     x1 := min(vx1, level.w - 1);
     wy0 := max(vy0, 0);
@@ -381,9 +381,9 @@ draw_level :: (level: *Level, state: *Game_State) {
     if x0 > x1 || wy0 > wy1  return;
 
     // 缩小看全图时一帧上万个精灵：tile 尺寸 / 原点只算一次，shader 只设一次，直接出 quad
-    ts := camera_tile_px();
-    o  := camera_origin();
-    Simp.set_shader_for_images(*the_sprite);
+    ts := camera_tile_px(camera);
+    o  := camera_origin(camera);
+    begin_texture_batch(*the_sprite);
 
     d: Cell_Draw;
     for x: x0..x1 {
@@ -398,7 +398,7 @@ draw_level :: (level: *Level, state: *Game_State) {
             sy1 := sy0 + ts;
             for i: 0..d.count-1 {
                 u0, v0, u1, v1 := sprite_uv(d.items[i].sprite);
-                Simp.immediate_quad(.{sx0, sy0}, .{sx1, sy0}, .{sx1, sy1}, .{sx0, sy1}, WHITE, .{u0, v0}, .{u1, v0}, .{u1, v1}, .{u0, v1});
+                draw_texture_quad(sx0, sy0, sx1, sy1, u0, v0, u1, v1);
             }
         }
     }
@@ -411,4 +411,16 @@ grid_to_world :: (level: *Level, p: Pos) -> Vector2 {
 
 world_to_grid :: (level: *Level, wx: int, wy: int) -> Pos {
     return .{cast(s32) wx, cast(s32)(level.h - 1 - wy)};
+}
+
+draw_game_frame :: () {
+    clear_background(GAME_CLEAR_COLOR);
+
+    s := play_session;
+    draw_level(*game_camera, *s.level, wave_fx_display_state(s));
+
+    // 世界精灵批在进入 HUD 之前统一提交。
+    flush_graphics();
+
+    draw_hud();
 }

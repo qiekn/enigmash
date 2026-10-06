@@ -18,8 +18,8 @@ draw_hint_line :: () {
     if !font  return;
     text := "WASD/Arrows move   Z undo   R restart   X action   Esc menu";
     if playtesting  text = "PLAYTEST   WASD/Arrows move   Z undo   R restart   Esc back to editor";
-    w := Simp.prepare_text(font, text);
-    Simp.draw_prepared_text(font, (window_width - w) / 2, font.character_height / 2, HINT_TEXT_COLOR);
+    w := prepare_text(font, text);
+    draw_prepared_text(font, (window_width - w) / 2, font.character_height / 2, HINT_TEXT_COLOR);
 }
 
 // 原版的消息是整屏文字；这里画在屏幕下半部的半透明框里，按行动键关闭
@@ -42,13 +42,13 @@ draw_message_box :: (text: string) {
 
     y := y0 + box_h - pad - font.character_height;
     for lines {
-        Simp.draw_text(font, x0 + pad, y, it, MESSAGE_TEXT_COLOR);
+        draw_text(font, it, x0 + pad, y, MESSAGE_TEXT_COLOR);
         y -= line_h;
     }
 
     hint := "X to continue";
-    hw := Simp.prepare_text(font, hint);
-    Simp.draw_prepared_text(font, x0 + box_w - pad - hw, y0 + pad, HINT_TEXT_COLOR);
+    hw := prepare_text(font, hint);
+    draw_prepared_text(font, x0 + box_w - pad - hw, y0 + pad, HINT_TEXT_COLOR);
 }
 
 draw_ending :: () {
@@ -66,12 +66,12 @@ draw_ending :: () {
     draw_text_centered(message_font, "Press Enter to return to the menu", y, HINT_TEXT_COLOR);
 }
 
-title_font_for_hud :: () -> *Simp.Dynamic_Font { return basic_font; }
+title_font_for_hud :: () -> *Font { return basic_font; }
 
 #scope_export
 
 // 按单词折行；\n 强制换行
-wrap_text :: (font: *Simp.Dynamic_Font, text: string, max_width: int) -> [..] string {
+wrap_text :: (font: *Font, text: string, max_width: int) -> [..] string {
     lines: [..] string;
     lines.allocator = temp;
 
@@ -80,7 +80,7 @@ wrap_text :: (font: *Simp.Dynamic_Font, text: string, max_width: int) -> [..] st
         for word: split(paragraph, " ",, temp) {
             if !word continue;
             candidate := ifx current then tprint("% %", current, word) else word;
-            if current && Simp.prepare_text(font, candidate) > max_width {
+            if current && prepare_text(font, candidate) > max_width {
                 array_add(*lines, current);
                 current = word;
             } else {

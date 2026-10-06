@@ -450,3 +450,10 @@ edge_char :: (c: Cell) -> u8 {
     if d      return #char "_";
     return #char ".";
 }
+
+// 开发机优先使用可编辑的散文件关卡。
+dev_level_path :: (name: string) -> string {
+    dir := tprint("%/levels", DEV_DATA_DIR);
+    if !file_exists(dir)  return "";
+    return tprint("%/%", dir, name);
+}
