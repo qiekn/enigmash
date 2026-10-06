@@ -1,4 +1,4 @@
-// 游戏画面上的覆盖层：消息框、按键提示、通关画面。字体没有 CJK 字形，文本一律 ASCII。
+// 游戏画面上的覆盖层：消息框、通关画面。字体没有 CJK 字形，文本一律 ASCII。
 
 draw_hud :: () {
     s := play_session;
@@ -8,19 +8,9 @@ draw_hud :: () {
     }
 
     if s.message  draw_message_box(s.message);
-    else          draw_hint_line();
 }
 
 #scope_file
-
-draw_hint_line :: () {
-    font := debug_font;
-    if !font  return;
-    text := "WASD/Arrows move   Z undo   R restart   X action   Esc menu";
-    if playtesting  text = "PLAYTEST   WASD/Arrows move   Z undo   R restart   Esc back to editor";
-    w := prepare_text(font, text);
-    draw_prepared_text(font, (window_width - w) / 2, font.character_height / 2, HINT_TEXT_COLOR);
-}
 
 // 原版的消息是整屏文字；这里画在屏幕下半部的半透明框里，按行动键关闭
 draw_message_box :: (text: string) {
