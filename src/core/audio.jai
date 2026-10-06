@@ -1,11 +1,11 @@
-Audio_Clip :: Sound.Sound_Data;
+Audio_Clip     :: Sound.Sound_Data;
 Audio_Category :: Sound.Sound_Category;
 
 init_audio :: () {
     success := Sound.sound_player_init(.{});
     assert(success);
 }
-update_audio :: () { Sound.update(); }
+update_audio   :: () { Sound.update(); }
 shutdown_audio :: () { Sound.sound_player_shutdown(); }
 
 load_sound :: (name: string, optional := false) -> Audio_Clip, bool {
@@ -32,4 +32,5 @@ play_sound :: (data: *Audio_Clip, perturb := false, category := Audio_Category.G
 stop_sound :: (data: *Audio_Clip) { Sound.stop_stream_abruptly(data); }
 
 #scope_file
+
 Sound :: #import "Sound_Player";
