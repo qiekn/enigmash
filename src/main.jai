@@ -196,12 +196,16 @@ handle_input :: () {
 #import "File_Utilities";
 #import "Sort";
 
+#import "GL";
+using Simp :: #import "Simp";
+
 #load "core/package.jai";
 #load "core/textures.jai";
 #load "core/camera.jai";
 #load "core/graphics.jai";
 #load "core/audio.jai";
 #load "core/fonts.jai";
+#load "core/colors.jai";
 
 #load "config.jai"; // All constants
 #load "game/menu.jai";

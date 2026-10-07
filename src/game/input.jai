@@ -16,14 +16,23 @@ Game_Key :: enum { NONE; UP; DOWN; LEFT; RIGHT; UNDO; }
 classify :: (key: Key_Code) -> Game_Key {
     if key == {
         case #char "W"; #through;
-        case .ARROW_UP;     return .UP;
+        case .ARROW_UP;
+            return .UP;
+
         case #char "S"; #through;
-        case .ARROW_DOWN;   return .DOWN;
+        case .ARROW_DOWN;
+            return .DOWN;
+
         case #char "A"; #through;
-        case .ARROW_LEFT;   return .LEFT;
+        case .ARROW_LEFT;
+            return .LEFT;
+
         case #char "D"; #through;
-        case .ARROW_RIGHT;  return .RIGHT;
-        case #char "Z";     return .UNDO;
+        case .ARROW_RIGHT;
+            return .RIGHT;
+
+        case #char "Z";
+            return .UNDO;
     }
     return .NONE;
 }

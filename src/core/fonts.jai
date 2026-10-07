@@ -1,7 +1,12 @@
 Font :: Simp.Dynamic_Font;
 
 load_font :: (name: string, size: int) -> *Font {
-    for font_cache  if it.name == name && it.height == size  return it.font;
+    // @Improvement It's a little bit silly.
+    for font_cache {
+        if it.name == name && it.height == size {
+            return it.font;
+        }
+    }
 
     memory, ok := data_file(name);
     if !ok  return null;
@@ -12,16 +17,16 @@ load_font :: (name: string, size: int) -> *Font {
     return font;
 }
 
-// prepare_text 会更新该字体的待绘制文本；测量和 draw_prepared_text 必须配对使用。
-prepare_text :: (font: *Font, text: string) -> int { return Simp.prepare_text(font, text); }
-draw_prepared_text :: (font: *Font, x: int, y: int, color: Color) {
-    Simp.draw_prepared_text(font, x, y, color);
-}
 draw_text :: (font: *Font, text: string, x: int, y: int, color: Color) {
     Simp.draw_text(font, x, y, text, color);
 }
 
 #scope_file
-Cached_Font :: struct { name: string; height: int; font: *Font; }
+
+Cached_Font :: struct {
+    name: string;
+    height: int;
+    font: *Font;
+}
+
 font_cache : [..] Cached_Font;
-Simp :: #import "Simp";

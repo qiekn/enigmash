@@ -4,16 +4,16 @@
 
 #scope_file
 
-theme          : Overall_Theme;
-button_theme   : Button_Theme;
+theme             : Overall_Theme;
+button_theme      : Button_Theme;
 left_button_theme : Button_Theme;   // 文字靠左的按钮（列表行）
-label_theme    : Label_Theme;
-title_theme    : Label_Theme;
-dim_theme      : Label_Theme;
-check_theme    : Checkbox_Theme;
-radio_theme    : Checkbox_Theme;
-input_theme    : Text_Input_Theme;
-scroll_theme   : Scrollable_Region_Theme;
+label_theme       : Label_Theme;
+title_theme       : Label_Theme;
+dim_theme         : Label_Theme;
+check_theme       : Checkbox_Theme;
+radio_theme       : Checkbox_Theme;
+input_theme       : Text_Input_Theme;
+scroll_theme      : Scrollable_Region_Theme;
 
 top_rect, left_rect, right_rect, bottom_rect, modal_rect : Rect;
 
@@ -23,9 +23,23 @@ right_scroll : float;
 
 // 实体在面板里的名字（和 ENTITY_KINDS 一一对应）
 ENTITY_LABELS :: string.[
-    "Checkpoint", "Camera stick", "Camera shift left", "Hint text", "Branch left", "Branch right", "Branch once",
-    "Uhh text", "Bad idea text", "Oops text", "Candy bowl", "Secret text", "Win spawn", "No link up", "No link",
+    "Checkpoint",
+    "Camera stick",
+    "Camera shift left",
+    "Hint text",
+    "Branch left",
+    "Branch right",
+    "Branch once",
+    "Uhh text",
+    "Bad idea text",
+    "Oops text",
+    "Candy bowl",
+    "Secret text",
+    "Win spawn",
+    "No link up",
+    "No link",
 ];
+
 #run assert(ENTITY_LABELS.count == ENTITY_KINDS.count);
 
 setup_themes :: () {

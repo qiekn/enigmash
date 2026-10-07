@@ -1,5 +1,3 @@
-Texture :: Simp.Texture;
-
 // 从资源包里读纹理（name 是包内路径）
 load_texture :: (name : string) -> Texture {
     texture : Texture;
@@ -14,9 +12,3 @@ load_texture :: (name : string) -> Texture {
 
     return texture;
 }
-
-#scope_file
-
-#import "GL";
-
-Simp :: #import "Simp";

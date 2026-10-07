@@ -6,13 +6,39 @@ editor_camera : Camera;
 // 编辑的是 Level.initial（关卡初始状态）。坐标：逻辑格 (x, row)，row 0 在最上；
 // 画布是 y 朝上的世界坐标，换算见 world_to_grid / grid_to_world。
 
-Editor_Tool :: enum s32 { BRUSH; EDGE; WORLD; ENTITY; TUNNEL; PICK; }
+Editor_Tool :: enum s32 {
+    BRUSH;
+    EDGE;
+    WORLD;
+    ENTITY;
+    TUNNEL;
+    PICK;
+}
+
 TOOL_NAMES :: string.["Brush (B)", "Edge (E)", "World (W)", "Entity (N)", "Tunnel (U)", "Pick (I)"];
 
 Brush :: enum s32 { FLOOR; WALL; SUNK; THING; PLAYER; TOGGLE; TOGGLE_PRESSED; }
-BRUSH_NAMES :: string.["1 Floor", "2 Wall", "3 Sunk (filled water)", "4 Thing", "5 Player start", "6 Toggle", "7 Toggle + thing (pressed)"];
 
-WORLD_NAMES :: string.["0 None", "1 Green (push)", "2 Pink (gravity)", "3 Yellow (water)", "4 Gray (ice)", "5 Sand (snake)", "6 Cyan (legs)", "7 Void (ending)"];
+BRUSH_NAMES :: string.[
+    "1 Floor",
+    "2 Wall",
+    "3 Sunk (filled water)",
+    "4 Thing",
+    "5 Player start",
+    "6 Toggle",
+    "7 Toggle + thing (pressed)"
+];
+
+WORLD_NAMES :: string.[
+    "0 None",
+    "1 Green (push)",
+    "2 Pink (gravity)",
+    "3 Yellow (water)",
+    "4 Gray (ice)",
+    "5 Sand (snake)",
+    "6 Cyan (legs)",
+    "7 Void (ending)"
+];
 
 Tunnel_Stage :: enum s32 { END0; PATH; END1; }
 

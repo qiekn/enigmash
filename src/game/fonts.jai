@@ -1,5 +1,5 @@
-basic_font : *Font;
-debug_font : *Font;
+basic_font   : *Font;
+debug_font   : *Font;
 message_font : *Font;
 editor_font  : *Font;
 small_font   : *Font;
@@ -23,24 +23,21 @@ init_fonts :: () {
     assert(small_font != null);
 }
 
-// With defaut font
 draw_text :: (text : string, color := WHITE) {
     draw_text(basic_font, text, color);
 }
 
-// 屏幕正中，水平居中
 draw_text :: (font : *Font, text : string, color := WHITE) {
-    text_y := window_height/2 + font.character_height/4;
+    y := window_height/2 + font.character_height/4;
 
-    draw_text_centered(font, text, text_y, color);
+    draw_text_centered(font, text, y, color);
 }
 
 // 指定 baseline，水平居中
 draw_text_centered :: (font : *Font, text : string, y : int, color := WHITE) {
-    // 测量并复用准备好的文本，避免居中绘制时重复排版。
     text_width := prepare_text(font, text);
 
-    text_x := (window_width - text_width) / 2;
+    x := (window_width - text_width) / 2;
 
-    draw_prepared_text(font, text_x, y, color);
+    draw_prepared_text(font, x, y, color);
 }
