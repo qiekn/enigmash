@@ -18,9 +18,11 @@ SW, SH    : s32;          // 地图宽高
 
 moves : [] Dir;           // 每格每个通道的移动方向，只在一个 tick 内有效
 
-// 为 true 时，非 global 规则只作用于镜头周围 17 格（原版 local_radius）。
-// 正式游戏里是 false（全图执行）；和原版引擎做对照测试时打开。
-emulate_local_radius := false;
+// 原版 local_radius：每个 tick 开始时以逻辑 CAMERA 为中心限制非 global 规则。
+// 右/下边界不包含在内，与 PuzzleScript 的 [pos-radius, pos+radius) 一致。
+// global 规则仍扫描全图；调试/性能对照时可关闭这个开关。
+emulate_local_radius := true;
+sim_ticks_run: u64;
 
 rule_changed := false;    // 当前组这一轮有没有改变东西
 D : Dir;                  // 当前规则方向，由 scan() 设置
@@ -307,6 +309,7 @@ compute_scope :: () {
 
 // 原版 processInput 的一次：input = NONE 表示没有输入的 tick（again / 关卡开始）
 run_tick :: (input: Dir) -> Tick_Result {
+    sim_ticks_run += 1;
     state_copy(*tick_backup, sim.*);
 
     compute_scope();

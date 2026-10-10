@@ -1,5 +1,7 @@
 Font :: Simp.Dynamic_Font;
 
+text_width :: (font: *Font, text: string) -> int { return Simp.prepare_text(font, text); }
+
 load_font :: (name: string, size: int) -> *Font {
     // @Improvement It's a little bit silly.
     for font_cache {

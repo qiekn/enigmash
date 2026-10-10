@@ -23,6 +23,7 @@ CAMERA_PAN_SPEED    :: 20.0;  // 在默认缩放下的平移速度 (Girds/second
 // 跟随用临界阻尼弹簧（带速度）：大约多少秒追上目标。
 // 长按方向键时玩家 MOVE_REPEAT_INTERVAL 走一格，镜头保留速度、匀速跟上，不会每格停一下
 CAMERA_FOLLOW_SMOOTH_TIME :: 0.15;
+CAMERA_FOLLOW_DEAD_ZONE :: 0.70; // 中央 70% 区域内镜头不动，进入边缘 15% 后平滑跟随。
 CAMERA_CLAMP_MARGIN :: 8.0;   // 允许摄像机看出地图外多少格
 
 VIEW_TILES :: 13.0;           // 游戏默认视野：屏幕高度铺满 13 格（原版 zoomscreen 13x13）

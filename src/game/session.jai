@@ -27,6 +27,7 @@ Session :: struct {
 
     headless    : bool;             // 回放 / 测试：不放音效、不存档
     no_save     : bool;             // 编辑器试玩：不存档
+    no_undo     : bool;             // TAS 用可逆回合缓存撤销
 
     jumps       : int;              // 状态跳变计数（新游戏 / 读档 / 撤销 / 重开），渲染层据此跳过过渡动画
 }
@@ -99,13 +100,13 @@ run_start_tick :: (s: *Session) {
 
 // ----------------------------------------------------------------------------: 输入
 
-session_input :: (s: *Session, dir: Dir) {
-    if s.won || s.message  return;
-    if s.againing          return;   // 原版：again 期间的输入直接丢掉
+session_input :: (s: *Session, dir: Dir) -> bool {
+    if s.won || s.message  return false;
+    if s.againing          return false;   // 原版：again 期间的输入直接丢掉
 
     session_bind(s);
     res := run_tick(dir);
-    if res.cancelled  return;
+    if res.cancelled  return false;
 
     if res.modified {
         push_undo(s, tick_backup);
@@ -116,6 +117,7 @@ session_input :: (s: *Session, dir: Dir) {
     if !s.headless && !s.no_save && s.inputs_since_save >= 20 {
         session_save(s);
     }
+    return res.modified || res.commands != 0;
 }
 
 session_update :: (s: *Session, dt_ms: float) {
@@ -182,6 +184,7 @@ session_dismiss_message :: (s: *Session) {
 // ----------------------------------------------------------------------------: 撤销 / 重开
 
 push_undo :: (s: *Session, backup: Game_State) {
+    if s.no_undo return;
     if s.undo_count > 0 {
         // 记下「从新备份回到旧备份」需要恢复的格子
         diff: Undo_Diff;

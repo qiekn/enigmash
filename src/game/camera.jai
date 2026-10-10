@@ -12,6 +12,7 @@ make_game_camera :: () -> Camera {
     camera.zoom_step = CAMERA_ZOOM_STEP;
     camera.clamp_margin = CAMERA_CLAMP_MARGIN;
     camera.smooth_time = CAMERA_FOLLOW_SMOOTH_TIME;
+    camera.follow_dead_zone = CAMERA_FOLLOW_DEAD_ZONE;
     return camera;
 }
 
@@ -23,8 +24,7 @@ camera_view_zoom :: (camera: *Camera) -> float {
 camera_reset :: (camera: *Camera) {
     camera.zoom = camera_view_zoom(camera);
     camera.mode = .FOLLOW;
-    camera.pos  = camera.target;
-    camera.vel  = .{};
+    camera_snap(camera);
 }
 
 camera_pan :: (camera: *Camera, dt: float) -> moved: bool {
@@ -58,6 +58,8 @@ handle_camera_key :: (camera: *Camera, key: Key_Code, pressed: u32) -> handled: 
         case .TAB;
             if camera.mode == .FOLLOW  camera.mode = .FREE;
             else                              camera.mode = .FOLLOW;
+            camera.vel = .{};
+            camera.gliding = false;
             return true;
 
         case #char "0";
@@ -84,6 +86,27 @@ handle_camera_key :: (camera: *Camera, key: Key_Code, pressed: u32) -> handled: 
     return false;
 }
 
+handle_game_camera_event :: (event: Event) -> bool {
+    if event.type != .KEYBOARD return false;
+    // Ignore OS key repeats so holding Tab cannot toggle follow on and off.
+    if event.repeat && (event.key_code == .TAB || event.key_code == #char "0" || event.key_code == #char "F") return true;
+    if handle_camera_key(*game_camera, event.key_code, event.key_pressed) return true;
+
+    // During playback Space only moves the camera. In manual play messages and
+    // the ending retain their action key, and TAS recording retains its X input.
+    if event.key_code != .SPACEBAR return false;
+    if !do_active && (play_session.message || play_session.won) return false;
+    if tas_active && tas.recording && game_camera.mode == .FOLLOW return false;
+    if event.key_pressed && !event.repeat {
+        p, ok := session_player_cell(play_session);
+        if ok {
+            w := grid_to_world(*play_session.level, p);
+            camera_glide_to(*game_camera, .{w.x + 0.5, w.y + 0.5});
+        }
+    }
+    return true;
+}
+
 handle_camera_wheel :: (camera: *Camera, event: Event, always_anchor_mouse := false) {
     if event.typical_wheel_delta == 0  return;
 
@@ -92,7 +115,7 @@ handle_camera_wheel :: (camera: *Camera, event: Event, always_anchor_mouse := fa
 
     anchor := camera.viewport * 0.5;
 
-    // FOLLOW 模式摄像机锁在目标上，挪不动，只能以屏幕中心为锚点
+    // 跟随时以屏幕中心缩放，自由模式以鼠标位置缩放。
     if camera.mode == .FREE || always_anchor_mouse {
         mx, my, ok := get_mouse_pointer_position(the_window, true);
         if ok  anchor = .{cast(float) mx, cast(float) my};

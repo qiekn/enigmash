@@ -38,6 +38,16 @@ classify :: (key: Key_Code) -> Game_Key {
 }
 
 eat_game_key :: (key: Key_Code) {
+    if tas_active {
+        if classify(key) == {
+            case .UP;    tas_game_action(#char "W");
+            case .DOWN;  tas_game_action(#char "S");
+            case .LEFT;  tas_game_action(#char "A");
+            case .RIGHT; tas_game_action(#char "D");
+            case .UNDO;  tas_seek(*tas, tas.playhead - 1);
+        }
+        return;
+    }
     if classify(key) == {
         case .UP;    session_input(play_session, .UP);
         case .DOWN;  session_input(play_session, .DOWN);
@@ -55,6 +65,19 @@ is_action_key :: (key: Key_Code) -> bool {
 
 handle_player_input :: (key: Key_Code, pressed: u32) {
     s := play_session;
+
+    if tas_active {
+        // Release is handled even when a turn opened a message or won the game.
+        if !pressed && key_is_held && held_key == key { release_player_keys(); return; }
+        if !tas.recording return;
+        if pressed && is_action_key(key) { tas_game_action(#char "X"); return; }
+        if pressed && key == #char "R" { tas_game_action(#char "R"); return; }
+        if classify(key) == .UNDO {
+            if pressed { tas_seek(*tas, tas.playhead - 1); release_player_keys(); }
+            return;
+        }
+        if s.message || s.won return;
+    }
 
     // 通关画面：回车回菜单
     if s.won {

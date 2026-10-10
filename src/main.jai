@@ -22,7 +22,11 @@ game_should_quit := false;
 
 // ----------------------------------------------------------------------------: entry
 
-main :: () {
+#if !#exists(TAS_TEST_MAIN) {
+    main :: () { run_application(); }
+}
+
+run_application :: () {
     last_time := current_time_monotonic();
     current_time : Apollo_Time;
 
@@ -40,13 +44,26 @@ main :: () {
         handle_window_resizes();
         handle_input();
 
+        if !input_application_has_focus {
+            release_player_keys();
+            if do_active do_stop();
+            if tas_active { tas_pause(*tas); tas.recording = false; tas_dragging = false; }
+        }
+
         if program_mode == .GAME {
-            update_player_input_event(delta_time);
-            session_update(play_session, cast(float) delta_time);
+            if !terminal.open && input_application_has_focus {
+                if tas_active tas_update_pointer();
+                if do_active do_update(cast(float) delta_time);
+                else {
+                    update_player_input_event(delta_time);
+                    if tas_active tas_update(*tas, cast(float) delta_time);
+                    else session_update(play_session, cast(float) delta_time);
+                }
+            }
             wave_fx_update(play_session, cast(float) delta_time);
             update_game_camera_target();
-            update_camera_controls(*game_camera, dt_seconds);
-        } else if program_mode == .EDITOR {
+            update_camera_controls(*game_camera, dt_seconds, !terminal.open && !tas_active);
+        } else if program_mode == .EDITOR && !terminal.open {
             editor_update(dt_seconds);
         }
 
@@ -64,6 +81,9 @@ main :: () {
                 draw_version();
         }
 
+        draw_tas_panel();
+        draw_terminal();
+        flush_graphics();
         present_graphics(the_window);
         reset_temporary_storage();
     }
@@ -89,6 +109,7 @@ init_game :: () {
 
     init_fonts();
     init_menu_fonts();
+    terminal_init_font();
 
     init_audio();
     init_sounds();
@@ -126,6 +147,10 @@ handle_input :: () {
     for events_this_frame {
         if it.type == .QUIT  game_should_quit = true;
 
+        if do_handle_event(it) continue;
+        if terminal_handle_event(it) continue;
+        if tas_handle_event(it) continue;
+
         if program_mode == .EDITOR {
             getrect_handle_event(it);
         }
@@ -160,20 +185,8 @@ handle_input :: () {
                     continue;
                 }
 
-                // 摄像机先挑走它关心的键（Tab / 0 / F / FREE 模式下的方向键）
-                if handle_camera_key(*game_camera, it.key_code, it.key_pressed)  continue;
-
-                // FREE 模式下空格把镜头挪到玩家身上（消息框 / 通关画面时空格照旧交给玩家）
-                if it.key_code == .SPACEBAR && game_camera.mode == .FREE && !play_session.message && !play_session.won {
-                    if it.key_pressed {
-                        p, ok := session_player_cell(play_session);
-                        if ok {
-                            w := grid_to_world(*play_session.level, p);
-                            camera_glide_to(*game_camera, .{w.x + 0.5, w.y + 0.5});
-                        }
-                    }
-                    continue;
-                }
+                // 普通游戏与 do 播放共用相机按键，Space 定位在两种镜头模式下都可用。
+                if handle_game_camera_event(it) continue;
 
                 handle_player_input(it.key_code, it.key_pressed);
         }
@@ -229,3 +242,10 @@ using Simp :: #import "Simp";
 
 #load "editor/editor.jai";
 #load "editor/editor_ui.jai";
+
+#load "tas/timeline.jai";
+#load "tas/storage.jai";
+#load "tas/editor.jai";
+#load "tas/playback.jai";
+#load "terminal/terminal.jai";
+#load "terminal/view.jai";

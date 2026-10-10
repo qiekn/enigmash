@@ -17,6 +17,7 @@ Camera :: struct {
     zoom_step := 1.15;
     clamp_margin: float;
     smooth_time := 0.15;
+    follow_dead_zone := 0.0; // Fraction of the viewport where the target can move freely.
 }
 
 camera_tile_px :: (camera: *Camera) -> float {
@@ -61,18 +62,26 @@ camera_clamp :: (camera: *Camera) {
 }
 
 camera_update :: (camera: *Camera, dt: float) {
-    if camera.mode == .FOLLOW {
-        camera.gliding = false;
-        camera.pos = smooth_damp(camera.pos, camera.target, *camera.vel, camera.smooth_time, dt);
-    } else {
-        if camera.gliding {
-            camera.pos = smooth_damp(camera.pos, camera.glide_goal, *camera.vel, camera.smooth_time, dt);
-            d := camera.pos - camera.glide_goal;
-            if d.x*d.x + d.y*d.y < 0.0001 {
-                camera.pos = camera.glide_goal;
-                camera.gliding = false;
-            }
+    if camera.gliding {
+        camera.pos = smooth_damp(camera.pos, camera.glide_goal, *camera.vel, camera.smooth_time, dt);
+        d := camera.pos - camera.glide_goal;
+        if d.x*d.x + d.y*d.y < 0.0001 {
+            camera.pos = camera.glide_goal;
+            camera.vel = .{};
+            camera.gliding = false;
         }
+    } else if camera.mode == .FOLLOW {
+        half := camera.viewport * (0.5 * clamp(camera.follow_dead_zone, 0.0, 1.0) / camera_tile_px(camera));
+        goal := Vector2.{
+            clamp(camera.pos.x, camera.target.x - half.x, camera.target.x + half.x),
+            clamp(camera.pos.y, camera.target.y - half.y, camera.target.y + half.y),
+        };
+        next := smooth_damp(camera.pos, goal, *camera.vel, camera.smooth_time, dt);
+        // Stop each axis at the dead-zone edge; old velocity must not cause drift inside it.
+        camera.pos.x = clamp(next.x, min(camera.pos.x, goal.x), max(camera.pos.x, goal.x));
+        camera.pos.y = clamp(next.y, min(camera.pos.y, goal.y), max(camera.pos.y, goal.y));
+        if abs(camera.pos.x - goal.x) < 0.001 { camera.pos.x = goal.x; camera.vel.x = 0; }
+        if abs(camera.pos.y - goal.y) < 0.001 { camera.pos.y = goal.y; camera.vel.y = 0; }
     }
 
     camera_clamp(camera);
@@ -99,6 +108,7 @@ smooth_damp :: (current: Vector2, target: Vector2, vel: *Vector2, smooth_time: f
 camera_snap :: (camera: *Camera) {
     camera.pos = camera.target;
     camera.vel = .{};
+    camera.gliding = false;
     camera_clamp(camera);
 }
 
@@ -125,6 +135,8 @@ camera_fit_map :: (camera: *Camera) {
     camera.zoom = clamp(min(zx, zy), camera.min_zoom, camera.max_zoom);
     camera.pos  = .{camera.bounds.x * 0.5, camera.bounds.y * 0.5};
     camera.mode = .FREE;
+    camera.vel = .{};
+    camera.gliding = false;
 }
 
 camera_drag :: (camera: *Camera, delta: Vector2) {

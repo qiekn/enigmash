@@ -1,0 +1,9 @@
+Meslo LG Mono Nerd Font Regular
+
+Copied from the user's ootss-cmd project for the in-game terminal and TAS editor.
+Upstream: https://github.com/andreberg/Meslo-Font
+Nerd Font icons: https://github.com/ryanoasis/nerd-fonts
+
+Copyright notice embedded in the supplied font:
+Copyright © 2009 Apple Inc. Copyright © 2006 by Tavmjong Bah.
+Copyright © 2003 by Bitstream, Inc. All Rights Reserved.
